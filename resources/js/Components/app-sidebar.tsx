@@ -17,7 +17,7 @@ import {
     UsersIcon,
     UsersRound,
 } from "lucide-react";
-
+import ApplicationLogo from "@/Components/ApplicationLogo";
 import { NavDocuments } from "@/Components/nav-documents"
 import { NavMain } from "@/Components/nav-main"
 import { NavSecondary } from "@/Components/nav-secondary"
@@ -160,8 +160,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <ApplicationLogo className="h-6 w-6 text-foreground" />
+
+                <span className="text-base font-semibold">IBP ACADEMY ADMIN</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -23,7 +23,7 @@ export function SiteHeader({ className }: { className?: string }) {
 
                 <div className="flex items-center gap-2">
                     <ApplicationLogo className="h-6 w-6 text-foreground" />
-                    <h1 className="text-base font-medium tracking-tight">
+                    <h1 className="text-foreground font-medium tracking-tight">
                         IBP ACADEMY
                     </h1>
                 </div>
