@@ -1,22 +1,30 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import { PageProps } from '@/types';
+import { AppSidebar } from "@/Components/app-sidebar"
+import { ChartAreaInteractive } from "@/Components/chart-area-interactive"
+import { DataTable } from "@/Components/data-table"
+import { SectionCards } from "@/Components/section-cards"
+import { SiteHeader } from "@/Components/site-header"
+import { SidebarInset, SidebarProvider } from "@/Components/ui/sidebar"
 
-export default function Dashboard({ auth }: PageProps) {
-    return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>}
-        >
-            <Head title="Dashboard" />
+import data from "./data.json"
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">You're logged in!</div>
-                    </div>
-                </div>
+export default function Page() {
+  return (
+    <SidebarProvider>
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <SectionCards />
+              <div className="px-4 lg:px-6">
+                <ChartAreaInteractive />
+              </div>
+              <DataTable data={data} />
             </div>
-        </AuthenticatedLayout>
-    );
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }
