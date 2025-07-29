@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TeamRegistrationController;
+use App\Models\TeamRegistration;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,9 +27,23 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return Inertia::render('admin/dashboard');
+    })->name('dashboard');
+
+
+    Route::prefix('dashboard/team')->group(function () {
+        Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
+
+        // Route::get('/create', [TeamController::class, 'create'])->name('team.create');
+        // Route::post('/', [TeamController::class, 'store'])->name('team.store');
+        // Route::get('/{team}/edit', [TeamController::class, 'edit'])->name('team.edit');
+        // Route::put('/{team}', [TeamController::class, 'update'])->name('team.update');
+        // Route::delete('/{team}', [TeamController::class, 'destroy'])->name('team.destroy');
+    });
+});
 
 Route::get('/admin', function () {
     return Inertia::render('Admin');
