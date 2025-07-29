@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TeamRegistrationController extends Controller
 {
@@ -34,5 +35,10 @@ class TeamRegistrationController extends Controller
         TeamRegistrationController::create($validated);
 
         return redirect()->route('registration.success');
+    }
+
+    public function index()
+    {
+      return Inertia::render('admin/team-management');
     }
 }
