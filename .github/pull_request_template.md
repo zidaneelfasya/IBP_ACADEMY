@@ -21,16 +21,6 @@
 - [ ] PR ini mengarah ke branch yang benar (misal: `main`, `develop`)
 - [ ] Dokumentasi telah diperbarui (jika perlu)
 
-## 🔍 Cara Uji Coba
-<!-- Berikan instruksi untuk mereproduksi dan menguji perubahan -->
-1. Jalankan `...`
-2. Akses endpoint `...`
-3. Pastikan hasilnya `...`
-
-## 🎯 Issue Terkait
-<!-- Cantumkan jika PR ini berkaitan dengan issue tertentu -->
-Fixes #123  
-Refs #456  
 
 ## 📸 Screenshot (Opsional)
 <!-- Tambahkan screenshot jika perubahan berhubungan dengan UI -->
