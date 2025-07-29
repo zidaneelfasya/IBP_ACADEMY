@@ -1,22 +1,23 @@
 import * as React from "react"
 import {
-  ArrowUpCircleIcon,
-  BarChartIcon,
-  CameraIcon,
-  ClipboardListIcon,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  HelpCircleIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  SearchIcon,
-  SettingsIcon,
-  UsersIcon,
-} from "lucide-react"
-
+    ArrowUpCircleIcon,
+    BarChartIcon,
+    CameraIcon,
+    ClipboardListIcon,
+    DatabaseIcon,
+    FileCodeIcon,
+    FileIcon,
+    FileTextIcon,
+    FolderIcon,
+    HelpCircleIcon,
+    LayoutDashboardIcon,
+    ListIcon,
+    SearchIcon,
+    SettingsIcon,
+    UsersIcon,
+    UsersRound,
+} from "lucide-react";
+import ApplicationLogo from "@/Components/ApplicationLogo";
 import { NavDocuments } from "@/Components/nav-documents"
 import { NavMain } from "@/Components/nav-main"
 import { NavSecondary } from "@/Components/nav-secondary"
@@ -32,121 +33,121 @@ import {
 } from "@/Components/ui/sidebar"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "#",
-      icon: LayoutDashboardIcon,
+    user: {
+        name: "shadcn",
+        email: "m@example.com",
+        avatar: "/avatars/shadcn.jpg",
     },
-    {
-      title: "Lifecycle",
-      url: "#",
-      icon: ListIcon,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: BarChartIcon,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: FolderIcon,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: UsersIcon,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
+    navMain: [
         {
-          title: "Active Proposals",
-          url: "#",
+            title: "Dashboard",
+            url: "/dashboard",
+            icon: LayoutDashboardIcon,
         },
         {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
+            title: "Teams Registered",
+            url: "/dashboard/team/",
+            icon: UsersRound,
         },
         {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
+            title: "Analytics",
+            url: "#",
+            icon: BarChartIcon,
         },
         {
-          title: "Archived",
-          url: "#",
+            title: "Projects",
+            url: "#",
+            icon: FolderIcon,
         },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: SettingsIcon,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: ClipboardListIcon,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: FileIcon,
-    },
-  ],
-}
+        {
+            title: "Team",
+            url: "#",
+            icon: UsersIcon,
+        },
+    ],
+    navClouds: [
+        {
+            title: "Capture",
+            icon: CameraIcon,
+            isActive: true,
+            url: "#",
+            items: [
+                {
+                    title: "Active Proposals",
+                    url: "#",
+                },
+                {
+                    title: "Archived",
+                    url: "#",
+                },
+            ],
+        },
+        {
+            title: "Proposal",
+            icon: FileTextIcon,
+            url: "#",
+            items: [
+                {
+                    title: "Active Proposals",
+                    url: "#",
+                },
+                {
+                    title: "Archived",
+                    url: "#",
+                },
+            ],
+        },
+        {
+            title: "Prompts",
+            icon: FileCodeIcon,
+            url: "#",
+            items: [
+                {
+                    title: "Active Proposals",
+                    url: "#",
+                },
+                {
+                    title: "Archived",
+                    url: "#",
+                },
+            ],
+        },
+    ],
+    navSecondary: [
+        {
+            title: "Settings",
+            url: "#",
+            icon: SettingsIcon,
+        },
+        {
+            title: "Get Help",
+            url: "#",
+            icon: HelpCircleIcon,
+        },
+        {
+            title: "Search",
+            url: "#",
+            icon: SearchIcon,
+        },
+    ],
+    documents: [
+        {
+            name: "Data Library",
+            url: "#",
+            icon: DatabaseIcon,
+        },
+        {
+            name: "Reports",
+            url: "#",
+            icon: ClipboardListIcon,
+        },
+        {
+            name: "Word Assistant",
+            url: "#",
+            icon: FileIcon,
+        },
+    ],
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -159,8 +160,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <ApplicationLogo className="h-6 w-6 text-foreground" />
+
+                <span className="text-base font-semibold">IBP ACADEMY ADMIN</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
