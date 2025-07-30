@@ -14,7 +14,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return (
         <SidebarProvider>
             <div className="flex min-h-screen w-full">
-                {/* Sidebar: off-canvas di mobile, statis di desktop */}
+                
                 <div className={isMobile ? "fixed inset-0 z-40" : "relative"}>
                     <AppSidebar variant="inset" />
                 </div>
