@@ -36,6 +36,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('dashboard/team')->group(function () {
         Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
+        Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
+            ->name('export.team-registrations');
 
         // Route::get('/create', [TeamController::class, 'create'])->name('team.create');
         // Route::post('/', [TeamController::class, 'store'])->name('team.store');

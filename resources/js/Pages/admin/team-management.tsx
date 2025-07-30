@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
@@ -50,93 +50,48 @@ import {
     Download,
     Users,
     FileText,
-    ImageIcon,
-    Instagram,
     Mail,
     Calendar,
     Filter,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
+import { router, Link } from "@inertiajs/react";
 
-// Mock data based on your migration schema
 interface TeamRegistration {
     id: number;
     leader_name: string;
     leader_nim: string;
-    member1_name?: string;
-    member1_nim?: string;
-    member2_name?: string;
-    member2_nim?: string;
-    member3_name?: string;
-    member3_nim?: string;
-    ktm_scan_link: string;
-    formal_photo_link: string;
-    twibbon_link: string;
-    ig_account_link: string;
+    member1_name: string | null;
+    member1_nim: string | null;
+    member2_name: string | null;
+    member2_nim: string | null;
+    member3_name: string | null;
+    member3_nim: string | null;
+    link_berkas: string;
     email: string;
-    ppt_link?: string;
-    image_link?: string;
+    link_tugas: string | null;
     created_at: string;
     updated_at: string;
     status?: "pending" | "approved" | "rejected";
 }
 
-// Mock data
-const mockTeams: TeamRegistration[] = [
-    {
-        id: 1,
-        leader_name: "Ahmad Rizki",
-        leader_nim: "2021001",
-        member1_name: "Siti Nurhaliza",
-        member1_nim: "2021002",
-        member2_name: "Budi Santoso",
-        member2_nim: "2021003",
-        member3_name: "Dewi Sartika",
-        member3_nim: "2021004",
-        ktm_scan_link: "https://example.com/ktm1.pdf",
-        formal_photo_link: "https://example.com/photo1.jpg",
-        twibbon_link: "https://example.com/twibbon1.jpg",
-        ig_account_link: "https://instagram.com/team1",
-        email: "team1@example.com",
-        ppt_link: "https://example.com/presentation1.pptx",
-        image_link: "https://example.com/image1.jpg",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z",
-        status: "approved",
-    },
-    {
-        id: 2,
-        leader_name: "Maria Gonzalez",
-        leader_nim: "2021005",
-        member1_name: "John Doe",
-        member1_nim: "2021006",
-        member2_name: "Jane Smith",
-        member2_nim: "2021007",
-        ktm_scan_link: "https://example.com/ktm2.pdf",
-        formal_photo_link: "https://example.com/photo2.jpg",
-        twibbon_link: "https://example.com/twibbon2.jpg",
-        ig_account_link: "https://instagram.com/team2",
-        email: "team2@example.com",
-        created_at: "2024-01-16T14:20:00Z",
-        updated_at: "2024-01-16T14:20:00Z",
-        status: "pending",
-    },
-    {
-        id: 3,
-        leader_name: "Ravi Patel",
-        leader_nim: "2021008",
-        member1_name: "Lisa Wong",
-        member1_nim: "2021009",
-        ktm_scan_link: "https://example.com/ktm3.pdf",
-        formal_photo_link: "https://example.com/photo3.jpg",
-        twibbon_link: "https://example.com/twibbon3.jpg",
-        ig_account_link: "https://instagram.com/team3",
-        email: "team3@example.com",
-        ppt_link: "https://example.com/presentation3.pptx",
-        created_at: "2024-01-17T09:15:00Z",
-        updated_at: "2024-01-17T09:15:00Z",
-        status: "rejected",
-    },
-];
+interface TeamManagementProps {
+    teams: {
+        data: TeamRegistration[];
+        links: Array<{ url: string | null; label: string; active: boolean }>;
+    };
+    filters: {
+        search: string;
+        status: string;
+    };
+    stats: {
+        total: number;
+        approved: number;
+        pending: number;
+        rejected: number;
+    };
+}
 
 const getStatusBadge = (
     status: string
@@ -171,187 +126,189 @@ const formatDate = (dateString: string): string => {
     });
 };
 
-export default function TeamManagement() {
-    const [teams] = useState<TeamRegistration[]>(mockTeams);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState<string>("all");
+export default function TeamManagement({
+    teams: initialTeams,
+    filters: initialFilters,
+    stats,
+}: TeamManagementProps) {
     const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(
         null
     );
+    const [filters, setFilters] = useState({
+        search: initialFilters.search || "",
+        status: initialFilters.status || "all",
+    });
 
-    const filteredTeams = useMemo(() => {
-        return teams.filter((team) => {
-            const matchesSearch =
-                team.leader_name
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
-                team.leader_nim.includes(searchTerm) ||
-                team.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                team.member1_name
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
-                team.member2_name
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
-                team.member3_name
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase());
-
-            const matchesStatus =
-                statusFilter === "all" || team.status === statusFilter;
-
-            return matchesSearch && matchesStatus;
-        });
-    }, [teams, searchTerm, statusFilter]);
-
-    const stats = useMemo(() => {
-        const total = teams.length;
-        const approved = teams.filter((t) => t.status === "approved").length;
-        const pending = teams.filter((t) => t.status === "pending").length;
-        const rejected = teams.filter((t) => t.status === "rejected").length;
-
-        return { total, approved, pending, rejected };
-    }, [teams]);
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters((prev) => ({ ...prev, [key]: value }));
+        router.get(
+            route("team.index"),
+            {
+                ...filters,
+                [key]: value,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    };
 
     const handleViewTeam = (team: TeamRegistration) => {
         setSelectedTeam(team);
     };
 
     const handleStatusChange = (teamId: number, newStatus: string) => {
-        // In real app, this would make an API call
-        console.log(`Changing team ${teamId} status to ${newStatus}`);
+        router.patch(
+            route("team.update-status", teamId),
+            { status: newStatus },
+            { onSuccess: () => setSelectedTeam(null) }
+        );
+    };
+
+    const handleDeleteTeam = (teamId: number) => {
+        router.delete(route("team.destroy", teamId));
     };
 
     const handleExport = () => {
-        // In real app, this would export data
-        console.log("Exporting team data...");
+        router.get(route("export.team-registrations"));
     };
 
     return (
         <AdminLayout>
-            <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">
+            <div className="space-y-4 p-2 sm:p-4 md:p-6">
+                {/* Header - Stack on mobile */}
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                             Team Management
                         </h1>
-                        <p className="text-muted-foreground">
+                        <p className="text-sm text-muted-foreground sm:text-base">
                             Kelola pendaftaran tim dan lihat detail informasi
                             peserta
                         </p>
                     </div>
-                    <div className="flex gap-2">
-                        <Button onClick={handleExport} variant="outline">
+                    <div className="flex justify-end">
+                        <Button
+                            onClick={handleExport}
+                            variant="outline"
+                            size="sm"
+                            className="w-full sm:w-auto"
+                        >
                             <Download className="mr-2 h-4 w-4" />
-                            Export Data
+                            <span className="hidden sm:inline">
+                                Export Data
+                            </span>
+                            <span className="sm:hidden">Export</span>
                         </Button>
                     </div>
                 </div>
 
-                {/* Stats Cards */}
-                <div className="grid gap-4 md:grid-cols-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Total Teams
-                            </CardTitle>
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
-                                {stats.total}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                Tim terdaftar
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Approved
-                            </CardTitle>
-                            <Badge variant="default" className="h-4 w-4 p-0" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-green-600">
-                                {stats.approved}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                Tim disetujui
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Pending
-                            </CardTitle>
-                            <Badge
-                                variant="secondary"
-                                className="h-4 w-4 p-0"
-                            />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-yellow-600">
-                                {stats.pending}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                Menunggu review
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Rejected
-                            </CardTitle>
-                            <Badge
-                                variant="destructive"
-                                className="h-4 w-4 p-0"
-                            />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-red-600">
-                                {stats.rejected}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                Tim ditolak
-                            </p>
-                        </CardContent>
-                    </Card>
+                {/* Stats Cards - 1 column on mobile */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                        {
+                            title: "Total Teams",
+                            value: stats.total,
+                            icon: Users,
+                            description: "Tim terdaftar",
+                        },
+                        {
+                            title: "Approved",
+                            value: stats.approved,
+                            icon: null,
+                            description: "Tim disetujui",
+                            variant: "default",
+                            color: "text-green-600",
+                        },
+                        {
+                            title: "Pending",
+                            value: stats.pending,
+                            icon: null,
+                            description: "Menunggu review",
+                            variant: "secondary",
+                            color: "text-yellow-600",
+                        },
+                        {
+                            title: "Rejected",
+                            value: stats.rejected,
+                            icon: null,
+                            description: "Tim ditolak",
+                            variant: "destructive",
+                            color: "text-red-600",
+                        },
+                    ].map((stat, index) => (
+                        <Card
+                            key={index}
+                            className="hover:shadow-md transition-shadow"
+                        >
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">
+                                    {stat.title}
+                                </CardTitle>
+                                {stat.icon ? (
+                                    <stat.icon className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                    <Badge
+                                        variant={
+                                            stat.variant as BadgeProps["variant"]
+                                        }
+                                        className="h-4 w-4 p-0"
+                                    />
+                                )}
+                            </CardHeader>
+                            <CardContent>
+                                <div
+                                    className={`text-xl font-bold sm:text-2xl ${
+                                        stat.color || ""
+                                    }`}
+                                >
+                                    {stat.value}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    {stat.description}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
 
-                {/* Filters */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Filter & Search</CardTitle>
-                        <CardDescription>
+                {/* Filters - Stack on mobile */}
+                <Card className="shadow-sm">
+                    <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="text-lg sm:text-xl">
+                            Filter & Search
+                        </CardTitle>
+                        <CardDescription className="text-sm">
                             Cari dan filter data tim berdasarkan kriteria
                             tertentu
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-col gap-4 md:flex-row">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                             <div className="flex-1">
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Cari nama leader, NIM, atau email..."
-                                        value={searchTerm}
+                                        value={filters.search}
                                         onChange={(e) =>
-                                            setSearchTerm(e.target.value)
+                                            handleFilterChange(
+                                                "search",
+                                                e.target.value
+                                            )
                                         }
-                                        className="pl-8"
+                                        className="pl-10 text-sm sm:text-base"
                                     />
                                 </div>
                             </div>
                             <Select
-                                value={statusFilter}
-                                onValueChange={setStatusFilter}
+                                value={filters.status}
+                                onValueChange={(value) =>
+                                    handleFilterChange("status", value)
+                                }
                             >
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="w-full sm:w-[180px]">
                                     <Filter className="mr-2 h-4 w-4" />
                                     <SelectValue placeholder="Filter Status" />
                                 </SelectTrigger>
@@ -374,34 +331,46 @@ export default function TeamManagement() {
                     </CardContent>
                 </Card>
 
-                {/* Teams Table */}
+                {/* Teams Table - Horizontal scroll on mobile */}
                 <Card>
-                    <CardHeader>
-                        <CardTitle>
-                            Daftar Tim ({filteredTeams.length})
+                    <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="text-lg sm:text-xl">
+                            Daftar Tim ({initialTeams.data.length})
                         </CardTitle>
-                        <CardDescription>
+                        <CardDescription className="text-sm">
                             Daftar lengkap tim yang telah mendaftar
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="rounded-md border">
-                            <Table>
+                    <CardContent className="p-0 sm:p-0">
+                        <div className="rounded-md border overflow-x-auto">
+                            <Table className="min-w-[800px] sm:min-w-full">
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Team Leader</TableHead>
-                                        <TableHead>Members</TableHead>
-                                        <TableHead>Contact</TableHead>
-                                        <TableHead>Files</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Registered</TableHead>
-                                        <TableHead className="text-right">
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Leader
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Members
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Contact
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Files
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Status
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Registered
+                                        </TableHead>
+                                        <TableHead className="text-right whitespace-nowrap px-3 py-3 sm:px-6">
                                             Actions
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredTeams.map((team) => {
+                                    {initialTeams.data.map((team) => {
                                         const statusBadge = getStatusBadge(
                                             team.status || "pending"
                                         );
@@ -410,9 +379,9 @@ export default function TeamManagement() {
 
                                         return (
                                             <TableRow key={team.id}>
-                                                <TableCell>
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="space-y-1">
-                                                        <div className="font-medium">
+                                                        <div className="font-medium line-clamp-1">
                                                             {team.leader_name}
                                                         </div>
                                                         <div className="text-sm text-muted-foreground">
@@ -421,7 +390,7 @@ export default function TeamManagement() {
                                                         </div>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="flex items-center gap-2">
                                                         <Users className="h-4 w-4 text-muted-foreground" />
                                                         <span className="text-sm">
@@ -429,45 +398,36 @@ export default function TeamManagement() {
                                                         </span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="space-y-1">
-                                                        <div className="flex items-center gap-1 text-sm">
-                                                            <Mail className="h-3 w-3" />
-                                                            {team.email}
-                                                        </div>
-                                                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                                            <Instagram className="h-3 w-3" />
-                                                            Instagram
+                                                        <div className="flex items-center gap-1 text-sm line-clamp-1">
+                                                            <Mail className="h-3 w-3 flex-shrink-0" />
+                                                            <span className="truncate">
+                                                                {team.email}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <div className="flex gap-1">
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
+                                                    <div className="flex gap-1 flex-wrap">
                                                         <Badge
                                                             variant="outline"
                                                             className="text-xs"
                                                         >
                                                             <FileText className="mr-1 h-3 w-3" />
-                                                            KTM
+                                                            Berkas
                                                         </Badge>
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-xs"
-                                                        >
-                                                            <ImageIcon className="mr-1 h-3 w-3" />
-                                                            Photo
-                                                        </Badge>
-                                                        {team.ppt_link && (
+                                                        {team.link_tugas && (
                                                             <Badge
                                                                 variant="outline"
                                                                 className="text-xs"
                                                             >
-                                                                PPT
+                                                                Tugas
                                                             </Badge>
                                                         )}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <Badge
                                                         variant={
                                                             statusBadge.variant
@@ -476,7 +436,7 @@ export default function TeamManagement() {
                                                         {statusBadge.label}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                         <Calendar className="h-3 w-3" />
                                                         {formatDate(
@@ -484,7 +444,7 @@ export default function TeamManagement() {
                                                         )}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-right">
+                                                <TableCell className="text-right whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger
                                                             asChild
@@ -492,14 +452,15 @@ export default function TeamManagement() {
                                                             <Button
                                                                 variant="ghost"
                                                                 className="h-8 w-8 p-0"
+                                                                aria-label="Open menu"
                                                             >
-                                                                <span className="sr-only">
-                                                                    Open menu
-                                                                </span>
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
+                                                        <DropdownMenuContent
+                                                            align="end"
+                                                            className="w-40"
+                                                        >
                                                             <DropdownMenuLabel>
                                                                 Actions
                                                             </DropdownMenuLabel>
@@ -511,7 +472,7 @@ export default function TeamManagement() {
                                                                 }
                                                             >
                                                                 <Eye className="mr-2 h-4 w-4" />
-                                                                View Details
+                                                                View
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
@@ -523,7 +484,7 @@ export default function TeamManagement() {
                                                                 }
                                                                 className="text-green-600"
                                                             >
-                                                                Approve Team
+                                                                Approve
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
                                                                 onClick={() =>
@@ -534,10 +495,17 @@ export default function TeamManagement() {
                                                                 }
                                                                 className="text-red-600"
                                                             >
-                                                                Reject Team
+                                                                Reject
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
-                                                            <DropdownMenuItem className="text-red-600">
+                                                            <DropdownMenuItem
+                                                                className="text-red-600"
+                                                                onClick={() =>
+                                                                    handleDeleteTeam(
+                                                                        team.id
+                                                                    )
+                                                                }
+                                                            >
                                                                 <Trash2 className="mr-2 h-4 w-4" />
                                                                 Delete
                                                             </DropdownMenuItem>
@@ -550,37 +518,97 @@ export default function TeamManagement() {
                                 </TableBody>
                             </Table>
                         </div>
+
+                        {/* Pagination - Simplified on mobile */}
+                        {initialTeams.links.length > 3 && (
+                            <div className="flex flex-col items-center gap-3 mt-4 px-4 py-3 sm:flex-row sm:justify-between">
+                                <div className="text-sm text-muted-foreground">
+                                    Menampilkan {initialTeams.data.length} dari{" "}
+                                    {stats.total} tim
+                                </div>
+                                <div className="flex gap-1">
+                                    {initialTeams.links.map((link, index) => (
+                                        <Button
+                                            key={index}
+                                            variant={
+                                                link.active
+                                                    ? "default"
+                                                    : "outline"
+                                            }
+                                            size="sm"
+                                            disabled={!link.url}
+                                            onClick={() =>
+                                                router.get(
+                                                    link.url || "",
+                                                    {},
+                                                    { preserveState: true }
+                                                )
+                                            }
+                                            className={`
+                                                ${
+                                                    !link.url
+                                                        ? "opacity-50 cursor-not-allowed"
+                                                        : ""
+                                                }
+                                                ${
+                                                    index !== 0 &&
+                                                    index !==
+                                                        initialTeams.links
+                                                            .length -
+                                                            1
+                                                        ? "hidden sm:inline-flex"
+                                                        : ""
+                                                }
+                                            `}
+                                        >
+                                            {index === 0 ? (
+                                                <ChevronLeft className="h-4 w-4" />
+                                            ) : index ===
+                                              initialTeams.links.length - 1 ? (
+                                                <ChevronRight className="h-4 w-4" />
+                                            ) : (
+                                                <span
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: link.label,
+                                                    }}
+                                                />
+                                            )}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
-                {/* Team Detail Dialog */}
+                {/* Team Detail Dialog - Responsive */}
                 <Dialog
                     open={!!selectedTeam}
                     onOpenChange={() => setSelectedTeam(null)}
                 >
-                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-full sm:max-w-2xl md:max-w-4xl">
                         <DialogHeader>
-                            <DialogTitle>
+                            <DialogTitle className="text-lg sm:text-xl">
                                 Detail Tim - {selectedTeam?.leader_name}
                             </DialogTitle>
-                            <DialogDescription>
+                            <DialogDescription className="text-sm">
                                 Informasi lengkap tentang tim dan anggotanya
                             </DialogDescription>
                         </DialogHeader>
 
                         {selectedTeam && (
-                            <div className="space-y-6">
-                                {/* Team Leader */}
+                            <div className="space-y-4">
+                                {/* Team Leader - Stack on mobile */}
                                 <div>
-                                    <h3 className="text-lg font-semibold mb-3">
+                                    <h3 className="text-base font-semibold mb-2 sm:text-lg">
                                         Team Leader
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Nama
                                             </label>
-                                            <p className="text-sm">
+                                            <p className="text-sm sm:text-base">
                                                 {selectedTeam.leader_name}
                                             </p>
                                         </div>
@@ -588,19 +616,19 @@ export default function TeamManagement() {
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 NIM
                                             </label>
-                                            <p className="text-sm">
+                                            <p className="text-sm sm:text-base">
                                                 {selectedTeam.leader_nim}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Team Members */}
+                                {/* Team Members - Always stacked */}
                                 <div>
-                                    <h3 className="text-lg font-semibold mb-3">
+                                    <h3 className="text-base font-semibold mb-2 sm:text-lg">
                                         Anggota Tim
                                     </h3>
-                                    <div className="space-y-4">
+                                    <div className="space-y-3">
                                         {[1, 2, 3].map((num) => {
                                             const memberName = selectedTeam[
                                                 `member${num}_name` as keyof TeamRegistration
@@ -614,13 +642,13 @@ export default function TeamManagement() {
                                             return (
                                                 <div
                                                     key={num}
-                                                    className="grid grid-cols-2 gap-4 p-3 bg-muted/50 rounded-lg"
+                                                    className="grid grid-cols-2 gap-3 p-3 bg-muted/50 rounded-lg"
                                                 >
                                                     <div>
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             Anggota {num}
                                                         </label>
-                                                        <p className="text-sm">
+                                                        <p className="text-sm sm:text-base">
                                                             {memberName}
                                                         </p>
                                                     </div>
@@ -628,7 +656,7 @@ export default function TeamManagement() {
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             NIM
                                                         </label>
-                                                        <p className="text-sm">
+                                                        <p className="text-sm sm:text-base">
                                                             {memberNim}
                                                         </p>
                                                     </div>
@@ -638,107 +666,64 @@ export default function TeamManagement() {
                                     </div>
                                 </div>
 
-                                {/* Contact Information */}
+                                {/* Contact Information - Stack on mobile */}
                                 <div>
-                                    <h3 className="text-lg font-semibold mb-3">
+                                    <h3 className="text-base font-semibold mb-2 sm:text-lg">
                                         Informasi Kontak
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Email
                                             </label>
-                                            <p className="text-sm">
+                                            <p className="text-sm sm:text-base break-all">
                                                 {selectedTeam.email}
                                             </p>
-                                        </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-muted-foreground">
-                                                Instagram
-                                            </label>
-                                            <a
-                                                href={
-                                                    selectedTeam.ig_account_link
-                                                }
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-sm text-blue-600 hover:underline"
-                                            >
-                                                {selectedTeam.ig_account_link}
-                                            </a>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Files */}
+                                {/* Files - Stack on mobile */}
                                 <div>
-                                    <h3 className="text-lg font-semibold mb-3">
+                                    <h3 className="text-base font-semibold mb-2 sm:text-lg">
                                         File Dokumen
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
-                                                KTM Scan
+                                                Berkas Tim
                                             </label>
                                             <a
-                                                href={
-                                                    selectedTeam.ktm_scan_link
-                                                }
+                                                href={selectedTeam.link_berkas}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-sm text-blue-600 hover:underline block"
+                                                className="text-sm sm:text-base text-blue-600 hover:underline block break-all"
                                             >
-                                                Lihat File KTM
+                                                Lihat Berkas Tim
                                             </a>
                                         </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-muted-foreground">
-                                                Foto Formal
-                                            </label>
-                                            <a
-                                                href={
-                                                    selectedTeam.formal_photo_link
-                                                }
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-sm text-blue-600 hover:underline block"
-                                            >
-                                                Lihat Foto Formal
-                                            </a>
-                                        </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-muted-foreground">
-                                                Twibbon
-                                            </label>
-                                            <a
-                                                href={selectedTeam.twibbon_link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-sm text-blue-600 hover:underline block"
-                                            >
-                                                Lihat Twibbon
-                                            </a>
-                                        </div>
-                                        {selectedTeam.ppt_link && (
+                                        {selectedTeam.link_tugas && (
                                             <div>
                                                 <label className="text-sm font-medium text-muted-foreground">
-                                                    Presentasi
+                                                    Tugas
                                                 </label>
                                                 <a
-                                                    href={selectedTeam.ppt_link}
+                                                    href={
+                                                        selectedTeam.link_tugas
+                                                    }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-sm text-blue-600 hover:underline block"
+                                                    className="text-sm sm:text-base text-blue-600 hover:underline block break-all"
                                                 >
-                                                    Lihat Presentasi
+                                                    Lihat Tugas
                                                 </a>
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
-                                {/* Status Actions */}
-                                <div className="flex gap-2 pt-4 border-t">
+                                {/* Status Actions - Stack on mobile */}
+                                <div className="flex flex-col gap-2 pt-4 border-t sm:flex-row">
                                     <Button
                                         onClick={() =>
                                             handleStatusChange(
@@ -747,6 +732,7 @@ export default function TeamManagement() {
                                             )
                                         }
                                         className="bg-green-600 hover:bg-green-700"
+                                        size="sm"
                                     >
                                         Approve Team
                                     </Button>
@@ -758,12 +744,15 @@ export default function TeamManagement() {
                                             )
                                         }
                                         variant="destructive"
+                                        size="sm"
                                     >
                                         Reject Team
                                     </Button>
                                     <Button
                                         onClick={() => setSelectedTeam(null)}
                                         variant="outline"
+                                        size="sm"
+                                        className="sm:ml-auto"
                                     >
                                         Close
                                     </Button>

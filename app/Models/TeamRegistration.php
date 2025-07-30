@@ -23,7 +23,10 @@ class TeamRegistration extends Model
         'twibbon_link',
         'ig_account_link',
         'email',
-        'ppt_link',
-        'image_link'
+        'link_tugas',
+
+    ];
+     protected $casts = [
+        'status' => 'string',
     ];
 }
