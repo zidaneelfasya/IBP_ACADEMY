@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamRegistrationController;
 use App\Models\TeamRegistration;
@@ -62,6 +63,9 @@ Route::get('/admin', function () {
     return Inertia::render('Admin');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
+    ->name('export.team-registrations');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
