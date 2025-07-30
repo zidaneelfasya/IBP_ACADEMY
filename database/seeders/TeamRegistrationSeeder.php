@@ -34,17 +34,15 @@ class TeamRegistrationSeeder extends Seeder
                 'member3_name' => $faker->boolean(30) ? $faker->name : null,
                 'member3_nim' => $faker->boolean(30) ? 'G' . $faker->unique()->numberBetween(1000000, 9999999) : null,
                 
-                'ktm_scan_link' => 'https://drive.google.com/file/d/' . $faker->uuid . '/view',
-                'formal_photo_link' => 'https://drive.google.com/file/d/' . $faker->uuid . '/view',
-                'twibbon_link' => 'https://twibbonize.com/' . $faker->slug,
-                'ig_account_link' => 'https://instagram.com/' . $faker->username,
+                'link_berkas' => 'https://drive.google.com/file/d/' . $faker->uuid . '/view',
+
                 'email' => $faker->unique()->safeEmail,
                 
                 // 60% chance to have PPT
-                'ppt_link' => $faker->boolean(60) ? 'https://drive.google.com/file/d/' . $faker->uuid . '/view' : null,
+                'link_tugas' => $faker->boolean(60) ? 'https://drive.google.com/file/d/' . $faker->uuid . '/view' : null,
                 
-                // 40% chance to have additional image
-                'image_link' => $faker->boolean(40) ? 'https://drive.google.com/file/d/' . $faker->uuid . '/view' : null,
+               
+               
             ]);
         }
     }
