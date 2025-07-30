@@ -50,6 +50,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('dashboard/team')->group(function () {
         Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
+        Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
+            ->name('export.team-registrations');
 
         // Route::get('/create', [TeamController::class, 'create'])->name('team.create');
         // Route::post('/', [TeamController::class, 'store'])->name('team.store');
@@ -64,8 +66,6 @@ Route::get('/admin', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
-    ->name('export.team-registrations');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -73,4 +73,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
