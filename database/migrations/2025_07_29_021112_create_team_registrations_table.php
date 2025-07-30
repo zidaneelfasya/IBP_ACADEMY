@@ -31,15 +31,12 @@ return new class extends Migration
             $table->string('member3_nim')->nullable();
             
             // File links
-            $table->string('ktm_scan_link');
-            $table->string('formal_photo_link');
-            $table->string('twibbon_link');
-            $table->string('ig_account_link');
+            $table->string('link_berkas');
             
             // Other information
             $table->string('email');
-            $table->string('ppt_link')->nullable();
-            $table->string('image_link')->nullable();
+            $table->string('link_tugas')->nullable();
+
             
             // Timestamps
             $table->timestamps();
