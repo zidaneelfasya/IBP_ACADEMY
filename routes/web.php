@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamRegistrationController;
 use App\Models\TeamRegistration;
@@ -27,6 +28,19 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/landing', function () {
+    return Inertia::render('Landing', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
@@ -36,6 +50,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('dashboard/team')->group(function () {
         Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
+        Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
+            ->name('export.team-registrations');
 
         // Route::get('/create', [TeamController::class, 'create'])->name('team.create');
         // Route::post('/', [TeamController::class, 'store'])->name('team.store');
@@ -52,6 +68,7 @@ Route::get('/admin', function () {
 Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
+
 
 
 Route::middleware('auth')->group(function () {
