@@ -23,4 +23,7 @@ class TeamRegistration extends Model
         'link_tugas',
 
     ];
+     protected $casts = [
+        'status' => 'string',
+    ];
 }
