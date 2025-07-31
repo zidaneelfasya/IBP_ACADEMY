@@ -3,6 +3,9 @@ import { Head } from "@inertiajs/react";
 import { Target, Trophy, GitBranch, Calendar } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SpotlightCard from "@/Components/ReactBits/SpotlightCard/SpotlightCard";
+import Navbar from '@/Components/Navbar';
+import Footer from '@/Components/Footer';
+
 
 export default function About() {
     const [visibleSections, setVisibleSections] = useState<Set<string>>(
@@ -38,7 +41,8 @@ export default function About() {
     const isVisible = (id: string) => visibleSections.has(id);
 
     return (
-        <>
+        <div className="min-h-screen">
+            <Navbar />
             <Head title="About IBP 2025" />
 
             {/* Background container */}
@@ -191,22 +195,6 @@ export default function About() {
                                         "
                                     </p>
                                 </SpotlightCard>
-                                {/* Content */}
-                                {/* <div className="flex-1">
-                                    <div className="relative group">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-[#C59400]/30 to-[#19006E]/30 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
-                                        <div className="relative px-8 py-6 bg-gradient-to-r from-[#411E7A] to-[#676898] rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
-                                            <p className="text-xl font-bold leading-relaxed text-center text-white md:text-2xl">
-                                                "Empowering Young Innovators for{" "}
-                                                <span className="text-yellow-300">
-                                                    Sustainable Industry
-                                                    Transformation
-                                                </span>
-                                                "
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div> */}
                             </div>
                         </div>
                     </section>
@@ -325,6 +313,8 @@ export default function About() {
                 </div>
             </div>
 
+            <Footer />
+
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -349,6 +339,6 @@ export default function About() {
                     }
                 }
             `}</style>
-        </>
+        </div>
     );
 }
