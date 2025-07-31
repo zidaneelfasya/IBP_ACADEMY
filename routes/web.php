@@ -56,16 +56,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
 
+    Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
+    ->name('team.update-status');
 
     Route::prefix('dashboard/team')->group(function () {
-        
+
         Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
             ->name('export.team-registrations');
+        // Route::put('/{team}', [TeamRegistrationController::class, 'updateStatus'])->name('team.edit');
 
         // Route::get('/create', [TeamController::class, 'create'])->name('team.create');
         // Route::post('/', [TeamController::class, 'store'])->name('team.store');
-        // Route::get('/{team}/edit', [TeamController::class, 'edit'])->name('team.edit');
         // Route::put('/{team}', [TeamController::class, 'update'])->name('team.update');
         // Route::delete('/{team}', [TeamController::class, 'destroy'])->name('team.destroy');
     });
