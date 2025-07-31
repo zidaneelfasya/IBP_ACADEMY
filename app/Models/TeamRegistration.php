@@ -18,10 +18,7 @@ class TeamRegistration extends Model
         'member2_nim',
         'member3_name',
         'member3_nim',
-        'ktm_scan_link',
-        'formal_photo_link',
-        'twibbon_link',
-        'ig_account_link',
+        'link_berkas',
         'email',
         'link_tugas',
 

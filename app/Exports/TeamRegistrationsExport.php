@@ -35,4 +35,6 @@ class TeamRegistrationsExport implements FromCollection, WithHeadings
             'Updated At'
         ];
     }
+
 }
+
