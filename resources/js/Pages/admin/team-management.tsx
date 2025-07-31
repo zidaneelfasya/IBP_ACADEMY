@@ -57,6 +57,7 @@ import {
     ChevronRight,
 } from "lucide-react";
 import { router, Link } from "@inertiajs/react";
+import { toast } from 'sonner';
 
 interface TeamRegistration {
     id: number;
@@ -158,12 +159,29 @@ export default function TeamManagement({
         setSelectedTeam(team);
     };
 
-    const handleStatusChange = (teamId: number, newStatus: string) => {
-        router.patch(
-            route("team.update-status", teamId),
-            { status: newStatus },
-            { onSuccess: () => setSelectedTeam(null) }
-        );
+    const handleStatusChange = async (teamId: number, newStatus: string) => {
+        try {
+            await router.put(
+                route("team.update-status", teamId),
+                { status: newStatus },
+                {
+                    onSuccess: () => {
+                        // Tambahkan notifikasi sukses
+                        toast.success(
+                            `Status tim berhasil diubah menjadi ${newStatus}`
+                        );
+                        setSelectedTeam(null);
+                    },
+                    onError: (errors) => {
+                        toast.error("Gagal mengubah status tim");
+                        console.error(errors);
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error("Terjadi kesalahan saat mengubah status");
+        }
     };
 
     const handleDeleteTeam = (teamId: number) => {
@@ -171,7 +189,18 @@ export default function TeamManagement({
     };
 
     const handleExport = () => {
-        router.get(route("export.team-registrations"));
+        router.get(
+            "/export/team-registrations",
+            {},
+            {
+                onSuccess: () => {
+                    // File akan otomatis terdownload karena response dari Laravel
+                },
+                onError: (errors) => {
+                    console.error("Export failed:", errors);
+                },
+            }
+        );
     };
 
     return (
@@ -188,19 +217,18 @@ export default function TeamManagement({
                             peserta
                         </p>
                     </div>
+
                     <div className="flex justify-end">
-                        <Button
-                            onClick={handleExport}
-                            variant="outline"
-                            size="sm"
-                            className="w-full sm:w-auto"
+                        <a
+                            href={route("export.team-registrations")}
+                            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9"
                         >
                             <Download className="mr-2 h-4 w-4" />
                             <span className="hidden sm:inline">
                                 Export Data
                             </span>
                             <span className="sm:hidden">Export</span>
-                        </Button>
+                        </a>
                     </div>
                 </div>
 

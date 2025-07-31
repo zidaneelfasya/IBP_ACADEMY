@@ -50,13 +50,13 @@ class TeamRegistrationController extends Controller
 
         // Apply search filter
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('leader_name', 'like', "%{$search}%")
-                  ->orWhere('leader_nim', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('member1_name', 'like', "%{$search}%")
-                  ->orWhere('member2_name', 'like', "%{$search}%")
-                  ->orWhere('member3_name', 'like', "%{$search}%");
+                    ->orWhere('leader_nim', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('member1_name', 'like', "%{$search}%")
+                    ->orWhere('member2_name', 'like', "%{$search}%")
+                    ->orWhere('member3_name', 'like', "%{$search}%");
             });
         }
 
@@ -85,7 +85,7 @@ class TeamRegistrationController extends Controller
             'stats' => $stats,
         ]);
     }
-public function updateStatus(TeamRegistration $team, Request $request)
+    public function updateStatus(TeamRegistration $team, Request $request)
 {
     $request->validate([
         'status' => 'required|in:pending,approved,rejected'
@@ -93,6 +93,6 @@ public function updateStatus(TeamRegistration $team, Request $request)
 
     $team->update(['status' => $request->status]);
 
-    return back()->with('success', 'Status updated successfully');
+    return redirect()->back()->with('success', 'Status tim berhasil diperbarui');
 }
 }
