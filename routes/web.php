@@ -65,6 +65,10 @@ Route::get('/admin', function () {
     return Inertia::render('Admin');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('about');
+
 
 
 Route::middleware('auth')->group(function () {
