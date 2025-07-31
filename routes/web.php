@@ -37,6 +37,15 @@ Route::get('/landing', function () {
     ]);
 });
 
+Route::get('/user', function () {
+    return Inertia::render('User/Template', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -49,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     Route::prefix('dashboard/team')->group(function () {
+        
         Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
             ->name('export.team-registrations');
