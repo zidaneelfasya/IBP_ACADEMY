@@ -2,6 +2,7 @@ import ApplicationLogo from "@/Components/ApplicationLogo";
 import { Head } from "@inertiajs/react";
 import { Target, Trophy, GitBranch, Calendar } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import SpotlightCard from "@/Components/ReactBits/SpotlightCard/SpotlightCard";
 
 export default function About() {
     const [visibleSections, setVisibleSections] = useState<Set<string>>(
@@ -177,8 +178,21 @@ export default function About() {
                                     </h2>
                                 </div>
 
+                                {/* Spotlight Card */}
+                                <SpotlightCard
+                                    className="flex-1 custom-spotlight-card bg-gradient-to-r from-[#411E7A] to-[#676898] shadow-2xl"
+                                    spotlightColor="rgba(255, 225, 255, 0.3)"
+                                >
+                                    <p className="text-xl font-bold leading-relaxed text-center text-white md:text-2xl">
+                                        "Empowering Young Innovators for{" "}
+                                        <span className="text-yellow-300">
+                                            Sustainable Industry Transformation
+                                        </span>
+                                        "
+                                    </p>
+                                </SpotlightCard>
                                 {/* Content */}
-                                <div className="flex-1">
+                                {/* <div className="flex-1">
                                     <div className="relative group">
                                         <div className="absolute inset-0 bg-gradient-to-r from-[#C59400]/30 to-[#19006E]/30 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
                                         <div className="relative px-8 py-6 bg-gradient-to-r from-[#411E7A] to-[#676898] rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105">
@@ -192,7 +206,7 @@ export default function About() {
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </section>
