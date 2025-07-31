@@ -21,7 +21,7 @@ class TeamRegistration extends Model
         'link_berkas',
         'status',
         'email',
-        
+
 
     ];
      protected $casts = [
