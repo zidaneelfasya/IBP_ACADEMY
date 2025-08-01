@@ -1,4 +1,5 @@
-import { useForm } from '@inertiajs/react';
+import GuestLayout from '@/Layouts/GuestLayout';
+import { Head, useForm } from '@inertiajs/react';
 import React from 'react';
 
 export default function AdminCode() {
@@ -12,13 +13,9 @@ export default function AdminCode() {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-20 p-6 bg-white shadow rounded">
-            <h1 className="text-xl font-bold mb-4">Masukkan Kode Akses</h1>
-            <p className="mb-4 text-sm text-gray-600">
-                Kode akses telah dikirim ke email <strong>elfasyazidan99@gmail.com</strong>.
-            </p>
-
-            <form onSubmit={submit}>
+        <GuestLayout>
+          <Head title="Admin Code Verification" />
+          <form onSubmit={submit}>
                 <input
                     type="text"
                     className="w-full border rounded p-2 mb-2"
@@ -36,6 +33,6 @@ export default function AdminCode() {
                     Verifikasi Kode
                 </button>
             </form>
-        </div>
+        </GuestLayout>
     );
 }
