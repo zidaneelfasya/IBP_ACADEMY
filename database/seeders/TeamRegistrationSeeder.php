@@ -39,7 +39,7 @@ class TeamRegistrationSeeder extends Seeder
                 'email' => $faker->unique()->safeEmail,
                 
                 // 60% chance to have PPT
-                'link_tugas' => $faker->boolean(60) ? 'https://drive.google.com/file/d/' . $faker->uuid . '/view' : null,
+                
                 
                
                
