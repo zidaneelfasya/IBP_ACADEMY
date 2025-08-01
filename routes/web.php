@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamRegistrationController;
 use App\Models\TeamRegistration;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -37,14 +38,14 @@ Route::get('/landing', function () {
     ]);
 });
 
-Route::get('/user', function () {
+Route::get('dashboard/user', function () {
     return Inertia::render('User/Template', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('dashboard.user')->middleware(['auth', 'verified'])->middleware('user');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -56,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
 
-    Route::prefix('dashboard/team')->group(function () {
+    Route::prefix('dashboard/admin')->group(function () {
 
         Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
@@ -70,12 +71,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::get('/admin', function () {
     return Inertia::render('Admin');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard')->middleware('admin');
 
 Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
 
+
+Route::middleware('admin.code.access')->group(function () {
+    Route::get('/register/admin', function () {
+        return inertia('admin/Register'); // React form buat admin
+    })->name('admin.register');
+});
+
+Route::get('/admin-code', function () {
+    return inertia('AdminCode'); // Inertia + React Page
+})->name('admin-code.form');
+
+Route::post('/admin-code/verify', function (Request $request) {
+    $request->validate([
+        'code' => 'required|string',
+    ]);
+
+    if ($request->code === session('admin_access_code')) {
+        session(['admin_code_verified' => true]);
+        return redirect()->route('admin.register');
+    }
+
+    return back()->withErrors(['code' => 'Kode salah. Silakan cek email.']);
+})->name('admin-code.verify');
 
 
 Route::middleware('auth')->group(function () {
