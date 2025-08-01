@@ -32,11 +32,10 @@ return new class extends Migration
             
             // File links
             $table->string('link_berkas');
+            $table->enum('status', ['pending', 'approved', 'rejected']) ->default('pending');
             
-            // Other information
             $table->string('email');
-            $table->string('link_tugas')->nullable();
-
+            
             
             // Timestamps
             $table->timestamps();

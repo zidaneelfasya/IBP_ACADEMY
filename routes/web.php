@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamRegistrationController;
 use App\Models\TeamRegistration;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -37,41 +38,72 @@ Route::get('/landing', function () {
     ]);
 });
 
+Route::get('dashboard/user', function () {
+    return Inertia::render('User/Template', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+})->name('dashboard.user')->middleware(['auth', 'verified'])->middleware('user');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
     Route::get('/dashboard', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
 
 
-    Route::prefix('dashboard/team')->group(function () {
+    Route::prefix('dashboard/admin')->group(function () {
+
         Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
-            ->name('export.team-registrations');
 
-        // Route::get('/create', [TeamController::class, 'create'])->name('team.create');
-        // Route::post('/', [TeamController::class, 'store'])->name('team.store');
-        // Route::get('/{team}/edit', [TeamController::class, 'edit'])->name('team.edit');
-        // Route::put('/{team}', [TeamController::class, 'update'])->name('team.update');
-        // Route::delete('/{team}', [TeamController::class, 'destroy'])->name('team.destroy');
+            ->name('export.team-registrations');
+        Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
+        ->name('team.update-status');
+
     });
 });
 
 Route::get('/admin', function () {
     return Inertia::render('Admin');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard')->middleware('admin');
 
 Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
 
 
+Route::middleware('admin.code.access')->group(function () {
+    Route::get('/register/admin', function () {
+        return inertia('admin/Register'); // React form buat admin
+    })->name('admin.register');
+});
+
+Route::get('/admin-code', function () {
+    return inertia('AdminCode'); // Inertia + React Page
+})->name('admin-code.form');
+
+Route::post('/admin-code/verify', function (Request $request) {
+    $request->validate([
+        'code' => 'required|string',
+    ]);
+
+    if ($request->code === session('admin_access_code')) {
+        session(['admin_code_verified' => true]);
+        return redirect()->route('admin.register');
+    }
+
+    return back()->withErrors(['code' => 'Kode salah. Silakan cek email.']);
+})->name('admin-code.verify');
+
 
 Route::middleware('auth')->group(function () {
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

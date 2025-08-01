@@ -19,8 +19,12 @@ class TeamRegistration extends Model
         'member3_name',
         'member3_nim',
         'link_berkas',
+        'status',
         'email',
-        'link_tugas',
 
+
+    ];
+     protected $casts = [
+        'status' => 'string',
     ];
 }

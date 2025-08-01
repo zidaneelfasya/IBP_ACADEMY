@@ -45,8 +45,29 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect('login')->with('status', 'Registration successful! Please log in.');
+    }
+    public function storeAdmin(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin', // Set role to admin
+        ]);
+
+        event(new Registered($user));
+
+        // Auth::login($user);
+
+        return redirect('login')->with('status', 'Admin registration successful! Please log in.');
     }
 }
