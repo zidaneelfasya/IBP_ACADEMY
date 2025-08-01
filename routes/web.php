@@ -64,8 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             ->name('export.team-registrations');
         Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
-        ->name('team.update-status');
-
+            ->name('team.update-status');
     });
 });
 
@@ -77,6 +76,13 @@ Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
 
+Route::get('/business-plan-competition', function () {
+    return Inertia::render('BusinessPlanCompetition');
+})->name('contact');
+
+Route::get('/business-case-competition', function () {
+    return Inertia::render('BusinessCaseCompetition');
+})->name('business-case-competition');
 
 Route::middleware('admin.code.access')->group(function () {
     Route::get('/register/admin', function () {
@@ -103,7 +109,7 @@ Route::post('/admin-code/verify', function (Request $request) {
 
 
 Route::middleware('auth')->group(function () {
-    
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
