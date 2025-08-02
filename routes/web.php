@@ -38,7 +38,16 @@ Route::get('/landing', function () {
     ]);
 });
 
-Route::get('dashboard/user', function () {
+Route::get('/user/dashboard', function () {
+    return Inertia::render('User/Template', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+})->name('dashboard.user')->middleware(['auth', 'verified'])->middleware('user');
+
+Route::get('/user/dashboard', function () {
     return Inertia::render('User/Template', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -64,8 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             ->name('export.team-registrations');
         Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
-        ->name('team.update-status');
-
+            ->name('team.update-status');
     });
 });
 
@@ -101,12 +109,31 @@ Route::post('/admin-code/verify', function (Request $request) {
     return back()->withErrors(['code' => 'Kode salah. Silakan cek email.']);
 })->name('admin-code.verify');
 
-
 Route::middleware('auth')->group(function () {
-    
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+
+// route User
+
+Route::get('/user', function () {
+    return Inertia::render('User/Template');
+})->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
+Route::get('/user/dashboard', function () {
+    return Inertia::render('User/Template');
+})->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
+Route::get('/user/profile', function () {
+    return Inertia::render('User/Profile');
+})->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
+
+
+
+
+
+
 
 require __DIR__ . '/auth.php';
