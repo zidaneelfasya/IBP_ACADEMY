@@ -85,8 +85,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
             ->name('team.update-status');
-        Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
 
+        Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
     });
 });
 
@@ -98,6 +98,13 @@ Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
 
+Route::get('/business-plan-competition', function () {
+    return Inertia::render('BusinessPlanCompetition');
+})->name('contact');
+
+Route::get('/business-case-competition', function () {
+    return Inertia::render('BusinessCaseCompetition');
+})->name('business-case-competition');
 
 Route::middleware('admin.code.access')->group(function () {
     Route::get('/register/admin', function () {
