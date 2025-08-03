@@ -16,7 +16,7 @@ export default function Dashboard() {
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-white font-bold text-sm">LMS</span>
               </div>
-              <span className="font-semibold text-primary">EduPlatform</span>
+              <span className="font-semibold text-primary">IBP ACADEMY</span>
             </div>
             <div className="flex items-center gap-4">
               <div className="relative">
