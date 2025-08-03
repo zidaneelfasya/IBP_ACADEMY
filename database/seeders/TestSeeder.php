@@ -50,17 +50,17 @@ class TestSeeder extends Seeder
         ParticipantProgress::create([
             'participant_id' => $team->id,
             'competition_stage_id' => $registrasiStage->id,
-            'status' => 'approved',
-            'approved_at' => now(),
+            'status' => 'in_progress',
+            
         ]);
 
         // Tambahkan tahap preliminary (belum dimulai)
-        $preliminaryStage = CompetitionStage::where('name', 'Preliminary Round')->first();
+        // $preliminaryStage = CompetitionStage::where('name', 'Preliminary Round')->first();
 
-        ParticipantProgress::create([
-            'participant_id' => $team->id,
-            'competition_stage_id' => $preliminaryStage->id,
-            'status' => 'in_progress',
-        ]);
+        // ParticipantProgress::create([
+        //     'participant_id' => $team->id,
+        //     'competition_stage_id' => $preliminaryStage->id,
+        //     'status' => 'in_progress',
+        // ]);
     }
 }
