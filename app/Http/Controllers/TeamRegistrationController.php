@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Models\CompetitionStage;
 use App\Models\TeamRegistration;
+use App\Models\ParticipantProgress;
 
 class TeamRegistrationController extends Controller
 {
@@ -38,61 +40,179 @@ class TeamRegistrationController extends Controller
         return redirect()->route('registration.success');
     }
 
+    // public function index(Request $request)
+    // {
+
+    //     $search = $request->query('search');
+    //     $status = $request->query('status', 'all');
+
+    //     // Base query
+    //     $query = TeamRegistration::query()
+    //         ->orderBy('created_at', 'desc');
+
+    //     // Apply search filter
+    //     if ($search) {
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('leader_name', 'like', "%{$search}%")
+    //                 ->orWhere('leader_nim', 'like', "%{$search}%")
+    //                 ->orWhere('email', 'like', "%{$search}%")
+    //                 ->orWhere('member1_name', 'like', "%{$search}%")
+    //                 ->orWhere('member2_name', 'like', "%{$search}%")
+    //                 ->orWhere('member3_name', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // Apply status filter
+    //     if ($status !== 'all') {
+    //         $query->where('status', $status);
+    //     }
+
+    //     // Paginate
+    //     $teams = $query->paginate(8);
+
+    //     // Calculate stats
+    //     $stats = [
+    //         'total' => TeamRegistration::count(),
+    //         'approved' => TeamRegistration::where('status', 'approved')->count(),
+    //         'pending' => TeamRegistration::where('status', 'pending')->count(),
+    //         'rejected' => TeamRegistration::where('status', 'rejected')->count(),
+    //     ];
+
+    //     return Inertia::render('admin/team-management', [
+    //         'teams' => $teams,
+    //         'filters' => [
+    //             'search' => $search,
+    //             'status' => $status,
+    //         ],
+    //         'stats' => $stats,
+    //     ]);
+    // }
+    //     public function updateStatus(TeamRegistration $team, Request $request)
+    // {
+    //     $request->validate([
+    //         'status' => 'required|in:pending,approved,rejected'
+    //     ]);
+
+    //     $team->update(['status' => $request->status]);
+
+    //     return redirect()->back()->with('success', 'Status tim berhasil diperbarui');
+    // }
     public function index(Request $request)
     {
-
         $search = $request->query('search');
-        $status = $request->query('status', 'all');
+        $stageStatus = $request->query('progress_status', 'all');
 
-        // Base query
-        $query = TeamRegistration::query()
+        // Ambil ID stage 'Registrasi Awal' (order = 1)
+        $registrasiStage = \App\Models\CompetitionStage::where('order', 1)->firstOrFail();
+
+        // Base query: ambil peserta yang punya progress di tahap Registrasi Awal
+        $query = \App\Models\TeamRegistration::whereHas('progress', function ($q) use ($registrasiStage) {
+            $q->where('competition_stage_id', $registrasiStage->id);
+        })
+            ->with(['progress' => function ($q) use ($registrasiStage) {
+                $q->where('competition_stage_id', $registrasiStage->id)->with('stage');
+            }])
             ->orderBy('created_at', 'desc');
 
-        // Apply search filter
+        // Filter pencarian
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('leader_name', 'like', "%{$search}%")
                     ->orWhere('leader_nim', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('leader_email', 'like', "%{$search}%")
                     ->orWhere('member1_name', 'like', "%{$search}%")
                     ->orWhere('member2_name', 'like', "%{$search}%")
                     ->orWhere('member3_name', 'like', "%{$search}%");
             });
         }
 
-        // Apply status filter
-        if ($status !== 'all') {
-            $query->where('status', $status);
+        // Filter berdasarkan status progress untuk stage Registrasi Awal
+        if ($stageStatus !== 'all') {
+            $query->whereHas('progress', function ($q) use ($stageStatus, $registrasiStage) {
+                $q->where('competition_stage_id', $registrasiStage->id)
+                    ->where('status', $stageStatus);
+            });
         }
 
-        // Paginate
         $teams = $query->paginate(8);
 
-        // Calculate stats
+        // Stats untuk stage Registrasi Awal saja
         $stats = [
-            'total' => TeamRegistration::count(),
-            'approved' => TeamRegistration::where('status', 'approved')->count(),
-            'pending' => TeamRegistration::where('status', 'pending')->count(),
-            'rejected' => TeamRegistration::where('status', 'rejected')->count(),
+            'total' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->count(),
+            'approved' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->where('status', 'approved')->count(),
+            'pending' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->where('status', 'submitted')->count(),
+            'not_started' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->where('status', 'not_started')->count(),
         ];
 
         return Inertia::render('admin/team-management', [
             'teams' => $teams,
             'filters' => [
                 'search' => $search,
-                'status' => $status,
+                'progress_status' => $stageStatus,
             ],
             'stats' => $stats,
+            'stage' => 'Registrasi Awal',
         ]);
     }
+
+
     public function updateStatus(TeamRegistration $team, Request $request)
-{
-    $request->validate([
-        'status' => 'required|in:pending,approved,rejected'
-    ]);
+    {
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected'
+        ]);
 
-    $team->update(['status' => $request->status]);
+        // Update status tim
+        $team->update(['status' => $request->status]);
 
-    return redirect()->back()->with('success', 'Status tim berhasil diperbarui');
-}
+        if ($request->status === 'approved') {
+
+            // Ambil progress terakhir berdasarkan urutan tahap terbesar
+            $latestProgress = $team->progress()->with('stage')
+                ->get()
+                ->sortByDesc(fn($progress) => $progress->stage->order)
+                ->first();
+
+            // Jika belum ada progress sama sekali, mulai dari Registrasi Awal
+            if (!$latestProgress) {
+                $registrasiStage = CompetitionStage::where('order', 1)->first();
+
+                $latestProgress = ParticipantProgress::create([
+                    'participant_id' => $team->id,
+                    'competition_stage_id' => $registrasiStage->id,
+                    'status' => 'approved',
+                    'approved_at' => now(),
+                ]);
+            } else {
+                // Update progress yang sedang berlangsung (jika belum di-approve)
+                if ($latestProgress->status !== 'approved') {
+                    $latestProgress->update([
+                        'status' => 'approved',
+                        'approved_at' => now(),
+                    ]);
+                }
+            }
+
+            // Cari tahap berikutnya
+            $currentOrder = $latestProgress->stage->order;
+            $nextStage = CompetitionStage::where('order', $currentOrder + 1)->first();
+
+            if ($nextStage) {
+                // Cek apakah sudah punya progress untuk tahap berikut
+                $exists = ParticipantProgress::where('participant_id', $team->id)
+                    ->where('competition_stage_id', $nextStage->id)
+                    ->exists();
+
+                if (! $exists) {
+                    ParticipantProgress::create([
+                        'participant_id' => $team->id,
+                        'competition_stage_id' => $nextStage->id,
+                        'status' => 'not_started',
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'Status tim dan progress berhasil diperbarui.');
+    }
 }
