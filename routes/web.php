@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\AllParticipantController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FinalParticipantController;
+use App\Http\Controllers\PreliminaryParticipantController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SemifinalParticipantController;
 use App\Http\Controllers\TeamRegistrationController;
 use App\Models\TeamRegistration;
 use Illuminate\Foundation\Application;
@@ -66,14 +70,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
 
-    Route::prefix('dashboard/admin')->group(function () {
+    Route::prefix('/admin/dashboard')->group(function () {
 
-        Route::get('/', [TeamRegistrationController::class, 'index'])->name('team.index');
+        Route::get('/', [AllParticipantController::class, 'index'])->name('team.index');
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
-
             ->name('export.team-registrations');
+
+        Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.index');
+        Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.index');
+        Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.index');
+        Route::get('/final', [FinalParticipantController::class, 'index'])->name('team.index');
+
+
+
         Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
             ->name('team.update-status');
+        Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
+
     });
 });
 
@@ -132,6 +145,10 @@ Route::get('/user/profile', function () {
 
 
 
+// route aprove logic
+use App\Http\Controllers\Admin\ParticipantProgressController;
+
+Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve']);
 
 
 

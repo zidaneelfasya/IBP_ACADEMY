@@ -74,7 +74,16 @@ interface TeamRegistration {
     link_tugas: string | null;
     created_at: string;
     updated_at: string;
-    status?: "pending" | "approved" | "rejected";
+    progress: {
+        id: number;
+        status: string;
+        stage: {
+            id: number;
+            name: string;
+            order: number;
+        };
+        approved_at: string | null;
+    }[];
 }
 
 interface TeamManagementProps {
@@ -84,15 +93,29 @@ interface TeamManagementProps {
     };
     filters: {
         search: string;
-        status: string;
+        progress_status: string;
     };
     stats: {
         total: number;
         approved: number;
         pending: number;
-        rejected: number;
+        not_started: number;
     };
 }
+
+const getLatestStatus = (team: TeamRegistration) => {
+    if (!team.progress || team.progress.length === 0) {
+        return { status: 'not_started', stage: 'Not Started' };
+    }
+    
+    const sortedProgress = [...team.progress].sort((a, b) => b.stage.order - a.stage.order);
+    const latestProgress = sortedProgress[0];
+    
+    return {
+        status: latestProgress.status,
+        stage: latestProgress.stage.name
+    };
+};
 
 const getStatusBadge = (
     status: string
@@ -100,10 +123,14 @@ const getStatusBadge = (
     switch (status) {
         case "approved":
             return { variant: "default", label: "Approved" };
-        case "pending":
-            return { variant: "secondary", label: "Pending" };
+        case "submitted":
+            return { variant: "secondary", label: "Pending Review" };
+        case "not_started":
+            return { variant: "outline", label: "Not Started" };
         case "rejected":
             return { variant: "destructive", label: "Rejected" };
+        case "in_progress":
+            return { variant: "secondary", label: "In Progress" };
         default:
             return { variant: "outline", label: "Unknown" };
     }
@@ -132,12 +159,10 @@ export default function TeamManagement({
     filters: initialFilters,
     stats,
 }: TeamManagementProps) {
-    const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(
-        null
-    );
+    const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(null);
     const [filters, setFilters] = useState({
         search: initialFilters.search || "",
-        status: initialFilters.status || "all",
+        progress_status: initialFilters.progress_status || "all",
     });
 
     const handleFilterChange = (key: string, value: string) => {
@@ -166,11 +191,9 @@ export default function TeamManagement({
                 { status: newStatus },
                 {
                     onSuccess: () => {
-                        // Tambahkan notifikasi sukses
-                        toast.success(
-                            `Status tim berhasil diubah menjadi ${newStatus}`
-                        );
+                        toast.success(`Status tim berhasil diubah`);
                         setSelectedTeam(null);
+                        router.reload({ only: ['teams'] });
                     },
                     onError: (errors) => {
                         toast.error("Gagal mengubah status tim");
@@ -188,33 +211,17 @@ export default function TeamManagement({
         router.delete(route("team.destroy", teamId));
     };
 
-    const handleExport = () => {
-        router.get(
-            "/export/team-registrations",
-            {},
-            {
-                onSuccess: () => {
-                    // File akan otomatis terdownload karena response dari Laravel
-                },
-                onError: (errors) => {
-                    console.error("Export failed:", errors);
-                },
-            }
-        );
-    };
-
     return (
         <AdminLayout>
             <div className="space-y-4 p-2 sm:p-4 md:p-6">
-                {/* Header - Stack on mobile */}
+                {/* Header */}
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-1">
                         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                             Team Management
                         </h1>
                         <p className="text-sm text-muted-foreground sm:text-base">
-                            Kelola pendaftaran tim dan lihat detail informasi
-                            peserta
+                            Kelola pendaftaran tim dan lihat progress peserta
                         </p>
                     </div>
 
@@ -224,15 +231,13 @@ export default function TeamManagement({
                             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9"
                         >
                             <Download className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">
-                                Export Data
-                            </span>
+                            <span className="hidden sm:inline">Export Data</span>
                             <span className="sm:hidden">Export</span>
                         </a>
                     </div>
                 </div>
 
-                {/* Stats Cards - 1 column on mobile */}
+                {/* Stats Cards */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {[
                         {
@@ -258,18 +263,15 @@ export default function TeamManagement({
                             color: "text-yellow-600",
                         },
                         {
-                            title: "Rejected",
-                            value: stats.rejected,
+                            title: "Not Started",
+                            value: stats.not_started,
                             icon: null,
-                            description: "Tim ditolak",
-                            variant: "destructive",
-                            color: "text-red-600",
+                            description: "Belum memulai",
+                            variant: "outline",
+                            color: "text-gray-600",
                         },
                     ].map((stat, index) => (
-                        <Card
-                            key={index}
-                            className="hover:shadow-md transition-shadow"
-                        >
+                        <Card key={index} className="hover:shadow-md transition-shadow">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">
                                     {stat.title}
@@ -278,19 +280,13 @@ export default function TeamManagement({
                                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                                 ) : (
                                     <Badge
-                                        variant={
-                                            stat.variant as BadgeProps["variant"]
-                                        }
+                                        variant={stat.variant as BadgeProps["variant"]}
                                         className="h-4 w-4 p-0"
                                     />
                                 )}
                             </CardHeader>
                             <CardContent>
-                                <div
-                                    className={`text-xl font-bold sm:text-2xl ${
-                                        stat.color || ""
-                                    }`}
-                                >
+                                <div className={`text-xl font-bold sm:text-2xl ${stat.color || ""}`}>
                                     {stat.value}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
@@ -301,15 +297,14 @@ export default function TeamManagement({
                     ))}
                 </div>
 
-                {/* Filters - Stack on mobile */}
+                {/* Filters */}
                 <Card className="shadow-sm">
                     <CardHeader className="p-4 sm:p-6">
                         <CardTitle className="text-lg sm:text-xl">
                             Filter & Search
                         </CardTitle>
                         <CardDescription className="text-sm">
-                            Cari dan filter data tim berdasarkan kriteria
-                            tertentu
+                            Cari dan filter data tim berdasarkan kriteria tertentu
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="p-4 sm:p-6">
@@ -320,46 +315,33 @@ export default function TeamManagement({
                                     <Input
                                         placeholder="Cari nama leader, NIM, atau email..."
                                         value={filters.search}
-                                        onChange={(e) =>
-                                            handleFilterChange(
-                                                "search",
-                                                e.target.value
-                                            )
-                                        }
+                                        onChange={(e) => handleFilterChange("search", e.target.value)}
                                         className="pl-10 text-sm sm:text-base"
                                     />
                                 </div>
                             </div>
                             <Select
-                                value={filters.status}
-                                onValueChange={(value) =>
-                                    handleFilterChange("status", value)
-                                }
+                                value={filters.progress_status}
+                                onValueChange={(value) => handleFilterChange("progress_status", value)}
                             >
                                 <SelectTrigger className="w-full sm:w-[180px]">
                                     <Filter className="mr-2 h-4 w-4" />
                                     <SelectValue placeholder="Filter Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">
-                                        Semua Status
-                                    </SelectItem>
-                                    <SelectItem value="pending">
-                                        Pending
-                                    </SelectItem>
-                                    <SelectItem value="approved">
-                                        Approved
-                                    </SelectItem>
-                                    <SelectItem value="rejected">
-                                        Rejected
-                                    </SelectItem>
+                                    <SelectItem value="all">Semua Status</SelectItem>
+                                    <SelectItem value="not_started">Not Started</SelectItem>
+                                    <SelectItem value="submitted">Pending Review</SelectItem>
+                                    <SelectItem value="approved">Approved</SelectItem>
+                                    <SelectItem value="rejected">Rejected</SelectItem>
+                                    <SelectItem value="in_progress">In Progress</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Teams Table - Horizontal scroll on mobile */}
+                {/* Teams Table */}
                 <Card>
                     <CardHeader className="p-4 sm:p-6">
                         <CardTitle className="text-lg sm:text-xl">
@@ -381,10 +363,7 @@ export default function TeamManagement({
                                             Members
                                         </TableHead>
                                         <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
-                                            Contact
-                                        </TableHead>
-                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
-                                            Files
+                                            Stage
                                         </TableHead>
                                         <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
                                             Status
@@ -399,11 +378,9 @@ export default function TeamManagement({
                                 </TableHeader>
                                 <TableBody>
                                     {initialTeams.data.map((team) => {
-                                        const statusBadge = getStatusBadge(
-                                            team.status || "pending"
-                                        );
-                                        const memberCount =
-                                            getMemberCount(team);
+                                        const latestStatus = getLatestStatus(team);
+                                        const statusBadge = getStatusBadge(latestStatus.status);
+                                        const memberCount = getMemberCount(team);
 
                                         return (
                                             <TableRow key={team.id}>
@@ -413,8 +390,7 @@ export default function TeamManagement({
                                                             {team.leader_name}
                                                         </div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            NIM:{" "}
-                                                            {team.leader_nim}
+                                                            NIM: {team.leader_nim}
                                                         </div>
                                                     </div>
                                                 </TableCell>
@@ -427,56 +403,24 @@ export default function TeamManagement({
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-center gap-1 text-sm line-clamp-1">
-                                                            <Mail className="h-3 w-3 flex-shrink-0" />
-                                                            <span className="truncate">
-                                                                {team.email}
-                                                            </span>
-                                                        </div>
+                                                    <div className="text-sm">
+                                                        {latestStatus.stage}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
-                                                    <div className="flex gap-1 flex-wrap">
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-xs"
-                                                        >
-                                                            <FileText className="mr-1 h-3 w-3" />
-                                                            Berkas
-                                                        </Badge>
-                                                        {team.link_tugas && (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="text-xs"
-                                                            >
-                                                                Tugas
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
-                                                    <Badge
-                                                        variant={
-                                                            statusBadge.variant
-                                                        }
-                                                    >
+                                                    <Badge variant={statusBadge.variant}>
                                                         {statusBadge.label}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                         <Calendar className="h-3 w-3" />
-                                                        {formatDate(
-                                                            team.created_at
-                                                        )}
+                                                        {formatDate(team.created_at)}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <DropdownMenu>
-                                                        <DropdownMenuTrigger
-                                                            asChild
-                                                        >
+                                                        <DropdownMenuTrigger asChild>
                                                             <Button
                                                                 variant="ghost"
                                                                 className="h-8 w-8 p-0"
@@ -485,42 +429,21 @@ export default function TeamManagement({
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent
-                                                            align="end"
-                                                            className="w-40"
-                                                        >
-                                                            <DropdownMenuLabel>
-                                                                Actions
-                                                            </DropdownMenuLabel>
-                                                            <DropdownMenuItem
-                                                                onClick={() =>
-                                                                    handleViewTeam(
-                                                                        team
-                                                                    )
-                                                                }
-                                                            >
+                                                        <DropdownMenuContent align="end" className="w-40">
+                                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                            <DropdownMenuItem onClick={() => handleViewTeam(team)}>
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 View
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
-                                                                onClick={() =>
-                                                                    handleStatusChange(
-                                                                        team.id,
-                                                                        "approved"
-                                                                    )
-                                                                }
+                                                                onClick={() => handleStatusChange(team.id, "approved")}
                                                                 className="text-green-600"
                                                             >
                                                                 Approve
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
-                                                                onClick={() =>
-                                                                    handleStatusChange(
-                                                                        team.id,
-                                                                        "rejected"
-                                                                    )
-                                                                }
+                                                                onClick={() => handleStatusChange(team.id, "rejected")}
                                                                 className="text-red-600"
                                                             >
                                                                 Reject
@@ -528,11 +451,7 @@ export default function TeamManagement({
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
                                                                 className="text-red-600"
-                                                                onClick={() =>
-                                                                    handleDeleteTeam(
-                                                                        team.id
-                                                                    )
-                                                                }
+                                                                onClick={() => handleDeleteTeam(team.id)}
                                                             >
                                                                 <Trash2 className="mr-2 h-4 w-4" />
                                                                 Delete
@@ -547,59 +466,31 @@ export default function TeamManagement({
                             </Table>
                         </div>
 
-                        {/* Pagination - Simplified on mobile */}
+                        {/* Pagination */}
                         {initialTeams.links.length > 3 && (
                             <div className="flex flex-col items-center gap-3 mt-4 px-4 py-3 sm:flex-row sm:justify-between">
                                 <div className="text-sm text-muted-foreground">
-                                    Menampilkan {initialTeams.data.length} dari{" "}
-                                    {stats.total} tim
+                                    Menampilkan {initialTeams.data.length} dari {stats.total} tim
                                 </div>
                                 <div className="flex gap-1">
                                     {initialTeams.links.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={
-                                                link.active
-                                                    ? "default"
-                                                    : "outline"
-                                            }
+                                            variant={link.active ? "default" : "outline"}
                                             size="sm"
                                             disabled={!link.url}
-                                            onClick={() =>
-                                                router.get(
-                                                    link.url || "",
-                                                    {},
-                                                    { preserveState: true }
-                                                )
-                                            }
+                                            onClick={() => router.get(link.url || "", {}, { preserveState: true })}
                                             className={`
-                                                ${
-                                                    !link.url
-                                                        ? "opacity-50 cursor-not-allowed"
-                                                        : ""
-                                                }
-                                                ${
-                                                    index !== 0 &&
-                                                    index !==
-                                                        initialTeams.links
-                                                            .length -
-                                                            1
-                                                        ? "hidden sm:inline-flex"
-                                                        : ""
-                                                }
+                                                ${!link.url ? "opacity-50 cursor-not-allowed" : ""}
+                                                ${index !== 0 && index !== initialTeams.links.length - 1 ? "hidden sm:inline-flex" : ""}
                                             `}
                                         >
                                             {index === 0 ? (
                                                 <ChevronLeft className="h-4 w-4" />
-                                            ) : index ===
-                                              initialTeams.links.length - 1 ? (
+                                            ) : index === initialTeams.links.length - 1 ? (
                                                 <ChevronRight className="h-4 w-4" />
                                             ) : (
-                                                <span
-                                                    dangerouslySetInnerHTML={{
-                                                        __html: link.label,
-                                                    }}
-                                                />
+                                                <span dangerouslySetInnerHTML={{ __html: link.label }} />
                                             )}
                                         </Button>
                                     ))}
@@ -609,24 +500,21 @@ export default function TeamManagement({
                     </CardContent>
                 </Card>
 
-                {/* Team Detail Dialog - Responsive */}
-                <Dialog
-                    open={!!selectedTeam}
-                    onOpenChange={() => setSelectedTeam(null)}
-                >
+                {/* Team Detail Dialog */}
+                <Dialog open={!!selectedTeam} onOpenChange={() => setSelectedTeam(null)}>
                     <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-full sm:max-w-2xl md:max-w-4xl">
                         <DialogHeader>
                             <DialogTitle className="text-lg sm:text-xl">
                                 Detail Tim - {selectedTeam?.leader_name}
                             </DialogTitle>
                             <DialogDescription className="text-sm">
-                                Informasi lengkap tentang tim dan anggotanya
+                                Informasi lengkap tentang tim dan progress mereka
                             </DialogDescription>
                         </DialogHeader>
 
                         {selectedTeam && (
                             <div className="space-y-4">
-                                {/* Team Leader - Stack on mobile */}
+                                {/* Team Leader */}
                                 <div>
                                     <h3 className="text-base font-semibold mb-2 sm:text-lg">
                                         Team Leader
@@ -651,7 +539,7 @@ export default function TeamManagement({
                                     </div>
                                 </div>
 
-                                {/* Team Members - Always stacked */}
+                                {/* Team Members */}
                                 <div>
                                     <h3 className="text-base font-semibold mb-2 sm:text-lg">
                                         Anggota Tim
@@ -694,83 +582,67 @@ export default function TeamManagement({
                                     </div>
                                 </div>
 
-                                {/* Contact Information - Stack on mobile */}
+                                {/* Progress Timeline */}
                                 <div>
                                     <h3 className="text-base font-semibold mb-2 sm:text-lg">
-                                        Informasi Kontak
+                                        Progress Lomba
                                     </h3>
-                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                        <div>
-                                            <label className="text-sm font-medium text-muted-foreground">
-                                                Email
-                                            </label>
-                                            <p className="text-sm sm:text-base break-all">
-                                                {selectedTeam.email}
+                                    <div className="space-y-4">
+                                        {selectedTeam.progress && selectedTeam.progress.length > 0 ? (
+                                            [...selectedTeam.progress]
+                                                .sort((a, b) => a.stage.order - b.stage.order)
+                                                .map((progress) => (
+                                                    <div key={progress.id} className="flex gap-4">
+                                                        <div className="flex flex-col items-center">
+                                                            <div className={`h-4 w-4 rounded-full ${
+                                                                progress.status === 'approved' ? 'bg-green-500' :
+                                                                progress.status === 'submitted' ? 'bg-yellow-500' :
+                                                                progress.status === 'rejected' ? 'bg-red-500' :
+                                                                'bg-gray-300'
+                                                            }`} />
+                                                            <div className="w-px h-full bg-gray-200" />
+                                                        </div>
+                                                        <div className="flex-1 pb-4">
+                                                            <div className="flex justify-between">
+                                                                <h4 className="font-medium">
+                                                                    {progress.stage.name}
+                                                                </h4>
+                                                                <Badge variant={
+                                                                    progress.status === 'approved' ? 'default' :
+                                                                    progress.status === 'submitted' ? 'secondary' :
+                                                                    progress.status === 'rejected' ? 'destructive' :
+                                                                    'outline'
+                                                                }>
+                                                                    {progress.status}
+                                                                </Badge>
+                                                            </div>
+                                                            {progress.approved_at && (
+                                                                <p className="text-sm text-muted-foreground mt-1">
+                                                                    Disetujui pada: {formatDate(progress.approved_at)}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                        ) : (
+                                            <p className="text-sm text-muted-foreground">
+                                                Belum ada progress yang tercatat
                                             </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Files - Stack on mobile */}
-                                <div>
-                                    <h3 className="text-base font-semibold mb-2 sm:text-lg">
-                                        File Dokumen
-                                    </h3>
-                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                        <div>
-                                            <label className="text-sm font-medium text-muted-foreground">
-                                                Berkas Tim
-                                            </label>
-                                            <a
-                                                href={selectedTeam.link_berkas}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-sm sm:text-base text-blue-600 hover:underline block break-all"
-                                            >
-                                                Lihat Berkas Tim
-                                            </a>
-                                        </div>
-                                        {selectedTeam.link_tugas && (
-                                            <div>
-                                                <label className="text-sm font-medium text-muted-foreground">
-                                                    Tugas
-                                                </label>
-                                                <a
-                                                    href={
-                                                        selectedTeam.link_tugas
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-sm sm:text-base text-blue-600 hover:underline block break-all"
-                                                >
-                                                    Lihat Tugas
-                                                </a>
-                                            </div>
                                         )}
                                     </div>
                                 </div>
 
-                                {/* Status Actions - Stack on mobile */}
+                                {/* Status Actions */}
                                 <div className="flex flex-col gap-2 pt-4 border-t sm:flex-row">
                                     <Button
-                                        onClick={() =>
-                                            handleStatusChange(
-                                                selectedTeam.id,
-                                                "approved"
-                                            )
-                                        }
+                                        onClick={() => handleStatusChange(selectedTeam.id, "approved")}
                                         className="bg-green-600 hover:bg-green-700"
                                         size="sm"
                                     >
                                         Approve Team
                                     </Button>
                                     <Button
-                                        onClick={() =>
-                                            handleStatusChange(
-                                                selectedTeam.id,
-                                                "rejected"
-                                            )
-                                        }
+                                        onClick={() => handleStatusChange(selectedTeam.id, "rejected")}
                                         variant="destructive"
                                         size="sm"
                                     >

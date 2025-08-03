@@ -45,8 +45,8 @@ const data = {
             icon: LayoutDashboardIcon,
         },
         {
-            title: "Teams Registered",
-            url: "/dashboard/team/",
+            title: "Participants",
+            url: "/admin/dashboard",
             icon: UsersRound,
         },
         {
@@ -132,18 +132,23 @@ const data = {
     ],
     documents: [
         {
-            name: "Data Library",
-            url: "#",
+            name: "Registrasi Awal",
+            url: "admin/dashboard/registrasi-awal",
             icon: DatabaseIcon,
         },
         {
-            name: "Reports",
-            url: "#",
+            name: "Preliminary Round",
+            url: "admin/dashboard/preliminary",
             icon: ClipboardListIcon,
         },
         {
-            name: "Word Assistant",
-            url: "#",
+            name: "Semifinal Round",
+            url: "admin/dashboard/semifinal",
+            icon: FileIcon,
+        },
+        {
+            name: "Final Round",
+            url: "admin/dashboard/final",
             icon: FileIcon,
         },
     ],
