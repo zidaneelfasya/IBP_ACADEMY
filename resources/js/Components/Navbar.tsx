@@ -83,7 +83,7 @@ const Navbar = () => {
                     <div className="flex justify-between items-center">
                         {/* Bagian Kiri */}
                         <div className="text-sm font-bold text-purple-800">
-                            INDUSTRIAL BUSINESS PROJECT 2025
+                            INDUSTRIAL BUSINESS PROJECT 2025 ayam
                         </div>
                         
                         {/* Bagian Tengah */}
