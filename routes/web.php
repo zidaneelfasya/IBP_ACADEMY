@@ -87,6 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('team.update-status');
 
         Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
+
     });
 });
 
