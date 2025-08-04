@@ -1,0 +1,32 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v3
+
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy via SSH
+      run: |
+        ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          cd ${{ secrets.DEPLOY_PATH }}
+          git pull origin main
+          composer install --no-dev --optimize-autoloader
+          npm install --legacy-peer-deps
+          npm run build
+        EOF
