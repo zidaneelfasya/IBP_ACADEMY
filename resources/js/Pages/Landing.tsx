@@ -12,6 +12,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
+      ayaaammmm
       <Hero />
       <RecapSection />
       <CompetitionSection />
