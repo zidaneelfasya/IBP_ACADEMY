@@ -5,6 +5,8 @@ import type React from "react";
 import { motion } from "framer-motion";
 import { Link } from "@inertiajs/react";
 import { ArrowLeft, Zap } from "lucide-react";
+import { easeInOut } from "framer-motion";
+
 
 interface HeroSectionProps {
     title: string;
@@ -22,7 +24,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition: {
                 duration: 3,
                 repeat: Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
+                ease: easeInOut,
             },
         },
     };

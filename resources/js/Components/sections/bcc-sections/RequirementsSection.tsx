@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { motion } from "framer-motion";
+import { Variants, easeInOut } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 
 interface Requirement {
@@ -32,14 +33,17 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({
         },
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, x: -50 },
+    const itemVariants: Variants = {
+        hidden: {
+            opacity: 0,
+            x: -50,
+        },
         visible: {
             opacity: 1,
             x: 0,
             transition: {
                 duration: 0.5,
-                ease: "easeOut",
+                ease: easeInOut, // ✅ gunakan easing yang valid
             },
         },
     };

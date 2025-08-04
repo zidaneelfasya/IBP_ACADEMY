@@ -15,7 +15,6 @@ class TestSeeder extends Seeder
      */
     public function run()
     {
-        // Buat 1 tim peserta
 
         CompetitionStage::insert([
             ['name' => 'Registrasi Awal', 'order' => 1],

@@ -4,7 +4,10 @@ import type React from "react";
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { easeInOut } from "framer-motion";
+
 import { Trophy, Award, Sparkles, Target } from "lucide-react";
+
 
 interface Prize {
     title: string;
@@ -43,7 +46,7 @@ const PrizeSection: React.FC<PrizeSectionProps> = ({
                 transition: {
                     duration: 2,
                     repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
+                    ease: easeInOut,
                 },
             },
         };
