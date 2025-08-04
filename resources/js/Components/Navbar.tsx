@@ -95,19 +95,19 @@ const Navbar = () => {
                                 Home
                             </a>
                             <a
-                                href="#"
+                                href="/about"
                                 className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors duration-200"
                             >
                                 About
                             </a>
                             <a
-                                href="#"
+                                href="/competition"
                                 className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors duration-200"
                             >
                                 Competition
                             </a>
                             <a
-                                href="#"
+                                href="/timeline"
                                 className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors duration-200"
                             >
                                 Timeline
