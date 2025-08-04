@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import {
     ArrowUpCircleIcon,
     BarChartIcon,
@@ -18,19 +18,19 @@ import {
     UsersRound,
 } from "lucide-react";
 import ApplicationLogo from "@/Components/ApplicationLogo";
-import { NavDocuments } from "@/Components/nav-documents"
-import { NavMain } from "@/Components/nav-main"
-import { NavSecondary } from "@/Components/nav-secondary"
-import { NavUser } from "@/Components/nav-user"
+import { NavDocuments } from "@/Components/nav-documents";
+import { NavMain } from "@/Components/nav-main";
+import { NavSecondary } from "@/Components/nav-secondary";
+import { NavUser } from "@/Components/nav-user";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/Components/ui/sidebar"
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from "@/Components/ui/sidebar";
 
 const data = {
     user: {
@@ -155,32 +155,44 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  return (
-    <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#">
-                <ApplicationLogo className="h-6 w-6 text-foreground" />
-
-                <span className="text-base font-semibold">IBP ACADEMY ADMIN</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
-    </Sidebar>
-  )
+    return (
+        <Sidebar
+            collapsible="offcanvas"
+            {...props}
+            className="bg-sidebar text-sidebar-foreground border-r border-sidebar-border"
+        >
+            <SidebarHeader className="border-b border-sidebar-border">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            className="
+                data-[slot=sidebar-menu-button]:!p-1.5
+                hover:bg-primary/10
+                data-[state=open]:bg-primary/20
+              "
+                        >
+                            <a href="#">
+                                <ApplicationLogo className="h-6 w-6 text-foreground" />
+                                <span className="text-base font-semibold">
+                                    IBP ACADEMY ADMIN
+                                </span>
+                            </a>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent className="[&>div]:border-sidebar-border">
+                <NavMain items={data.navMain} />
+                <NavDocuments items={data.documents} />
+                <NavSecondary
+                    items={data.navSecondary}
+                    className="mt-auto border-t border-sidebar-border"
+                />
+            </SidebarContent>
+            <SidebarFooter className="border-t border-sidebar-border">
+                <NavUser />
+            </SidebarFooter>
+        </Sidebar>
+    );
 }
