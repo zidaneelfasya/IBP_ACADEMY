@@ -7,7 +7,8 @@ use App\Http\Controllers\PreliminaryParticipantController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SemifinalParticipantController;
 use App\Http\Controllers\TeamRegistrationController;
-use App\Models\TeamRegistration;
+use App\Http\Controllers\BPCRegistrationController;
+use App\Http\Controllers\SimpleBPCController;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -51,14 +52,6 @@ Route::get('/user/dashboard', function () {
     ]);
 })->name('dashboard.user')->middleware(['auth', 'verified'])->middleware('user');
 
-Route::get('/user/dashboard', function () {
-    return Inertia::render('User/Template', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('dashboard.user')->middleware(['auth', 'verified'])->middleware('user');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -140,6 +133,28 @@ Route::middleware('auth')->group(function () {
 
 // route User
 
+// User-facing Competition Registration Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Business Plan Competition (BPC) Registration
+    Route::prefix('competition/bpc')->name('competition.bpc.')->group(function () {
+        Route::get('/register', [BPCRegistrationController::class, 'create'])->name('register.create');
+        Route::post('/register', [BPCRegistrationController::class, 'store'])->name('register.store');
+    });
+
+    // Business Case Competition (BCC) Registration
+    // Route::prefix('competition/bcc')->name('competition.bcc.')->group(function () {
+    //     Route::get('/register', [BCCRegistrationController::class, 'create'])->name('register.create');
+    //     Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
+    // });
+
+    // Common Team Registration Routes (for user's own registrations)
+    // Route::prefix('my-registrations')->name('competition.register.')->group(function () {
+    //     Route::get('/success/{id}', [TeamRegistrationController::class, 'success'])->name('success');
+    //     Route::get('/', [TeamRegistrationController::class, 'show'])->name('show');
+    //     Route::put('/{id}', [TeamRegistrationController::class, 'update'])->name('update');
+    //     Route::delete('/{id}', [TeamRegistrationController::class, 'destroy'])->name('destroy');
+});
+
 Route::get('/user', function () {
     return Inertia::render('User/Template');
 })->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
@@ -148,7 +163,7 @@ Route::get('/user/dashboard', function () {
 })->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
 Route::get('/user/profile', function () {
     return Inertia::render('User/Profile');
-})->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
+})->middleware(['auth', 'verified', 'user']);
 
 
 
@@ -157,7 +172,10 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 
 Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve']);
 
-
-
+// Simple BPC Registration Routes (for testing)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/simple-bpc/register', [SimpleBPCController::class, 'create'])->name('simple-bpc.create');
+    Route::post('/simple-bpc/register', [SimpleBPCController::class, 'store'])->name('simple-bpc.store');
+});
 
 require __DIR__ . '/auth.php';

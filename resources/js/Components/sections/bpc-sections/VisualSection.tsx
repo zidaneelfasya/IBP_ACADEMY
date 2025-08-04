@@ -3,7 +3,6 @@
 import type React from "react";
 
 import { motion } from "framer-motion";
-import RollingGallery from "@/Components/ReactBits/RollingGalery/RollingGalery";
 
 interface VisualSectionProps {
     images?: {
