@@ -8,10 +8,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SemifinalParticipantController;
 use App\Http\Controllers\TeamRegistrationController;
 use App\Http\Controllers\BPCRegistrationController;
+use App\Http\Controllers\BCCRegistrationController;
+use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\SimpleBPCController;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 /*
@@ -91,12 +94,48 @@ Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
 
-Route::get('/business-plan-competition', function () {
-    return Inertia::render('BusinessPlanCompetition');
-})->name('contact');
+Route::get('/business-plan-competition', function (Request $request) {
+    $data = [];
 
-Route::get('/business-case-competition', function () {
-    return Inertia::render('BusinessCaseCompetition');
+    // Check if modal should be shown
+    if ($request->get('showModal') === 'true' && $request->get('regId')) {
+        $registration = \App\Models\TeamRegistration::with('category')
+            ->where('id', $request->get('regId'))
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($registration) {
+            $data['flash'] = [
+                'showRegistrationModal' => true,
+                'existingRegistration' => $registration->toArray(),
+                'category' => $registration->category->toArray()
+            ];
+        }
+    }
+
+    return Inertia::render('BusinessPlanCompetition', $data);
+})->name('business-plan-competition');
+
+Route::get('/business-case-competition', function (Request $request) {
+    $data = [];
+
+    // Check if modal should be shown
+    if ($request->get('showModal') === 'true' && $request->get('regId')) {
+        $registration = \App\Models\TeamRegistration::with('category')
+            ->where('id', $request->get('regId'))
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($registration) {
+            $data['flash'] = [
+                'showRegistrationModal' => true,
+                'existingRegistration' => $registration->toArray(),
+                'category' => $registration->category->toArray()
+            ];
+        }
+    }
+
+    return Inertia::render('BusinessCaseCompetition', $data);
 })->name('business-case-competition');
 
 Route::middleware('admin.code.access')->group(function () {
@@ -142,10 +181,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Business Case Competition (BCC) Registration
-    // Route::prefix('competition/bcc')->name('competition.bcc.')->group(function () {
-    //     Route::get('/register', [BCCRegistrationController::class, 'create'])->name('register.create');
-    //     Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
-    // });
+    Route::prefix('competition/bcc')->name('competition.bcc.')->group(function () {
+        Route::get('/register', [BCCRegistrationController::class, 'create'])->name('register.create');
+        Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
+    });
+
+    // Common Competition Routes
+    Route::get('/competition/success/{registration}', [CompetitionController::class, 'success'])->name('competition.success');
 
     // Common Team Registration Routes (for user's own registrations)
     // Route::prefix('my-registrations')->name('competition.register.')->group(function () {
@@ -171,11 +213,5 @@ Route::get('/user/profile', function () {
 use App\Http\Controllers\Admin\ParticipantProgressController;
 
 Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve']);
-
-// Simple BPC Registration Routes (for testing)
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/simple-bpc/register', [SimpleBPCController::class, 'create'])->name('simple-bpc.create');
-    Route::post('/simple-bpc/register', [SimpleBPCController::class, 'store'])->name('simple-bpc.store');
-});
 
 require __DIR__ . '/auth.php';

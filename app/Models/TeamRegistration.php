@@ -14,6 +14,7 @@ class TeamRegistration extends Model
     protected $fillable = [
         'user_id',
         'competition_category_id',
+        'registration_number',
         'tim_name',
         'asal_universitas',
         'prodi_fakultas',
@@ -33,8 +34,13 @@ class TeamRegistration extends Model
         'member3_nim',
         'member3_email',
         'member3_phone',
-        'link_berkas', // bisa berupa dokumen awal (twibbon, bukti follow, dsb)
-        'status', // ini bisa dipakai sebagai status pendaftaran: pending/verified/rejected // dari form register (BCC / BPC)
+        'link_berkas',
+        'status',
+        'admin_notes',
+        'reviewed_by',
+        'reviewed_at',
+        'registered_at',
+        'cancelled_at',
     ];
     protected $casts = [
         'created_at' => 'datetime',
@@ -58,6 +64,14 @@ class TeamRegistration extends Model
     public function competitionCategory(): BelongsTo
     {
         return $this->belongsTo(CompetitionCategory::class);
+    }
+
+    /**
+     * Alias for competitionCategory for consistency
+     */
+    public function category(): BelongsTo
+    {
+        return $this->competitionCategory();
     }
 
     /**
