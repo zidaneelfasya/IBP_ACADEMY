@@ -44,4 +44,5 @@ class CompetitionCategory extends Model
     {
         return static::where('name', $name)->first();
     }
+    
 }

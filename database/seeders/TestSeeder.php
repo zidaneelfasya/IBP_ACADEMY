@@ -24,6 +24,7 @@ class TestSeeder extends Seeder
             ['name' => 'Final', 'order' => 4],
         ]);
 
+
         // $team = TeamRegistration::create([
         //     'tim_name' => 'Tim Inovator',
         //     'asal_universitas' => 'Universitas Teknologi Cerdas',
@@ -43,6 +44,7 @@ class TestSeeder extends Seeder
         //     'kategori_lomba' => 'BCC'
         // ]);
 
+
         // // Ambil tahap pertama
         // $registrasiStage = CompetitionStage::where('name', 'Registrasi Awal')->first();
 
@@ -55,6 +57,6 @@ class TestSeeder extends Seeder
         // ]);
 
 
-    
+
     }
 }

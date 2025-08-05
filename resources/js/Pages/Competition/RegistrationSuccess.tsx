@@ -274,7 +274,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                 {/* Action Buttons */}
                                 <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                                     <Link
-                                        href="/landing"
+                                        href="/"
                                         className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium transition-all duration-200 border border-transparent rounded-lg shadow-sm text-ibp-white bg-ibp-primary hover:bg-ibp-primary/90 focus:outline-none focus:ring-2 focus:ring-ibp-primary focus:ring-offset-2"
                                     >
                                         <svg
