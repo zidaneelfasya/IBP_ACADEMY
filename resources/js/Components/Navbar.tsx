@@ -174,7 +174,7 @@ const Navbar = () => {
                                     />
                                 </div>
                                 <div className="hidden lg:block">
-                                    <div className="text-lg font-extrabold text-[#1E3A8A] leading-tight">
+                                    <div className="text-lg font-extrabold text-[#082e80] leading-tight">
                                         INDUSTRIAL BUSINESS PROJECT
                                     </div>
                                     <div className="text-xs font-medium text-gray-500">

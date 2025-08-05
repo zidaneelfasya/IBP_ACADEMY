@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 const Hero = () => {
     return (
-        <section className="bg-gradient-to-br from-orange-400 via-yellow-400 to-yellow-300 py-24 relative overflow-hidden min-h-screen">
+        <section className="bg-gradient-to-br from-[#fb9f32] via-yellow-400 to-[#ffe86f] py-24 relative overflow-hidden min-h-screen">
             {/* Background image */}
             <div className="absolute inset-0 opacity-10">
                 <img 
@@ -27,7 +27,7 @@ const Hero = () => {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.5, ease: "easeOut" }}
                     >
-                        <img src="/asset/logo.png" className="w-full max-w-[560px]" alt="IBP 2025 Logo" />
+                        <img src="/asset/logo.png" className="w-full max-w-[480px]" alt="IBP 2025 Logo" />
                     </motion.div>
 
                     {/* Text content with fade-in slide-up */}
@@ -37,7 +37,7 @@ const Hero = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, ease: "easeOut" }}
                     >
-                        <h1 className="text-4xl md:text-6xl font-extrabold text-purple-800 mb-4">
+                        <h1 className="text-4xl md:text-6xl font-extrabold text-[#082380] mb-4">
                             WHAT IS IBP 2025?
                         </h1>
                         <p className="text-gray-700 text-lg">
@@ -60,7 +60,7 @@ const Hero = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1.1, ease: "easeOut", delay: 0.4 }}
                 >
-                    <div className="bg-[#3F1D78] text-white px-8 md:px-16 py-4 rounded-full shadow-lg">
+                    <div className="bg-[#082380] text-white px-8 md:px-16 py-4 rounded-full shadow-lg">
                         <div className="flex flex-col md:flex-row items-center">
                             <div className="flex flex-col items-center mb-4 md:mb-0 md:mr-8">
                                 <div className="flex flex-row">
