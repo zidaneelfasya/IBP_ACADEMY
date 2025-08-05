@@ -164,6 +164,7 @@ const Navbar = () => {
                                 whileHover={{ scale: 1.05 }}
                                 transition={{ duration: 0.2 }}
                                 className="flex items-center space-x-3"
+
                             >
                                 <div className="flex items-center justify-center w-12 h-12 rounded-3xl">
                                     <img

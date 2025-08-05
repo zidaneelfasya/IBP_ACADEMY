@@ -72,10 +72,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
             ->name('export.team-registrations');
 
-        Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.index');
-        Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.index');
-        Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.index');
-        Route::get('/final', [FinalParticipantController::class, 'index'])->name('team.index');
+        Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');
+        Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.preliminary.index');
+        Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.preliminary.semifinal.index');
+        Route::get('/final', [FinalParticipantController::class, 'index'])->name('team.preliminary.final.index');
 
 
 
@@ -83,6 +83,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('team.update-status');
 
         Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
+
     });
 });
 
