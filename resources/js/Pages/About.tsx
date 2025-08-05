@@ -3,9 +3,8 @@ import { Head } from "@inertiajs/react";
 import { Target, Trophy, GitBranch, Calendar } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SpotlightCard from "@/Components/ReactBits/SpotlightCard/SpotlightCard";
-import Navbar from '@/Components/Navbar';
-import Footer from '@/Components/Footer';
-
+import Navbar from "@/Components/Navbar";
+import Footer from "@/Components/Footer";
 
 export default function About() {
     const [visibleSections, setVisibleSections] = useState<Set<string>>(
