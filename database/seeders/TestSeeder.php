@@ -7,6 +7,7 @@ use App\Models\ParticipantProgress;
 use App\Models\TeamRegistration;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class TestSeeder extends Seeder
 {
@@ -22,7 +23,7 @@ class TestSeeder extends Seeder
             ['name' => 'Semifinal', 'order' => 3],
             ['name' => 'Final', 'order' => 4],
         ]);
-        
+
         $team = TeamRegistration::create([
             'tim_name' => 'Tim Inovator',
             'asal_universitas' => 'Universitas Teknologi Cerdas',
@@ -50,16 +51,10 @@ class TestSeeder extends Seeder
             'participant_id' => $team->id,
             'competition_stage_id' => $registrasiStage->id,
             'status' => 'in_progress',
-            
+
         ]);
 
-        // Tambahkan tahap preliminary (belum dimulai)
-        // $preliminaryStage = CompetitionStage::where('name', 'Preliminary Round')->first();
 
-        // ParticipantProgress::create([
-        //     'participant_id' => $team->id,
-        //     'competition_stage_id' => $preliminaryStage->id,
-        //     'status' => 'in_progress',
-        // ]);
+    
     }
 }
