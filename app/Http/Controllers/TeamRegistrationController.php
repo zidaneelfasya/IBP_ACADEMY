@@ -39,64 +39,7 @@ class TeamRegistrationController extends Controller
 
         return redirect()->route('registration.success');
     }
-
-    // public function index(Request $request)
-    // {
-
-    //     $search = $request->query('search');
-    //     $status = $request->query('status', 'all');
-
-    //     // Base query
-    //     $query = TeamRegistration::query()
-    //         ->orderBy('created_at', 'desc');
-
-    //     // Apply search filter
-    //     if ($search) {
-    //         $query->where(function ($q) use ($search) {
-    //             $q->where('leader_name', 'like', "%{$search}%")
-    //                 ->orWhere('leader_nim', 'like', "%{$search}%")
-    //                 ->orWhere('email', 'like', "%{$search}%")
-    //                 ->orWhere('member1_name', 'like', "%{$search}%")
-    //                 ->orWhere('member2_name', 'like', "%{$search}%")
-    //                 ->orWhere('member3_name', 'like', "%{$search}%");
-    //         });
-    //     }
-
-    //     // Apply status filter
-    //     if ($status !== 'all') {
-    //         $query->where('status', $status);
-    //     }
-
-    //     // Paginate
-    //     $teams = $query->paginate(8);
-
-    //     // Calculate stats
-    //     $stats = [
-    //         'total' => TeamRegistration::count(),
-    //         'approved' => TeamRegistration::where('status', 'approved')->count(),
-    //         'pending' => TeamRegistration::where('status', 'pending')->count(),
-    //         'rejected' => TeamRegistration::where('status', 'rejected')->count(),
-    //     ];
-
-    //     return Inertia::render('admin/team-management', [
-    //         'teams' => $teams,
-    //         'filters' => [
-    //             'search' => $search,
-    //             'status' => $status,
-    //         ],
-    //         'stats' => $stats,
-    //     ]);
-    // }
-    //     public function updateStatus(TeamRegistration $team, Request $request)
-    // {
-    //     $request->validate([
-    //         'status' => 'required|in:pending,approved,rejected'
-    //     ]);
-
-    //     $team->update(['status' => $request->status]);
-
-    //     return redirect()->back()->with('success', 'Status tim berhasil diperbarui');
-    // }
+    
     public function index(Request $request)
     {
         $search = $request->query('search');

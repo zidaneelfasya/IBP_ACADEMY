@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             TeamRegistrationSeeder::class,
             UserSeeder::class,
             TestSeeder::class,
-            
+
+
         ]);
     }
 }

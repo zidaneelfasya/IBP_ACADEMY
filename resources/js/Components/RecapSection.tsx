@@ -8,7 +8,7 @@ const RecapSection = () => {
                     <div className="flex flex-col md:flex-row gap-4">
                         {/* Title */}
                         <div className="w-max flex items-center justify-center">
-                            <h2 className="text-6xl font-bold text-purple-800 whitespace-nowrap">
+                            <h2 className="text-6xl font-bold text-[#082380] whitespace-nowrap">
                                 IBP Recap
                             </h2>
                         </div>
@@ -90,7 +90,7 @@ const RecapSection = () => {
                     </div>
 
                     <div className="mt-12 text-center">
-                        <button className="bg-purple-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-purple-700 transition-colors">
+                        <button className="bg-[#082380] text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-purple-700 transition-colors">
                             See Full Recap
                         </button>
                     </div>

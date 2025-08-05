@@ -51,7 +51,7 @@ export default function About() {
                 <div className="absolute inset-0 z-0 bg-[url('/image/auth/screen2.png')] bg-cover bg-center bg-no-repeat" />
 
                 {/* Gradient overlay */}
-                <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#C59400]/90 to-[#C59400]/80" />
+                <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#fb9f32]/90 via-yellow-300 to-[#fae04c]" />
 
                 {/* Decorative elements */}
                 <div className="absolute w-32 h-32 rounded-full top-20 left-10 bg-white/5 blur-xl animate-pulse"></div>
@@ -71,9 +71,9 @@ export default function About() {
                         }`}
                     >
                         <div className="max-w-4xl mx-auto">
-                            <h1 className="mb-8 text-5xl font-black text-[#19006E] md:text-7xl lg:text-8xl drop-shadow-2xl tracking-tight">
+                            <h1 className="mb-8 text-5xl font-black text-[#082e80] md:text-7xl lg:text-8xl drop-shadow-2xl tracking-tight">
                                 ABOUT IBP
-                                <span className="block text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-[#19006E] to-[#411E7A] bg-clip-text text-transparent">
+                                <span className="block text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-[#082e80] to-[#082e80] bg-clip-text text-transparent">
                                     2025
                                 </span>
                             </h1>
@@ -117,7 +117,7 @@ export default function About() {
                             >
                                 {/* Icon & Title */}
                                 <div className="flex-1 text-center lg:text-left">
-                                    <div className="inline-flex items-center justify-center w-20 h-20 mb-6 bg-gradient-to-br from-[#19006E] to-[#411E7A] rounded-2xl shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300">
+                                    <div className="inline-flex items-center justify-center w-20 h-20 mb-6 bg-gradient-to-br from-[#040e24] to-[#082e80] rounded-2xl shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300">
                                         <Target className="w-10 h-10 text-white" />
                                     </div>
                                     <h2 className="mb-6 text-4xl font-black text-[#19006E] md:text-5xl drop-shadow-lg">
@@ -184,7 +184,7 @@ export default function About() {
 
                                 {/* Spotlight Card */}
                                 <SpotlightCard
-                                    className="flex-1 custom-spotlight-card bg-gradient-to-r from-[#411E7A] to-[#676898] shadow-2xl"
+                                    className="flex-1 custom-spotlight-card bg-gradient-to-r from-[#082e80] to-[#00013f] shadow-2xl"
                                     spotlightColor="rgba(255, 225, 255, 0.3)"
                                 >
                                     <p className="text-xl font-bold leading-relaxed text-center text-white md:text-2xl">
@@ -215,10 +215,10 @@ export default function About() {
                             >
                                 {/* Icon & Title */}
                                 <div className="flex-1 text-center lg:text-left">
-                                    <div className="inline-flex items-center justify-center w-20 h-20 mb-6 bg-gradient-to-br from-[#676898] to-[#411E7A] rounded-2xl shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300">
+                                    <div className="inline-flex items-center justify-center w-20 h-20 mb-6 bg-gradient-to-br from-[#425785] to-[#082e80] rounded-2xl shadow-2xl transform hover:scale-110 hover:rotate-3 transition-all duration-300">
                                         <GitBranch className="w-10 h-10 text-white" />
                                     </div>
-                                    <h2 className="mb-6 text-4xl font-black text-[#19006E] md:text-5xl drop-shadow-lg">
+                                    <h2 className="mb-6 text-4xl font-black text-[#082e80] md:text-5xl drop-shadow-lg">
                                         Competition
                                         <span className="block text-3xl font-bold md:text-4xl">
                                             Branch
@@ -234,15 +234,15 @@ export default function About() {
                                             <p className="text-lg font-medium leading-relaxed text-white md:text-xl">
                                                 Kompetisi terdiri dari beberapa
                                                 cabang utama:{" "}
-                                                <span className="font-bold text-yellow-300">
+                                                <span className="font-bold text-[#082e80]">
                                                     Business Plan
                                                 </span>
                                                 ,{" "}
-                                                <span className="font-bold text-yellow-300">
+                                                <span className="font-bold text-[#082e80]">
                                                     Technology Innovation
                                                 </span>
                                                 , dan{" "}
-                                                <span className="font-bold text-yellow-300">
+                                                <span className="font-bold text-[#082e80]">
                                                     Startup Pitching
                                                 </span>{" "}
                                                 yang terbuka untuk mahasiswa dan
@@ -275,7 +275,7 @@ export default function About() {
                                     <div className="inline-flex items-center justify-center w-20 h-20 mb-6 bg-gradient-to-br from-[#E6A500] to-[#C59400] rounded-2xl shadow-2xl transform hover:scale-110 hover:-rotate-3 transition-all duration-300">
                                         <Calendar className="w-10 h-10 text-white" />
                                     </div>
-                                    <h2 className="mb-6 text-4xl font-black text-[#19006E] md:text-5xl drop-shadow-lg">
+                                    <h2 className="mb-6 text-4xl font-black text-[#082e80] md:text-5xl drop-shadow-lg">
                                         Series of Activities
                                         <span className="block text-3xl font-bold md:text-4xl">
                                             for IBP 2025
@@ -291,13 +291,13 @@ export default function About() {
                                             <p className="text-lg font-medium leading-relaxed text-white md:text-xl">
                                                 Rangkaian kegiatan IBP 2025
                                                 meliputi:{" "}
-                                                <span className="font-bold text-yellow-300">
+                                                <span className="font-bold text-[#082e80]">
                                                     seminar, workshop,
                                                     mentoring, kompetisi,
                                                     inkubasi
                                                 </span>
                                                 , hingga{" "}
-                                                <span className="font-bold text-yellow-300">
+                                                <span className="font-bold text-[#082e80]">
                                                     awarding night
                                                 </span>{" "}
                                                 yang dirancang untuk mendukung

@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { CheckCircle, Calendar, Users, Rocket, Trophy, Star } from "lucide-react"
+import { CheckCircle, Calendar, Users, Rocket, Trophy, Star, ClipboardList, FileEdit, FileSearch, Presentation, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface TimelineItem {
@@ -18,46 +18,45 @@ interface TimelineItem {
 const timelineData: TimelineItem[] = [
   {
     id: "1",
-    date: "January 2023",
-    title: "Company Founded",
-    description: "Started our journey with a vision to revolutionize the industry and create meaningful impact.",
-    icon: <Rocket className="w-5 h-5" />,
-    status: "completed",
-  },
-  {
-    id: "2",
-    date: "March 2023",
-    title: "First Product Launch",
-    description: "Successfully launched our MVP with core features that solved real customer problems.",
-    icon: <Star className="w-5 h-5" />,
-    status: "completed",
-  },
-  {
-    id: "3",
-    date: "June 2023",
-    title: "10K Users Milestone",
-    description: "Reached our first major user milestone, validating product-market fit and user satisfaction.",
-    icon: <Users className="w-5 h-5" />,
-    status: "completed",
-  },
-  {
-    id: "4",
-    date: "September 2023",
-    title: "Series A Funding",
-    description: "Secured Series A funding to accelerate growth and expand our team of talented individuals.",
-    icon: <Trophy className="w-5 h-5" />,
+    date: "8 - 14 August 2025",
+    title: "Registration Stage 1",
+    description: "First phase of registration for all participants. Teams must submit basic information and express their interest in participating.",
+    icon: <ClipboardList className="w-5 h-5" />, // Better for initial registration
     status: "current",
   },
   {
-    id: "5",
-    date: "Q1 2024",
-    title: "Global Expansion",
-    description: "Planning to expand our services globally and enter new markets across different continents.",
-    icon: <Calendar className="w-5 h-5" />,
+    id: "2",
+    date: "15 - 21 August 2025",
+    title: "Registration Stage 2",
+    description: "Final registration phase where teams complete their profiles, submit required documents, and finalize team compositions.",
+    icon: <FileEdit className="w-5 h-5" />, // Represents document completion
     status: "upcoming",
   },
-]
-
+  {
+    id: "3",
+    date: "15 - 31 August 2025",
+    title: "Preliminary Round",
+    description: "Initial competition phase where participants submit their business proposals. Judging criteria include innovation, feasibility, and presentation quality.",
+    icon: <FileSearch className="w-5 h-5" />, // Represents proposal evaluation
+    status: "upcoming",
+  },
+  {
+    id: "4",
+    date: "9 - 23 September 2025",
+    title: "Semifinal Round",
+    description: "Selected teams present their business plans to judges. Includes Q&A sessions and detailed evaluation of business models.",
+    icon: <Presentation className="w-5 h-5" />, // Represents business presentations
+    status: "upcoming",
+  },
+  {
+    id: "5",
+    date: "30 September - 20 October 2025",
+    title: "Final Round",
+    description: "Top teams compete in the grand finale. Includes live pitches, business case simulations, and announcement of winners with prize distribution.",
+    icon: <Award className="w-5 h-5" />, // Represents the ultimate prize
+    status: "upcoming",
+  },
+];
 export default function TimelineSection() {
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set())
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -103,11 +102,11 @@ export default function TimelineSection() {
   }
 
   return (
-    <section className="flex items-center justify-center w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20">
+    <section className="light flex items-center justify-center w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-16">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Our Journey</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Our Rundown</h2>
             <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
               From humble beginnings to industry leadership. Here's how we've grown and evolved over time.
             </p>

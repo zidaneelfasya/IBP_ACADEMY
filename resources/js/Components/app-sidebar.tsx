@@ -133,22 +133,22 @@ const data = {
     documents: [
         {
             name: "Registrasi Awal",
-            url: "admin/dashboard/registrasi-awal",
+            url: "/admin/dashboard/registrasi-awal",
             icon: DatabaseIcon,
         },
         {
             name: "Preliminary Round",
-            url: "admin/dashboard/preliminary",
+            url: "/admin/dashboard/preliminary",
             icon: ClipboardListIcon,
         },
         {
             name: "Semifinal Round",
-            url: "admin/dashboard/semifinal",
+            url: "/admin/dashboard/semifinal",
             icon: FileIcon,
         },
         {
             name: "Final Round",
-            url: "admin/dashboard/final",
+            url: "/admin/dashboard/final",
             icon: FileIcon,
         },
     ],

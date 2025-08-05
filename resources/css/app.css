@@ -3,145 +3,170 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* Base Colors */
-    --background: 0 0% 100%; /* White */
-    --foreground: 222.2 84% 4.9%; /* Dark blue-black for text */
 
-    /* Card & Popover */
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    :root {
+        /* IBP Academy Brand Colors */
+        --background: 0 0% 100%; /* FFFFFF */
+        --foreground: 0 0% 0%; /* 000000 */
+        --muted: 0 0% 92%; /* EAE7E8 approx */
+        --muted-foreground: 0 0% 30%;
+        --popover: 0 0% 100%; /* FFFFFF */
+        --popover-foreground: 0 0% 0%; /* 000000 */
+        --card: 0 0% 92%; /* EAE7E8 approx */
+        --card-foreground: 0 0% 0%; /* 000000 */
+        --border: 0 0% 88%; /* EAE7E8 lighter */
+        --input: 0 0% 92%; /* EAE7E8 approx */
+        --primary: 221 100% 25%; /* 082E80 */
+        --primary-foreground: 0 0% 100%; /* FFFFFF */
+        --secondary: 29 97% 59%; /* FB9F32 */
+        --secondary-foreground: 0 0% 0%; /* 000000 */
+        --accent: 52 100% 71%; /* FFE86F */
+        --accent-foreground: 0 0% 0%; /* 000000 */
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --ring: 221 100% 25%; /* 082E80 */
+        --chart-1: 221 100% 25%; /* 082E80 */
+        --chart-2: 29 97% 59%; /* FB9F32 */
+        --chart-3: 52 100% 71%; /* FFE86F */
+        --chart-4: 0 0% 92%; /* EAE7E8 */
+        --chart-5: 0 0% 0%; /* 000000 */
+        --radius: 0.5rem;
 
-    /* Primary - IBP Blue (#1E3A8A) */
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 0 0% 100%; /* White */
-    --primary-hover: 221.2 83.2% 45%; /* Darker blue on hover */
+        /* Custom IBP Academy Colors */
+        --ibp-black: 0 0% 0%; /* 000000 */
+        --ibp-primary: 221 100% 25%; /* 082E80 */
+        --ibp-secondary: 29 97% 59%; /* FB9F32 */
+        --ibp-accent: 52 100% 71%; /* FFE86F */
+        --ibp-neutral: 0 0% 92%; /* EAE7E8 */
+        --ibp-white: 0 0% 100%; /* FFFFFF */
+    }
 
-    /* Secondary */
-    --secondary: 210 40% 96.1%; /* Light gray */
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    /* Muted */
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    /* Accent - Gold */
-    --accent: 45.9 100% 51.8%; /* Gold yellow */
-    --accent-foreground: 0 0% 0%; /* Black */
-    --accent-hover: 38 92% 50%; /* More orange on hover */
-
-    /* Destructive */
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* Borders & Inputs */
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-
-    /* Ring */
-    --ring: 221.2 83.2% 53.3%; /* IBP Blue */
-
-    /* Charts */
-    --chart-1: 221.2 83.2% 53.3%; /* IBP Blue */
-    --chart-2: 45.9 100% 51.8%; /* Gold */
-    --chart-3: 186.1176 100% 50%;
-    --chart-4: 168 100% 50%;
-    --chart-5: 54.1176 100% 50%;
-
-    /* Sidebar */
-    --sidebar: 210 40% 96.1%; /* Light gray */
-    --sidebar-foreground: 222.2 47.4% 11.2%;
-    --sidebar-primary: 221.2 83.2% 53.3%; /* IBP Blue */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 45.9 100% 51.8%; /* Gold */
-    --sidebar-accent-foreground: 0 0% 0%; /* Black */
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 221.2 83.2% 53.3%; /* IBP Blue */
-
-    /* Typography */
-    --font-sans: 'Inter', 'Poppins', 'Open Sans', sans-serif;
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-
-    /* Other */
-    --radius: 0.5rem;
-    --shadow: 0px 4px 8px -2px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0px 4px 8px -2px hsl(0 0% 0% / 0.1), 0px 2px 4px -3px hsl(0 0% 0% / 0.1);
-  }
-
-  .dark {
-    /* Base Colors */
-    --background: 222.2 84% 4.9%; /* Dark blue-black */
-    --foreground: 210 40% 98%; /* White */
-
-    /* Card & Popover */
-    --card: 222.2 84% 7.9%; /* Slightly lighter than background */
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 7.9%;
-    --popover-foreground: 210 40% 98%;
-
-    /* Primary */
-    --primary: 221.2 83.2% 60%; /* Lighter IBP Blue */
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 221.2 83.2% 53.3%; /* Original IBP Blue on hover */
-
-    /* Secondary */
-    --secondary: 222.2 84% 7.9%;
-    --secondary-foreground: 210 40% 98%;
-
-    /* Muted */
-    --muted: 222.2 84% 7.9%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    /* Accent */
-    --accent: 45.9 100% 51.8%; /* Gold */
-    --accent-foreground: 0 0% 0%; /* Black */
-    --accent-hover: 38 92% 50%; /* More orange on hover */
-
-    /* Destructive */
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* Borders & Inputs */
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-
-    /* Ring */
-    --ring: 221.2 83.2% 60%; /* Lighter IBP Blue */
-
-    /* Sidebar */
-    --sidebar: 222.2 84% 7.9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 221.2 83.2% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 45.9 100% 51.8%;
-    --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 221.2 83.2% 60%;
-  }
+    .dark {
+        --background: 0 0% 0%; /* 000000 */
+        --foreground: 0 0% 100%; /* FFFFFF */
+        --muted: 0 0% 8%;
+        --muted-foreground: 0 0% 70%;
+        --popover: 0 0% 4%;
+        --popover-foreground: 0 0% 100%;
+        --card: 0 0% 4%;
+        --card-foreground: 0 0% 100%;
+        --border: 0 0% 15%;
+        --input: 0 0% 8%;
+        --primary: 221 100% 35%; /* Lighter 082E80 for dark mode */
+        --primary-foreground: 0 0% 100%;
+        --secondary: 29 97% 69%; /* Lighter FB9F32 for dark mode */
+        --secondary-foreground: 0 0% 0%;
+        --accent: 52 100% 81%; /* Lighter FFE86F for dark mode */
+        --accent-foreground: 0 0% 0%;
+        --destructive: 0 84% 70%;
+        --destructive-foreground: 0 0% 100%;
+        --ring: 221 100% 35%;
+        --chart-1: 221 100% 35%;
+        --chart-2: 29 97% 69%;
+        --chart-3: 52 100% 81%;
+        --chart-4: 0 0% 15%;
+        --chart-5: 0 0% 100%;
+    }
+}
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground font-sans;
-  }
+@layer utilities {
+    /* IBP Academy Brand Colors Utilities */
+    .bg-ibp-black {
+        background-color: hsl(var(--ibp-black));
+    }
+    .bg-ibp-primary {
+        background-color: hsl(var(--ibp-primary));
+    }
+    .bg-ibp-secondary {
+        background-color: hsl(var(--ibp-secondary));
+    }
+    .bg-ibp-accent {
+        background-color: hsl(var(--ibp-accent));
+    }
+    .bg-ibp-neutral {
+        background-color: hsl(var(--ibp-neutral));
+    }
+    .bg-ibp-white {
+        background-color: hsl(var(--ibp-white));
+    }
 
-  /* Custom hover states */
-  .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-[hsl(var(--primary-hover))];
-  }
+    .text-ibp-black {
+        color: hsl(var(--ibp-black));
+    }
+    .text-ibp-primary {
+        color: hsl(var(--ibp-primary));
+    }
+    .text-ibp-secondary {
+        color: hsl(var(--ibp-secondary));
+    }
+    .text-ibp-accent {
+        color: hsl(var(--ibp-accent));
+    }
+    .text-ibp-neutral {
+        color: hsl(var(--ibp-neutral));
+    }
+    .text-ibp-white {
+        color: hsl(var(--ibp-white));
+    }
 
-  .btn-accent {
-    @apply bg-accent text-accent-foreground hover:bg-[hsl(var(--accent-hover))];
-  }
+    .border-ibp-black {
+        border-color: hsl(var(--ibp-black));
+    }
+    .border-ibp-primary {
+        border-color: hsl(var(--ibp-primary));
+    }
+    .border-ibp-secondary {
+        border-color: hsl(var(--ibp-secondary));
+    }
+    .border-ibp-accent {
+        border-color: hsl(var(--ibp-accent));
+    }
+    .border-ibp-neutral {
+        border-color: hsl(var(--ibp-neutral));
+    }
+    .border-ibp-white {
+        border-color: hsl(var(--ibp-white));
+    }
 
-  /* Focus styles */
-  .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
-  }
+    /* Gradient utilities */
+    .bg-gradient-ibp-primary {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-primary)),
+            hsl(var(--ibp-primary) / 0.8)
+        );
+    }
+
+    .bg-gradient-ibp-secondary {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-secondary)),
+            hsl(var(--ibp-secondary) / 0.8)
+        );
+    }
+
+    .bg-gradient-ibp-brand {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-primary)),
+            hsl(var(--ibp-secondary))
+        );
+    }
+
+    .bg-gradient-ibp-accent {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-accent)),
+            hsl(var(--ibp-accent) / 0.6)
+        );
+    }
+
 }
