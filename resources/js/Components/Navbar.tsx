@@ -160,33 +160,34 @@ const Navbar = () => {
                     >
                         <div className="flex items-center justify-between">
                             {/* Logo/Brand */}
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ duration: 0.2 }}
-                                className="flex items-center space-x-3"
-
-                            >
-                                <div className="flex items-center justify-center w-12 h-12 rounded-3xl">
-                                    <img
-                                        src="/asset/logo.png"
-                                        alt="IBP Logo"
-                                        className="w-full h-auto"
-                                    />
-                                </div>
-                                <div className="hidden lg:block">
-                                    <div className="text-lg font-extrabold text-[#082e80] leading-tight">
-                                        INDUSTRIAL BUSINESS PROJECT
+                            <Link href="/" className="flex items-center space-x-3">
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="flex items-center space-x-3"
+                                >
+                                    <div className="flex items-center justify-center w-12 h-12 rounded-3xl">
+                                        <img
+                                            src="/asset/logo.png"
+                                            alt="IBP Logo"
+                                            className="w-full h-auto"
+                                        />
                                     </div>
-                                    <div className="text-xs font-medium text-gray-500">
-                                        2025
+                                    <div className="hidden lg:block">
+                                        <div className="text-lg font-extrabold text-[#082e80] leading-tight">
+                                            INDUSTRIAL BUSINESS PROJECT
+                                        </div>
+                                        <div className="text-xs font-medium text-gray-500">
+                                            2025
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="block lg:hidden">
-                                    <div className="text-base font-bold text-[#1E3A8A]">
-                                        IBP 2025
+                                    <div className="block lg:hidden">
+                                        <div className="text-base font-bold text-[#1E3A8A]">
+                                            IBP 2025
+                                        </div>
                                     </div>
-                                </div>
-                            </motion.div>
+                                </motion.div>
+                            </Link>
 
                             {/* Desktop Navigation */}
                             <div className="hidden space-x-8 lg:flex">

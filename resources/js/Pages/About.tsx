@@ -51,7 +51,7 @@ export default function About() {
                 <div className="absolute inset-0 z-0 bg-[url('/image/auth/screen2.png')] bg-cover bg-center bg-no-repeat" />
 
                 {/* Gradient overlay */}
-                <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#fb9f32]/90 to-[#ffe86f]" />
+                <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#fb9f32]/90 via-yellow-300 to-[#fae04c]" />
 
                 {/* Decorative elements */}
                 <div className="absolute w-32 h-32 rounded-full top-20 left-10 bg-white/5 blur-xl animate-pulse"></div>
