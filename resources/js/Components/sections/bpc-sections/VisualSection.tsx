@@ -3,8 +3,11 @@
 import type React from "react";
 
 import { motion } from "framer-motion";
+
+
 import RollingGallery from "@/Components/ReactBits/RollingGalery/RollingGalery";
 import { easeInOut } from "framer-motion";
+
 
 
 interface VisualSectionProps {

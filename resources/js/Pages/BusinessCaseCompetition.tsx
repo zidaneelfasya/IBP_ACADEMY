@@ -1,7 +1,8 @@
 "use client";
 
 import type React from "react";
-import { Head } from "@inertiajs/react";
+import { useState, useEffect } from "react";
+import { Head, usePage } from "@inertiajs/react";
 import {
     FileText,
     UserPlus,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
+import RegistrationExistsModal from "@/Components/RegistrationExistsModal";
 
 // Import sections
 import HeroSection from "@/Components/sections/bpc-sections/HeroSection";
@@ -27,7 +29,63 @@ import PrizeSection from "@/Components/sections/bpc-sections/PrizeSection";
 import CTASection from "@/Components/sections/bpc-sections/CTASection";
 import ContactSection from "@/Components/sections/bpc-sections/ContactSection";
 
+interface TeamRegistration {
+    id: number;
+    registration_number: string;
+    tim_name: string;
+    asal_universitas: string;
+    prodi_fakultas: string;
+    leader_name: string;
+    leader_email: string;
+    leader_phone: string;
+    status: string;
+    created_at: string;
+}
+
+interface CompetitionCategory {
+    id: number;
+    name: string;
+    full_name?: string;
+}
+
+interface FlashData {
+    showRegistrationModal?: boolean;
+    existingRegistration?: TeamRegistration;
+    category?: CompetitionCategory;
+}
+
 const BusinessCaseCompetition: React.FC = () => {
+    const page = usePage();
+    const flash = page.props.flash as FlashData | undefined;
+    const [showModal, setShowModal] = useState(false);
+
+    // Show modal if redirected with flash data
+    useEffect(() => {
+        console.log("All props:", page.props);
+        console.log("Flash data:", flash);
+
+        // Check for URL parameters as fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const showModalParam = urlParams.get("showModal") === "true";
+
+        if (
+            (flash?.showRegistrationModal && flash?.existingRegistration) ||
+            showModalParam
+        ) {
+            console.log(
+                "Showing modal with registration:",
+                flash?.existingRegistration
+            );
+            setShowModal(true);
+        }
+    }, [flash, page.props]);
+
+    // Debug flash data
+    useEffect(() => {
+        if (flash) {
+            console.log("Flash data:", flash);
+        }
+    }, [flash]);
     // Stats data
     const statsData = [
         {
@@ -184,7 +242,7 @@ const BusinessCaseCompetition: React.FC = () => {
         },
         {
             text: "🚀 Register Team",
-            href: "/register/business-case",
+            href: route("competition.bcc.register.create"),
             type: "primary" as const,
             icon: <UserPlus className="w-6 h-6" />,
             external: false,
@@ -275,6 +333,16 @@ const BusinessCaseCompetition: React.FC = () => {
                 />
             </div>
             <Footer />
+
+            {/* Registration Exists Modal */}
+            {flash?.existingRegistration && flash?.category && (
+                <RegistrationExistsModal
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    registration={flash.existingRegistration}
+                    category={flash.category}
+                />
+            )}
         </>
     );
 };

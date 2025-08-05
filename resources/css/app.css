@@ -3,68 +3,168 @@
 @tailwind utilities;
 
 @layer base {
-   
     :root {
-      --background: 232 12.85% 92.06%;
-      --foreground: 232 64% 4%;
-      --muted: 52 10% 95%;
-      --muted-foreground: 52 4% 31%;
-      --popover: 0 0% 99%;
-      --popover-foreground: 232 64% 3%;
-      --card: 226.42 64.4% 89.2%;
-      --card-foreground: 232 64% 3%;
-      --border: 0 14.45% 82.02%;
-      --input: 232 3% 93%;
-      --primary: 232 47.57% 49%;
-      --primary-foreground: 0 0% 100%;
-      --secondary: 36.23 86.15% 50.01%;
-      --secondary-foreground: 52 98% 16%;
-      --accent: 215.09 71.76% 78.21%;
-      --accent-foreground: 52 98% 16%;
-      --destructive: 12 87% 23%;
-      --destructive-foreground: 12 87% 83%;
-      --ring: 232 34.91% 44.47%;
-      --chart-1: 232 69.6% 64.57%;
-      --chart-2: 31.7 98% 56%;
-      --chart-3: 40.75 98% 56%;
-      --chart-4: 0 98% 59%;
-      --chart-5: 232 101% 56%;
-      --radius: 0.5rem;
+        /* IBP Academy Brand Colors */
+        --background: 0 0% 100%; /* FFFFFF */
+        --foreground: 0 0% 0%; /* 000000 */
+        --muted: 0 0% 92%; /* EAE7E8 approx */
+        --muted-foreground: 0 0% 30%;
+        --popover: 0 0% 100%; /* FFFFFF */
+        --popover-foreground: 0 0% 0%; /* 000000 */
+        --card: 0 0% 92%; /* EAE7E8 approx */
+        --card-foreground: 0 0% 0%; /* 000000 */
+        --border: 0 0% 88%; /* EAE7E8 lighter */
+        --input: 0 0% 92%; /* EAE7E8 approx */
+        --primary: 221 100% 25%; /* 082E80 */
+        --primary-foreground: 0 0% 100%; /* FFFFFF */
+        --secondary: 29 97% 59%; /* FB9F32 */
+        --secondary-foreground: 0 0% 0%; /* 000000 */
+        --accent: 52 100% 71%; /* FFE86F */
+        --accent-foreground: 0 0% 0%; /* 000000 */
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --ring: 221 100% 25%; /* 082E80 */
+        --chart-1: 221 100% 25%; /* 082E80 */
+        --chart-2: 29 97% 59%; /* FB9F32 */
+        --chart-3: 52 100% 71%; /* FFE86F */
+        --chart-4: 0 0% 92%; /* EAE7E8 */
+        --chart-5: 0 0% 0%; /* 000000 */
+        --radius: 0.5rem;
+
+        /* Custom IBP Academy Colors */
+        --ibp-black: 0 0% 0%; /* 000000 */
+        --ibp-primary: 221 100% 25%; /* 082E80 */
+        --ibp-secondary: 29 97% 59%; /* FB9F32 */
+        --ibp-accent: 52 100% 71%; /* FFE86F */
+        --ibp-neutral: 0 0% 92%; /* EAE7E8 */
+        --ibp-white: 0 0% 100%; /* FFFFFF */
     }
 
     .dark {
-      --background: 232 78.82% 10.32%;
-      --foreground: 232 0% 100%;
-      --muted: 52 10% 5%;
-      --muted-foreground: 52 4% 69%;
-      --popover: 232 37% 3%;
-      --popover-foreground: 0 18.99% 84.81%;
-      --card: 232 57.79% 12.19%;
-      --card-foreground: 244.53 0% 83.85%;
-      --border: 230.94 69.52% 29.04%;
-      --input: 72.45 3% 11%;
-      --primary: 232 56.67% 55.62%;
-      --primary-foreground: 0 0% 100%;
-      --secondary: 38.49 73.57% 50.51%;
-      --secondary-foreground: 52 98% 16%;
-      --accent: 226.42 69.77% 79.65%;
-      --accent-foreground: 52 98% 16%;
-      --destructive: 12 72.73% 52.04%;
-      --destructive-foreground: 0 0% 100%;
-      --ring: 244.53 58.89% 66.32%;
-      --chart-1: 232 42.47% 53.21%;
-      --chart-2: 40.75 87.54% 50.63%;
-      --chart-3: 52 98% 56%;
-      --chart-4: 52 98% 59%;
-      --chart-5: 232 101% 56%;
+        --background: 0 0% 0%; /* 000000 */
+        --foreground: 0 0% 100%; /* FFFFFF */
+        --muted: 0 0% 8%;
+        --muted-foreground: 0 0% 70%;
+        --popover: 0 0% 4%;
+        --popover-foreground: 0 0% 100%;
+        --card: 0 0% 4%;
+        --card-foreground: 0 0% 100%;
+        --border: 0 0% 15%;
+        --input: 0 0% 8%;
+        --primary: 221 100% 35%; /* Lighter 082E80 for dark mode */
+        --primary-foreground: 0 0% 100%;
+        --secondary: 29 97% 69%; /* Lighter FB9F32 for dark mode */
+        --secondary-foreground: 0 0% 0%;
+        --accent: 52 100% 81%; /* Lighter FFE86F for dark mode */
+        --accent-foreground: 0 0% 0%;
+        --destructive: 0 84% 70%;
+        --destructive-foreground: 0 0% 100%;
+        --ring: 221 100% 35%;
+        --chart-1: 221 100% 35%;
+        --chart-2: 29 97% 69%;
+        --chart-3: 52 100% 81%;
+        --chart-4: 0 0% 15%;
+        --chart-5: 0 0% 100%;
     }
-  }
-
+}
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    /* IBP Academy Brand Colors Utilities */
+    .bg-ibp-black {
+        background-color: hsl(var(--ibp-black));
+    }
+    .bg-ibp-primary {
+        background-color: hsl(var(--ibp-primary));
+    }
+    .bg-ibp-secondary {
+        background-color: hsl(var(--ibp-secondary));
+    }
+    .bg-ibp-accent {
+        background-color: hsl(var(--ibp-accent));
+    }
+    .bg-ibp-neutral {
+        background-color: hsl(var(--ibp-neutral));
+    }
+    .bg-ibp-white {
+        background-color: hsl(var(--ibp-white));
+    }
+
+    .text-ibp-black {
+        color: hsl(var(--ibp-black));
+    }
+    .text-ibp-primary {
+        color: hsl(var(--ibp-primary));
+    }
+    .text-ibp-secondary {
+        color: hsl(var(--ibp-secondary));
+    }
+    .text-ibp-accent {
+        color: hsl(var(--ibp-accent));
+    }
+    .text-ibp-neutral {
+        color: hsl(var(--ibp-neutral));
+    }
+    .text-ibp-white {
+        color: hsl(var(--ibp-white));
+    }
+
+    .border-ibp-black {
+        border-color: hsl(var(--ibp-black));
+    }
+    .border-ibp-primary {
+        border-color: hsl(var(--ibp-primary));
+    }
+    .border-ibp-secondary {
+        border-color: hsl(var(--ibp-secondary));
+    }
+    .border-ibp-accent {
+        border-color: hsl(var(--ibp-accent));
+    }
+    .border-ibp-neutral {
+        border-color: hsl(var(--ibp-neutral));
+    }
+    .border-ibp-white {
+        border-color: hsl(var(--ibp-white));
+    }
+
+    /* Gradient utilities */
+    .bg-gradient-ibp-primary {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-primary)),
+            hsl(var(--ibp-primary) / 0.8)
+        );
+    }
+
+    .bg-gradient-ibp-secondary {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-secondary)),
+            hsl(var(--ibp-secondary) / 0.8)
+        );
+    }
+
+    .bg-gradient-ibp-brand {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-primary)),
+            hsl(var(--ibp-secondary))
+        );
+    }
+
+    .bg-gradient-ibp-accent {
+        background: linear-gradient(
+            135deg,
+            hsl(var(--ibp-accent)),
+            hsl(var(--ibp-accent) / 0.6)
+        );
+    }
 }
