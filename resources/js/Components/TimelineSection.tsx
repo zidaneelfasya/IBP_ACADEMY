@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { CheckCircle, Calendar, Users, Rocket, Trophy, Star } from "lucide-react"
+import { CheckCircle, Calendar, Users, Rocket, Trophy, Star, ClipboardList, FileEdit, FileSearch, Presentation, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface TimelineItem {
@@ -21,7 +21,7 @@ const timelineData: TimelineItem[] = [
     date: "8 - 14 August 2025",
     title: "Registration Stage 1",
     description: "First phase of registration for all participants. Teams must submit basic information and express their interest in participating.",
-    icon: <Rocket className="w-5 h-5" />,
+    icon: <ClipboardList className="w-5 h-5" />, // Better for initial registration
     status: "current",
   },
   {
@@ -29,7 +29,7 @@ const timelineData: TimelineItem[] = [
     date: "15 - 21 August 2025",
     title: "Registration Stage 2",
     description: "Final registration phase where teams complete their profiles, submit required documents, and finalize team compositions.",
-    icon: <Star className="w-5 h-5" />,
+    icon: <FileEdit className="w-5 h-5" />, // Represents document completion
     status: "upcoming",
   },
   {
@@ -37,7 +37,7 @@ const timelineData: TimelineItem[] = [
     date: "15 - 31 August 2025",
     title: "Preliminary Round",
     description: "Initial competition phase where participants submit their business proposals. Judging criteria include innovation, feasibility, and presentation quality.",
-    icon: <Users className="w-5 h-5" />,
+    icon: <FileSearch className="w-5 h-5" />, // Represents proposal evaluation
     status: "upcoming",
   },
   {
@@ -45,7 +45,7 @@ const timelineData: TimelineItem[] = [
     date: "9 - 23 September 2025",
     title: "Semifinal Round",
     description: "Selected teams present their business plans to judges. Includes Q&A sessions and detailed evaluation of business models.",
-    icon: <Trophy className="w-5 h-5" />,
+    icon: <Presentation className="w-5 h-5" />, // Represents business presentations
     status: "upcoming",
   },
   {
@@ -53,11 +53,10 @@ const timelineData: TimelineItem[] = [
     date: "30 September - 20 October 2025",
     title: "Final Round",
     description: "Top teams compete in the grand finale. Includes live pitches, business case simulations, and announcement of winners with prize distribution.",
-    icon: <Calendar className="w-5 h-5" />,
+    icon: <Award className="w-5 h-5" />, // Represents the ultimate prize
     status: "upcoming",
   },
-]
-
+];
 export default function TimelineSection() {
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set())
   const observerRef = useRef<IntersectionObserver | null>(null)
