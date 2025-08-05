@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CompetitionCategory;
+use App\Models\CompetitionStage;
+use App\Models\ParticipantProgress;
 use App\Models\TeamRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,8 +70,8 @@ class BCCRegistrationController extends Controller
             ]);
         }
 
-        // Validate input
-        $validated = $request->validate([
+        // Prepare validation rules
+        $validationRules = [
             // Team Information
             'tim_name' => [
                 'required',
@@ -101,94 +103,118 @@ class BCCRegistrationController extends Controller
             ],
             'leader_phone' => 'required|string|min:10|max:15',
 
-            // Member 1 Information
-            'member1_name' => 'required|string|min:3|max:100',
-            'member1_nim' => [
+            // Members Information
+            'members' => 'required|array|min:1|max:3', // Minimum 1 member (leader is separate), max 3 total (leader + 2 members)
+            'members.*.name' => 'required|string|min:3|max:100',
+            'members.*.nim' => [
                 'required',
                 'string',
                 'min:5',
                 'max:20',
-                'different:leader_nim',
-                Rule::unique('team_registrations')
+                Rule::unique('team_registrations', 'leader_nim')
                     ->where('competition_category_id', $category->id)
             ],
-            'member1_email' => [
+            'members.*.email' => [
                 'required',
                 'email',
                 'max:100',
-                'different:leader_email',
-                Rule::unique('team_registrations')
+                Rule::unique('team_registrations', 'leader_email')
                     ->where('competition_category_id', $category->id)
             ],
-            'member1_phone' => 'required|string|min:10|max:15|different:leader_phone',
-
-            // Member 2 Information
-            'member2_name' => 'required|string|min:3|max:100',
-            'member2_nim' => [
-                'required',
-                'string',
-                'min:5',
-                'max:20',
-                'different:leader_nim,member1_nim',
-                Rule::unique('team_registrations')
-                    ->where('competition_category_id', $category->id)
-            ],
-            'member2_email' => [
-                'required',
-                'email',
-                'max:100',
-                'different:leader_email,member1_email',
-                Rule::unique('team_registrations')
-                    ->where('competition_category_id', $category->id)
-            ],
-            'member2_phone' => 'required|string|min:10|max:15|different:leader_phone,member1_phone',
-
-            // Member 3 Information
-            'member3_name' => 'required|string|min:3|max:100',
-            'member3_nim' => [
-                'required',
-                'string',
-                'min:5',
-                'max:20',
-                'different:leader_nim,member1_nim,member2_nim',
-                Rule::unique('team_registrations')
-                    ->where('competition_category_id', $category->id)
-            ],
-            'member3_email' => [
-                'required',
-                'email',
-                'max:100',
-                'different:leader_email,member1_email,member2_email',
-                Rule::unique('team_registrations')
-                    ->where('competition_category_id', $category->id)
-            ],
-            'member3_phone' => 'required|string|min:10|max:15|different:leader_phone,member1_phone,member2_phone',
+            'members.*.phone' => 'required|string|min:10|max:15',
 
             // Documents
             'link_berkas' => 'required|url|max:500',
-        ], [
-            // Custom error messages
+        ];
+
+        // Custom error messages
+        $customMessages = [
             'tim_name.unique' => 'Nama tim sudah digunakan untuk kompetisi BCC.',
             'leader_nim.unique' => 'NIM ketua sudah terdaftar di kompetisi BCC.',
             'leader_email.unique' => 'Email ketua sudah terdaftar di kompetisi BCC.',
-            'member1_nim.unique' => 'NIM anggota 1 sudah terdaftar di kompetisi BCC.',
-            'member1_email.unique' => 'Email anggota 1 sudah terdaftar di kompetisi BCC.',
-            'member2_nim.unique' => 'NIM anggota 2 sudah terdaftar di kompetisi BCC.',
-            'member2_email.unique' => 'Email anggota 2 sudah terdaftar di kompetisi BCC.',
-            'member3_nim.unique' => 'NIM anggota 3 sudah terdaftar di kompetisi BCC.',
-            'member3_email.unique' => 'Email anggota 3 sudah terdaftar di kompetisi BCC.',
-        ]);
+            'members.*.nim.unique' => 'NIM anggota sudah terdaftar di kompetisi BCC.',
+            'members.*.email.unique' => 'Email anggota sudah terdaftar di kompetisi BCC.',
+        ];
+
+        // Validate input
+        $validated = $request->validate($validationRules, $customMessages);
+
+        // Additional validation for unique NIMs, emails, and phones among members and leader
+        $validator = validator($request->all(), $validationRules, $customMessages);
+
+        // Check for duplicate NIMs among members
+        $nims = array_map(function ($member) {
+            return $member['nim'];
+        }, $validated['members']);
+        
+        if (count($nims) !== count(array_unique($nims))) {
+            $validator->errors()->add('members', 'NIM anggota tidak boleh sama dengan anggota lainnya');
+        }
+
+        // Check for duplicate emails among members
+        $emails = array_map(function ($member) {
+            return $member['email'];
+        }, $validated['members']);
+        
+        if (count($emails) !== count(array_unique($emails))) {
+            $validator->errors()->add('members', 'Email anggota tidak boleh sama dengan anggota lainnya');
+        }
+
+        // Check for duplicate phones among members
+        $phones = array_map(function ($member) {
+            return $member['phone'];
+        }, $validated['members']);
+        
+        if (count($phones) !== count(array_unique($phones))) {
+            $validator->errors()->add('members', 'Nomor telepon anggota tidak boleh sama dengan anggota lainnya');
+        }
+
+        // Check if any member NIM/email/phone matches leader's
+        foreach ($validated['members'] as $index => $member) {
+            if ($member['nim'] === $validated['leader_nim']) {
+                $validator->errors()->add("members.$index.nim", 'NIM anggota tidak boleh sama dengan NIM ketua');
+            }
+            if ($member['email'] === $validated['leader_email']) {
+                $validator->errors()->add("members.$index.email", 'Email anggota tidak boleh sama dengan email ketua');
+            }
+            if ($member['phone'] === $validated['leader_phone']) {
+                $validator->errors()->add("members.$index.phone", 'Nomor telepon anggota tidak boleh sama dengan nomor telepon ketua');
+            }
+        }
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
 
         try {
             DB::beginTransaction();
 
             // Generate registration number
             $registrationNumber = $this->generateRegistrationNumber($category->id);
+            $registrasi_awal = CompetitionStage::where('order', 1)->first();
+
+            // Prepare member data
+            $memberData = [];
+            foreach ($validated['members'] as $index => $member) {
+                $memberNumber = $index + 1;
+                $memberData["member{$memberNumber}_name"] = $member['name'];
+                $memberData["member{$memberNumber}_nim"] = $member['nim'];
+                $memberData["member{$memberNumber}_email"] = $member['email'];
+                $memberData["member{$memberNumber}_phone"] = $member['phone'];
+            }
+
+            // Fill empty member slots with empty strings
+            for ($i = count($validated['members']) + 1; $i <= 3; $i++) {
+                $memberData["member{$i}_name"] = '';
+                $memberData["member{$i}_nim"] = '';
+                $memberData["member{$i}_email"] = '';
+                $memberData["member{$i}_phone"] = '';
+            }
 
             // Create registration
-            $registration = TeamRegistration::create([
+            $registration = TeamRegistration::create(array_merge([
                 'user_id' => Auth::id(),
-                'competition_category_id' => $category->id, // Auto-set to BCC
+                'competition_category_id' => $category->id,
                 'registration_number' => $registrationNumber,
                 'tim_name' => $validated['tim_name'],
                 'asal_universitas' => $validated['asal_universitas'],
@@ -199,25 +225,16 @@ class BCCRegistrationController extends Controller
                 'leader_email' => $validated['leader_email'],
                 'leader_phone' => $validated['leader_phone'],
 
-                'member1_name' => $validated['member1_name'],
-                'member1_nim' => $validated['member1_nim'],
-                'member1_email' => $validated['member1_email'],
-                'member1_phone' => $validated['member1_phone'],
-
-                'member2_name' => $validated['member2_name'],
-                'member2_nim' => $validated['member2_nim'],
-                'member2_email' => $validated['member2_email'],
-                'member2_phone' => $validated['member2_phone'],
-
-                'member3_name' => $validated['member3_name'],
-                'member3_nim' => $validated['member3_nim'],
-                'member3_email' => $validated['member3_email'],
-                'member3_phone' => $validated['member3_phone'],
-
                 'link_berkas' => $validated['link_berkas'],
 
                 'status' => 'pending',
                 'registered_at' => now(),
+            ], $memberData));
+
+            $progress = ParticipantProgress::create([
+                'participant_id' => $registration->id,
+                'competition_stage_id' => $registrasi_awal->id,
+                'status' => 'in_progress',
             ]);
 
             DB::commit();
@@ -226,7 +243,8 @@ class BCCRegistrationController extends Controller
                 'user_id' => Auth::id(),
                 'registration_id' => $registration->id,
                 'team_name' => $validated['tim_name'],
-                'registration_number' => $registrationNumber
+                'registration_number' => $registrationNumber,
+                'progress_id' => $progress->id,
             ]);
 
             return redirect()->route('competition.success', $registration->id)
@@ -242,7 +260,7 @@ class BCCRegistrationController extends Controller
 
             return back()->withErrors([
                 'general' => 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.'
-            ]);
+            ])->withInput();
         }
     }
 
