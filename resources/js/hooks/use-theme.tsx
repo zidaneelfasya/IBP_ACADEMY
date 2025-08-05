@@ -26,7 +26,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
     children,
-    defaultTheme = "system",
+    defaultTheme = "light",
     storageKey = "vite-ui-theme",
     ...props
 }: ThemeProviderProps) {
@@ -41,7 +41,7 @@ export function ThemeProvider({
 
         if (theme === "system") {
             const systemTheme = window.matchMedia(
-                "(prefers-color-scheme: dark)"
+                "(prefers-color-scheme: light)"
             ).matches
                 ? "dark"
                 : "light";
