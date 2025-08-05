@@ -25,14 +25,16 @@ jobs:
         run: |
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
             cd ${{ secrets.DEPLOY_PATH }}
-            git config --global --add safe.directory ${{ secrets.DEPLOY_PATH }}
+            git config --global --add safe.directory ***
+            # Reset any local changes
+            git reset --hard HEAD
+            # Clean any untracked files
+            git clean -fd
             git pull origin main
             composer install --no-dev --optimize-autoloader
             npm install --legacy-peer-deps
             npm run build
             php artisan migrate --force
             php artisan config:clear
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+
           EOF
