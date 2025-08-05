@@ -33,37 +33,37 @@ import {
 } from "@/Components/ui/sidebar";
 
 const data = {
-    user: {
-        name: "shadcn",
-        email: "m@example.com",
-        avatar: "/avatars/shadcn.jpg",
-    },
+    // user: {
+    //     name: "shadcn",
+    //     email: "m@example.com",
+    //     avatar: "/avatars/shadcn.jpg",
+    // },
     navMain: [
         {
             title: "Dashboard",
             url: "/dashboard",
             icon: LayoutDashboardIcon,
         },
-        {
-            title: "Participants",
-            url: "/admin/dashboard",
-            icon: UsersRound,
-        },
-        {
-            title: "Analytics",
-            url: "#",
-            icon: BarChartIcon,
-        },
-        {
-            title: "Projects",
-            url: "#",
-            icon: FolderIcon,
-        },
-        {
-            title: "Team",
-            url: "#",
-            icon: UsersIcon,
-        },
+        // {
+        //     title: "Participants",
+        //     url: "/admin/dashboard",
+        //     icon: UsersRound,
+        // },
+        // {
+        //     title: "Analytics",
+        //     url: "#",
+        //     icon: BarChartIcon,
+        // },
+        // {
+        //     title: "Projects",
+        //     url: "#",
+        //     icon: FolderIcon,
+        // },
+        // {
+        //     title: "Team",
+        //     url: "#",
+        //     icon: UsersIcon,
+        // },
     ],
     navClouds: [
         {
@@ -132,6 +132,11 @@ const data = {
     ],
     documents: [
         {
+            name: "Participants",
+            url: "/admin/dashboard",
+            icon: UsersRound,
+        },
+        {
             name: "Registrasi Awal",
             url: "/admin/dashboard/registrasi-awal",
             icon: DatabaseIcon,
@@ -159,9 +164,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <Sidebar
             collapsible="offcanvas"
             {...props}
-            className="bg-sidebar text-sidebar-foreground border-r border-sidebar-border"
+            className="bg-sidebar text-sidebar-foreground border-r"
         >
-            <SidebarHeader className="border-b border-sidebar-border">
+            <SidebarHeader className="">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
@@ -182,15 +187,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
-            <SidebarContent className="[&>div]:border-sidebar-border">
+            <SidebarContent className="">
                 <NavMain items={data.navMain} />
                 <NavDocuments items={data.documents} />
                 <NavSecondary
                     items={data.navSecondary}
-                    className="mt-auto border-t border-sidebar-border"
+                    className="mt-auto  "
                 />
             </SidebarContent>
-            <SidebarFooter className="border-t border-sidebar-border">
+            <SidebarFooter className="">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
