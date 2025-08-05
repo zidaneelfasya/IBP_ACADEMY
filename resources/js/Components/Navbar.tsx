@@ -418,7 +418,7 @@ const Navbar = () => {
                                                     className="absolute right-0 z-50 w-56 py-2 mt-2 bg-white border border-gray-200 shadow-xl rounded-2xl"
                                                 >
                                                     <Link
-                                                        href="/dashboard"
+                                                        href="/user/dashboard"
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">
@@ -427,7 +427,7 @@ const Navbar = () => {
                                                         Dashboard
                                                     </Link>
                                                     <Link
-                                                        href="/profile"
+                                                        href="/user/profile"
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">

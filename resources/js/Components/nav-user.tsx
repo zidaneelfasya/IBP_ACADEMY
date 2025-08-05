@@ -41,7 +41,6 @@ export function NavUser() {
     const { isMobile } = useSidebar();
     const { auth } = usePage<PagePropsWithAuth>().props;
 
-    // Jika tidak ada user yang login, return null
     if (!auth?.user) {
         return null;
     }
@@ -67,7 +66,12 @@ export function NavUser() {
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                            className="
+                                data-[state=open]:bg-primary
+                                data-[state=open]:text-primary-foreground
+                                hover:bg-primary/90
+                                hover:text-primary-foreground
+                            "
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
                                 {user.avatar ? (
@@ -122,21 +126,24 @@ export function NavUser() {
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-primary/10 focus:bg-primary/10">
                                 <UserCircleIcon className="mr-2 size-4" />
                                 Profile
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-primary/10 focus:bg-primary/10">
                                 <CreditCardIcon className="mr-2 size-4" />
                                 Billing
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-primary/10 focus:bg-primary/10">
                                 <BellIcon className="mr-2 size-4" />
                                 Notifications
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleLogout}>
+                        <DropdownMenuItem
+                            onClick={handleLogout}
+                            className="hover:bg-destructive/10 focus:bg-destructive/10 text-destructive hover:text-destructive"
+                        >
                             <LogOutIcon className="mr-2 size-4" />
                             Log out
                         </DropdownMenuItem>

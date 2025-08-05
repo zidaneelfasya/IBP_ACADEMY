@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+
     :root {
         /* IBP Academy Brand Colors */
         --background: 0 0% 100%; /* FFFFFF */
@@ -167,4 +168,5 @@
             hsl(var(--ibp-accent) / 0.6)
         );
     }
+
 }

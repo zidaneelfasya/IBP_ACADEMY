@@ -296,7 +296,7 @@ const SidebarTrigger = React.forwardRef<
             variant="ghost"
             size="icon"
             className={cn(
-                "h-8 w-8 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:scale-105 active:scale-95",
+                "h-8 w-8 rounded-lg transition-all duration-200 hover:bg-primary/10 hover:text-primary-foreground",
                 className
             )}
             onClick={(event) => {
@@ -490,7 +490,7 @@ const SidebarGroupAction = React.forwardRef<
             ref={ref}
             data-sidebar="group-action"
             className={cn(
-                "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:scale-110 focus-visible:ring-2 active:scale-95 [&>svg]:size-4 [&>svg]:shrink-0",
+                "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-all duration-200 hover:bg-primary/10 hover:text-primary-foreground focus-visible:ring-2 active:bg-primary/20 [&>svg]:size-4 [&>svg]:shrink-0",
                 // Increases the hit area of the button on mobile.
                 "after:absolute after:-inset-2 after:md:hidden",
                 "group-data-[collapsible=icon]:hidden",
@@ -542,13 +542,13 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
 const sidebarMenuButtonVariants = cva(
-    "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left text-sm outline-none ring-sidebar-ring transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] focus-visible:ring-2 active:bg-accent active:text-accent-foreground active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium data-[active=true]:shadow-sm data-[state=open]:hover:bg-accent data-[state=open]:hover:text-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+    "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left text-sm outline-none ring-sidebar-ring transition-all duration-200 hover:bg-primary/10 focus-visible:ring-2 active:bg-primary/20 disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium data-[active=true]:shadow-sm data-[state=open]:hover:bg-primary/10 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
     {
         variants: {
             variant: {
-                default: "hover:bg-accent hover:text-accent-foreground",
+                default: "hover:bg-primary/10",
                 outline:
-                    "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-accent hover:text-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--accent))]",
+                    "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-primary/10",
             },
             size: {
                 default: "h-8 text-sm",
@@ -639,7 +639,7 @@ const SidebarMenuAction = React.forwardRef<
             ref={ref}
             data-sidebar="menu-action"
             className={cn(
-                "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:scale-110 focus-visible:ring-2 active:scale-95 peer-hover/menu-button:text-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
+                "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-all duration-200 hover:bg-primary/10 hover:text-primary-foreground focus-visible:ring-2 active:bg-primary/20 peer-hover/menu-button:text-primary-foreground [&>svg]:size-4 [&>svg]:shrink-0",
                 // Increases the hit area of the button on mobile.
                 "after:absolute after:-inset-2 after:md:hidden",
                 "peer-data-[size=sm]/menu-button:top-1",
