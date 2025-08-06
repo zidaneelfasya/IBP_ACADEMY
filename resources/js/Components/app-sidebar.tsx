@@ -31,6 +31,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/Components/ui/sidebar";
+import { NavParticipant } from "./nav-participant";
 
 const data = {
     // user: {
@@ -41,9 +42,10 @@ const data = {
     navMain: [
         {
             title: "Dashboard",
-            url: "/dashboard",
+            url: "/admin",
             icon: LayoutDashboardIcon,
         },
+
         // {
         //     title: "Participants",
         //     url: "/admin/dashboard",
@@ -54,11 +56,11 @@ const data = {
         //     url: "#",
         //     icon: BarChartIcon,
         // },
-        // {
-        //     title: "Projects",
-        //     url: "#",
-        //     icon: FolderIcon,
-        // },
+        {
+            title: "Tugas",
+            url: "/admin/dashboard/tugas",
+            icon: FolderIcon,
+        },
         // {
         //     title: "Team",
         //     url: "#",
@@ -130,29 +132,29 @@ const data = {
             icon: SearchIcon,
         },
     ],
-    documents: [
+     competitionStages: [
         {
-            name: "Participants",
-            url: "/admin/dashboard",
+            title: "Participants",
+            url: "/admin/dashboard/participant",
             icon: UsersRound,
         },
         {
-            name: "Registrasi Awal",
+            title: "Registrasi Awal",
             url: "/admin/dashboard/registrasi-awal",
             icon: DatabaseIcon,
         },
         {
-            name: "Preliminary Round",
+            title: "Preliminary Round",
             url: "/admin/dashboard/preliminary",
             icon: ClipboardListIcon,
         },
         {
-            name: "Semifinal Round",
+            title: "Semifinal Round",
             url: "/admin/dashboard/semifinal",
             icon: FileIcon,
         },
         {
-            name: "Final Round",
+            title: "Final Round",
             url: "/admin/dashboard/final",
             icon: FileIcon,
         },
@@ -189,7 +191,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
             <SidebarContent className="">
                 <NavMain items={data.navMain} />
-                <NavDocuments items={data.documents} />
+                 <div className="px-4 py-2">
+                    
+                </div>
+                <NavParticipant 
+                    items={data.competitionStages} 
+
+                />
+                
+                {/* <NavDocuments items={data.documents} /> */}
                 <NavSecondary
                     items={data.navSecondary}
                     className="mt-auto  "
