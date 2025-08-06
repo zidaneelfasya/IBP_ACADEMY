@@ -7,23 +7,45 @@ use App\Models\ParticipantProgress;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Models\CompetitionStage;
+use Illuminate\Support\Facades\Auth;
 
 
 
 class ParticipantProfileController extends Controller
 {
-   public function show()
-{
-    $team = TeamRegistration::with(['competitionCategory', 'progress.stage'])
-        ->where('user_id', auth()->id()) 
-        ->firstOrFail();
+public function show()
+    {
+        $user = Auth::user();
 
-    return Inertia::render('User/Profile', [
-        'team' => $this->formatTeamData($team),
-        'stages' => $this->getStagesWithProgress($team),
-    ]);
-}
+        // Find team or return null if not exists
+        $team = TeamRegistration::with(['competitionCategory', 'progress.stage'])
+            ->where('user_id', $user->id)
+            ->first();
 
+        if (!$team) {
+            return Inertia::render('User/Profile', [
+                'hasTeam' => false,
+                'competitionOptions' => [
+                    [
+                        'name' => 'Business Plan Competition (BPC)',
+                        'route' => route('competition.bpc.register.create'),
+                        'description' => 'Competition for innovative business ideas'
+                    ],
+                    [
+                        'name' => 'Business Case Competition (BCC)',
+                        'route' => route('competition.bcc.register.create'),
+                        'description' => 'Competition for business case analysis'
+                    ]
+                ]
+            ]);
+        }
+
+        return Inertia::render('User/Profile', [
+            'hasTeam' => true,
+            'team' => $this->formatTeamData($team),
+            'stages' => $this->getStagesWithProgress($team),
+        ]);
+    }
 
 
     private function formatTeamData(TeamRegistration $team): array

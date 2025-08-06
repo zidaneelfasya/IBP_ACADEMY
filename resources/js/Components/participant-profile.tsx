@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePage } from "@inertiajs/react";
+import { usePage, Link } from "@inertiajs/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
@@ -28,7 +28,6 @@ import {
     Mail,
     Building,
     BookOpen,
-    Download,
     Eye,
     Phone,
     File,
@@ -83,25 +82,35 @@ interface TeamData {
     reviewed_at: string;
 }
 
+interface CompetitionOption {
+    name: string;
+    route: string;
+    description: string;
+}
+
 export default function ParticipantProfile() {
     const { props } = usePage<{
-        team: TeamData;
+        team: TeamData | null;
         stages: Stage[];
+        competitionOptions?: CompetitionOption[];
+        hasTeam: boolean;
     }>();
 
-    const { team, stages } = props;
+    const { team, stages, competitionOptions = [], hasTeam } = props;
     const [openStages, setOpenStages] = useState<number[]>([]);
     const [progressPercentage, setProgressPercentage] = useState(0);
 
-      const roundDates = [
-          "1 - 7 August 2025", // Round 1
-          "8 - 14 August 2025", // Round 2
-          "15 - 21 August 2025", // Round 3
-          "22 - 28 August 2025", // Round 4
-          "29 August - 4 September 2025", // Round 5
-      ];
+    const roundDates = [
+        "1 - 7 August 2025",
+        "8 - 14 August 2025",
+        "15 - 21 August 2025",
+        "22 - 28 August 2025",
+        "29 August - 4 September 2025",
+    ];
 
     useEffect(() => {
+        if (!hasTeam) return;
+
         const currentStage = stages.find(
             (stage) =>
                 stage.status === "in-progress" ||
@@ -110,7 +119,6 @@ export default function ParticipantProfile() {
         );
         if (currentStage) setOpenStages([currentStage.id]);
 
-        // Calculate dynamic progress
         const calculateProgress = () => {
             const statusValues: Record<string, number> = {
                 approved: 1,
@@ -130,7 +138,7 @@ export default function ParticipantProfile() {
         };
 
         setProgressPercentage(calculateProgress());
-    }, [stages]);
+    }, [stages, hasTeam]);
 
     const toggleStage = (stageId: number) => {
         setOpenStages((prev) =>
@@ -139,32 +147,6 @@ export default function ParticipantProfile() {
                 : [...prev, stageId]
         );
     };
-
-    const teamMembers: TeamMember[] = [
-        {
-            name: team.member1_name,
-            nim: team.member1_nim,
-            email: team.member1_email,
-            phone: team.member1_phone,
-        },
-        {
-            name: team.member2_name,
-            nim: team.member2_nim,
-            email: team.member2_email,
-            phone: team.member2_phone,
-        },
-        {
-            name: team.member3_name,
-            nim: team.member3_nim,
-            email: team.member3_email,
-            phone: team.member3_phone,
-        },
-    ].filter((member) => member.name);
-
-    const completedStages = stages.filter(
-        (stage) => stage.status === "completed" || stage.status === "approved"
-    ).length;
-    const totalStages = stages.length;
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -196,7 +178,82 @@ export default function ParticipantProfile() {
         }
     };
 
-    // Find the highest approved stage
+     if (!hasTeam || !team) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className="max-w-4xl mx-auto p-4 space-y-6">
+                    <div className="text-center py-6">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                            <GraduationCap className="h-6 w-6 text-blue-600" />
+                            <h1 className="text-2xl font-bold text-gray-900">
+                                Team Registration Dashboard
+                            </h1>
+                        </div>
+                        <p className="text-gray-600">
+                            You haven't registered a team yet
+                        </p>
+                    </div>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Trophy className="h-5 w-5 text-amber-500" />
+                                Register Your Team
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {competitionOptions.map((option) => (
+                                    <Card key={option.name}>
+                                        <CardHeader>
+                                            <CardTitle>{option.name}</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <p className="text-sm text-gray-600">
+                                                {option.description}
+                                            </p>
+                                            <Button asChild className="w-full">
+                                                <Link href={option.route}>
+                                                    Register Now
+                                                </Link>
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        );
+    }
+
+   const teamMembers: TeamMember[] = [
+       {
+           name: team!.member1_name,
+           nim: team!.member1_nim,
+           email: team!.member1_email,
+           phone: team!.member1_phone,
+       },
+       {
+           name: team!.member2_name,
+           nim: team!.member2_nim,
+           email: team!.member2_email,
+           phone: team!.member2_phone,
+       },
+       {
+           name: team!.member3_name,
+           nim: team!.member3_nim,
+           email: team!.member3_email,
+           phone: team!.member3_phone,
+       },
+   ].filter((member) => member.name);
+
+    const completedStages = stages.filter(
+        (stage) => stage.status === "completed" || stage.status === "approved"
+    ).length;
+    const totalStages = stages.length;
+
     const lastApprovedStageIndex = stages.reduce((maxIndex, stage, index) => {
         return stage.status === "approved" ? index : maxIndex;
     }, -1);
@@ -429,133 +486,139 @@ export default function ParticipantProfile() {
                 </Card>
 
                 {/* Competition Progress */}
-                 <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Trophy className="h-5 w-5 text-amber-500" />
-                        Competition Progress
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {/* Progress Timeline */}
-                    <div className="relative mb-8">
-                        <div className="flex justify-between items-center w-full">
-                            {stages.map((stage, index) => {
-                                const isApproved = stage.status === "approved";
-                                const isCompleted = stage.status === "completed";
-                                const isCurrent = stage.status === "in-progress";
-                                const isFuture = stage.status === "not-started";
-                                const isPastApproved = index <= lastApprovedStageIndex;
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Trophy className="h-5 w-5 text-amber-500" />
+                            Competition Progress
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {/* Progress Timeline */}
+                        <div className="relative mb-8">
+                            <div className="flex justify-between items-center w-full">
+                                {stages.map((stage, index) => {
+                                    const isApproved =
+                                        stage.status === "approved";
+                                    const isCompleted =
+                                        stage.status === "completed";
+                                    const isCurrent =
+                                        stage.status === "in-progress";
 
-                                return (
-                                    <div
-                                        key={stage.id}
-                                        className="flex flex-col items-center z-10"
-                                    >
+                                    return (
                                         <div
-                                            className={`h-8 w-8 rounded-full flex items-center justify-center border-2 ${
-                                                isApproved
-                                                    ? "bg-green-500 border-green-600 text-white"
-                                                    : isCompleted
-                                                    ? "bg-green-300 border-green-400 text-white"
-                                                    : isCurrent
-                                                    ? "bg-amber-300 border-amber-400 text-white"
-                                                    : "bg-gray-100 border-gray-300 text-gray-600"
-                                            }`}
+                                            key={stage.id}
+                                            className="flex flex-col items-center z-10"
                                         >
-                                            {stage.round_number || index + 1}
+                                            <div
+                                                className={`h-8 w-8 rounded-full flex items-center justify-center border-2 ${
+                                                    isApproved
+                                                        ? "bg-green-500 border-green-600 text-white"
+                                                        : isCompleted
+                                                        ? "bg-green-300 border-green-400 text-white"
+                                                        : isCurrent
+                                                        ? "bg-amber-300 border-amber-400 text-white"
+                                                        : "bg-gray-100 border-gray-300 text-gray-600"
+                                                }`}
+                                            >
+                                                {stage.round_number ||
+                                                    index + 1}
+                                            </div>
+                                            <div className="text-xs mt-2 text-center max-w-16">
+                                                {stage.name}
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-1">
+                                                {roundDates[index] ||
+                                                    stage.due_date}
+                                            </div>
                                         </div>
-                                        <div className="text-xs mt-2 text-center max-w-16">
-                                            {stage.name}
-                                        </div>
-                                        <div className="text-xs text-gray-500 mt-1">
-                                            {roundDates[index] || stage.due_date}
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
+
+                            <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
+                            <div
+                                className="absolute top-4 left-0 h-1 bg-green-500 z-0 transition-all duration-500 ease-in-out"
+                                style={{ width: `${progressPercentage}%` }}
+                            ></div>
                         </div>
 
-                        {/* Progress bar background */}
-                        <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
-
-                        {/* Animated green progress bar */}
-                        <div
-                            className="absolute top-4 left-0 h-1 bg-green-500 z-0 transition-all duration-500 ease-in-out"
-                            style={{
-                                width: `${progressPercentage}%`,
-                            }}
-                        ></div>
-                    </div>
-
-                    {/* Stage Details */}
-                    <div className="space-y-4">
-                        {stages.map((stage, index) => (
-                            <Collapsible
-                                key={stage.id}
-                                open={openStages.includes(stage.id)}
-                                onOpenChange={() => toggleStage(stage.id)}
-                            >
-                                <CollapsibleTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full justify-between p-4 h-auto hover:bg-gray-50"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {getStatusIcon(stage.status)}
-                                            <div className="text-left">
-                                                <div className="font-medium">
-                                                    Round {stage.round_number || index + 1}: {stage.name}
-                                                </div>
-                                                <div className="text-sm text-gray-600">
-                                                    {stage.description}
-                                                </div>
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    Date: {roundDates[index] || stage.due_date}
+                        {/* Stage Details */}
+                        <div className="space-y-4">
+                            {stages.map((stage, index) => (
+                                <Collapsible
+                                    key={stage.id}
+                                    open={openStages.includes(stage.id)}
+                                    onOpenChange={() => toggleStage(stage.id)}
+                                >
+                                    <CollapsibleTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full justify-between p-4 h-auto hover:bg-gray-50"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                {getStatusIcon(stage.status)}
+                                                <div className="text-left">
+                                                    <div className="font-medium">
+                                                        Round{" "}
+                                                        {stage.round_number ||
+                                                            index + 1}
+                                                        : {stage.name}
+                                                    </div>
+                                                    <div className="text-sm text-gray-600">
+                                                        {stage.description}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 mt-1">
+                                                        Date:{" "}
+                                                        {roundDates[index] ||
+                                                            stage.due_date}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        {openStages.includes(stage.id) ? (
-                                            <ChevronDown className="h-4 w-4" />
-                                        ) : (
-                                            <ChevronRight className="h-4 w-4" />
-                                        )}
-                                    </Button>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent className="px-4 pb-4">
-                                    <div className="space-y-4 ml-8">
-                                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                            <span className="text-sm">
-                                                Status
-                                            </span>
-                                            <Badge
-                                                className={`text-xs ${getStatusBadge(
-                                                    stage.status
-                                                )}`}
-                                            >
-                                                {stage.status.replace("-", " ")}
-                                            </Badge>
-                                        </div>
-
-                                        {stage.approved_at && (
+                                            {openStages.includes(stage.id) ? (
+                                                <ChevronDown className="h-4 w-4" />
+                                            ) : (
+                                                <ChevronRight className="h-4 w-4" />
+                                            )}
+                                        </Button>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent className="px-4 pb-4">
+                                        <div className="space-y-4 ml-8">
                                             <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                                 <span className="text-sm">
-                                                    Approved at
+                                                    Status
                                                 </span>
-                                                <span className="text-sm text-gray-600">
-                                                    {stage.approved_at}
-                                                </span>
+                                                <Badge
+                                                    className={`text-xs ${getStatusBadge(
+                                                        stage.status
+                                                    )}`}
+                                                >
+                                                    {stage.status.replace(
+                                                        "-",
+                                                        " "
+                                                    )}
+                                                </Badge>
                                             </div>
-                                        )}
-                                    </div>
-                                </CollapsibleContent>
-                            </Collapsible>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
 
+                                            {stage.approved_at && (
+                                                <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                                    <span className="text-sm">
+                                                        Approved at
+                                                    </span>
+                                                    <span className="text-sm text-gray-600">
+                                                        {stage.approved_at}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </CollapsibleContent>
+                                </Collapsible>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
     );
 }
+
