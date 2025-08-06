@@ -76,7 +76,7 @@ export default function Login({
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="block mt-4">
+                <div className="flex justify-between mt-4">
                     <label className="flex items-center">
                         <Checkbox
                             name="remember"
@@ -89,6 +89,14 @@ export default function Login({
                             Remember me
                         </span>
                     </label>
+                    
+                        <Link
+                            href={route("register")}
+                            className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            don't have an account?
+                        </Link>
+                    
                 </div>
 
                 <div className="flex items-center justify-end mt-4">
@@ -100,13 +108,6 @@ export default function Login({
                             Forgot your password?
                         </Link>
                     )}
-
-                    <Link
-                        href={route("register")}
-                        className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-4"
-                    >
-                        Register
-                    </Link>
 
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Log in

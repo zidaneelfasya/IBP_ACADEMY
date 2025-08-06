@@ -252,15 +252,12 @@ const BusinessCaseCompetition: React.FC = () => {
     // Contact persons
     const contactPersons = [
         {
-            name: "Diana Putri",
-            whatsapp: "+62 821-5678-9012",
-            instagram: "@dianaputri_ibp",
-            line: "dianaputri",
+            name: "Tiara Ramadhani",
+            whatsapp: "+62 821-6702-7236",
         },
         {
-            name: "Kevin Pratama",
-            whatsapp: "+62 822-3456-7890",
-            instagram: "@kevinpratama_ibp",
+            name: "Najwa Laili",
+            whatsapp: "+62 813-3338-4548",
         },
     ];
 
