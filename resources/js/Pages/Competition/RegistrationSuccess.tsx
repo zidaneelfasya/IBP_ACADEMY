@@ -256,7 +256,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                     Email:
                                                 </span>
                                                 <span className="ml-2">
-                                                    competition@ibpacademy.com
+                                                    industrialbusinessproject@gmail.com
                                                 </span>
                                             </div>
                                             <div>
@@ -264,7 +264,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                     WhatsApp:
                                                 </span>
                                                 <span className="ml-2">
-                                                    +62 812-3456-7890
+                                                    +62 813-3338-4548
                                                 </span>
                                             </div>
                                         </div>

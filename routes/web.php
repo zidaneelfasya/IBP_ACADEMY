@@ -184,6 +184,7 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
     //     Route::delete('/{id}', [TeamRegistrationController::class, 'destroy'])->name('destroy');
 });
 
+
 Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function () {
     Route::get('/', fn() => Inertia::render('User/Template'))->name('dashboard.user');
     Route::get('/dashboard', fn() => Inertia::render('User/Dashboard'))->name('dashboard.user.dashboard');
@@ -196,7 +197,8 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
 
 
 
-// route aprove logic
+
+
 
 
 
