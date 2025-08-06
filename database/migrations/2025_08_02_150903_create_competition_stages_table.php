@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name'); // e.g. "Registrasi", "Preliminary", "Semifinal", "Final"
             $table->unsignedInteger('order')->default(1); // untuk urutan tampilan
             $table->timestamps();
+            $table->dateTime('start_date')->nullable(); 
+            $table->dateTime('end_date')->nullable();
         });
     }
 

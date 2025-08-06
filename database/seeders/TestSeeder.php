@@ -8,6 +8,7 @@ use App\Models\TeamRegistration;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class TestSeeder extends Seeder
 {
@@ -17,11 +18,39 @@ class TestSeeder extends Seeder
     public function run()
     {
 
-        CompetitionStage::insert([
-            ['name' => 'Registrasi Awal', 'order' => 1],
-            ['name' => 'Preliminary Round', 'order' => 2],
-            ['name' => 'Semifinal', 'order' => 3],
-            ['name' => 'Final', 'order' => 4],
+          CompetitionStage::insert([
+            [
+                'name' => 'Registrasi Awal',
+                'order' => 1,
+                'start_date' => Carbon::create(2025, 8, 8, 0, 0, 0),
+                'end_date' => Carbon::create(2025, 8, 21, 23, 59, 59),
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => 'Preliminary Round',
+                'order' => 2,
+                'start_date' => Carbon::create(2025, 8, 15, 0, 0, 0),
+                'end_date' => Carbon::create(2025, 8, 31, 23, 59, 59),
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => 'Semifinal Round',
+                'order' => 3,
+                'start_date' => Carbon::create(2025, 9, 9, 0, 0, 0),
+                'end_date' => Carbon::create(2025, 9, 23, 23, 59, 59),
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => 'Final Round',
+                'order' => 4,
+                'start_date' => Carbon::create(2025, 9, 30, 0, 0, 0),
+                'end_date' => Carbon::create(2025, 10, 20, 23, 59, 59),
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
         ]);
 
 

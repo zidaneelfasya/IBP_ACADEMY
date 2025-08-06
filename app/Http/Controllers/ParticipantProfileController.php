@@ -100,11 +100,14 @@ public function show()
             'id' => $stage->id,
             'name' => $stage->name,
             'description' => $stage->description,
-            'due_date' => $stage->due_date?->format('Y-m-d'),
+            'due_date' => $stage->end_date,
+            'start_date' => $stage->start_date,
+            'end_date' => $stage->end_date,
             'status' => $progress?->status ?? 'not-started',
-            'submitted_at' => $progress?->submitted_at?->format('Y-m-d H:i'),
-            'approved_at' => $progress?->approved_at?->format('Y-m-d H:i'),
+            'submitted_at' => $progress?->submitted_at,
+            'approved_at' => $progress?->approved_at,
             'progress_percentage' => $stageProgress,
+            'round_number' => $stage->order,
         ];
     })->toArray();
 }

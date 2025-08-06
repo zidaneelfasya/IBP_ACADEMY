@@ -8,585 +8,393 @@ import {
     Target,
     Bell,
     FileText,
+    ChevronRight,
+    ClipboardList,
 } from "lucide-react";
 
-export default function Dashboard() {
-    // Sample data - replace with real data from your backend
-    const currentRound = {
-        name: "Penyisihan",
-        status: "active",
-        deadline: "2024-02-15",
-        daysLeft: 7,
-        submitted: false,
+interface CompetitionStage {
+    id: number;
+    name: string;
+    order: number;
+    start_date: string;
+    end_date: string;
+    days_left: number;
+    is_urgent: boolean;
+}
+
+interface ParticipantProgress {
+    id: number;
+    competition_stage_id: number;
+    status: "not_started" | "pending" | "submitted" | "approved" | "rejected";
+    stage?: CompetitionStage;
+}
+
+interface DashboardProps {
+    stages: CompetitionStage[];
+    currentProgress: ParticipantProgress[];
+    team: {
+        id: number;
+        name: string;
+        category_id: number;
+        category_name: string;
     };
+    urgentSubmissions: CompetitionStage[];
+}
 
-    const taskReminders = [
-        {
-            id: 1,
-            title: "Business Proposal Submission",
-            description:
-                "Submit your complete business proposal for elimination round",
-            deadline: "2024-02-15",
-            daysLeft: 7,
-            status: "pending",
-            priority: "high",
-            requirements: [
-                "Executive Summary",
-                "Business Model Canvas",
-                "Market Analysis",
-                "Financial Projections",
-                "Implementation Plan",
-            ],
-        },
-        {
-            id: 2,
-            title: "Proposal Presentation (if qualified)",
-            description: "Present your business proposal to the judges",
-            deadline: "2024-02-25",
-            daysLeft: 17,
-            status: "locked",
-            priority: "medium",
-        },
-    ];
-
-    const timeline = [
-        {
-            round: "Penyisihan",
-            period: "1 Feb - 15 Feb 2024",
-            status: "active",
-            description: "Submit business proposal",
-            tasks: [
-                {
-                    name: "Business Proposal",
-                    status: "pending",
-                    deadline: "15 Feb",
-                    type: "submission",
-                },
-                {
-                    name: "Proposal Review",
-                    status: "locked",
-                    deadline: "20 Feb",
-                    type: "review",
-                },
-                {
-                    name: "Results Announcement",
-                    status: "locked",
-                    deadline: "22 Feb",
-                    type: "announcement",
-                },
-            ],
-        },
-        {
-            round: "Semifinal",
-            period: "25 Feb - 15 Mar 2024",
-            status: "locked",
-            description: "Pitch presentation & Q&A session",
-            tasks: [
-                {
-                    name: "Pitch Presentation",
-                    status: "locked",
-                    deadline: "25 Feb",
-                    type: "presentation",
-                },
-                {
-                    name: "Q&A Session",
-                    status: "locked",
-                    deadline: "25 Feb",
-                    type: "qa",
-                },
-                {
-                    name: "Business Plan Refinement",
-                    status: "locked",
-                    deadline: "10 Mar",
-                    type: "submission",
-                },
-            ],
-        },
-        {
-            round: "Final",
-            period: "20 Mar - 30 Mar 2024",
-            status: "locked",
-            description: "Final pitch & business simulation",
-            tasks: [
-                {
-                    name: "Final Pitch",
-                    status: "locked",
-                    deadline: "20 Mar",
-                    type: "presentation",
-                },
-                {
-                    name: "Business Simulation",
-                    status: "locked",
-                    deadline: "25 Mar",
-                    type: "simulation",
-                },
-                {
-                    name: "Investor Panel",
-                    status: "locked",
-                    deadline: "30 Mar",
-                    type: "panel",
-                },
-            ],
-        },
-    ];
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "completed":
-            case "submitted":
-                return "text-green-600 bg-green-50";
-            case "pending":
-                return "text-yellow-600 bg-yellow-50";
-            case "not_started":
-                return "text-red-600 bg-red-50";
-            case "locked":
-                return "text-gray-600 bg-gray-50";
-            default:
-                return "text-gray-600 bg-gray-50";
-        }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "completed":
-            case "submitted":
-                return CheckCircle;
-            case "pending":
-                return Clock;
-            case "not_started":
-                return AlertTriangle;
-            case "locked":
-                return XCircle;
-            default:
-                return Clock;
-        }
-    };
-
-    const getTaskTypeIcon = (type: string) => {
-        switch (type) {
-            case "submission":
-                return "📄";
-            case "presentation":
-                return "🎤";
-            case "review":
-                return "👀";
-            case "announcement":
-                return "📢";
-            case "qa":
-                return "❓";
-            case "simulation":
-                return "🎯";
-            case "panel":
-                return "👥";
-            default:
-                return "📋";
-        }
-    };
-
-    const urgentTasks = taskReminders.filter(
-        (task) => task.daysLeft <= 7 && task.status !== "submitted"
+export default function Dashboard({
+    stages,
+    currentProgress,
+    team,
+    urgentSubmissions,
+}: DashboardProps) {
+    // Approved stages calculation
+    const approvedStages = currentProgress.filter(
+        (p) => p.status === "approved"
     );
+    const completionText = `${approvedStages.length}/${stages.length} Stages Completed`;
+    const completionPercentage = Math.min(
+        100,
+        Math.max(0, (approvedStages.length / stages.length) * 100)
+    );
+
+    // Current stage determination
+    const currentStageIndex = stages.findIndex(
+        (stage) =>
+            !approvedStages.some((p) => p.competition_stage_id === stage.id)
+    );
+    const currentStage =
+        currentStageIndex >= 0
+            ? stages[currentStageIndex]
+            : stages[stages.length - 1];
+
+    // Status icon component
+    const StatusIcon = ({
+        status,
+        isCurrent,
+    }: {
+        status: string;
+        isCurrent: boolean;
+    }) => {
+        if (status === "approved") return <CheckCircle className="h-4 w-4" />;
+        if (isCurrent) return <Target className="h-4 w-4" />;
+        return <Clock className="h-4 w-4" />;
+    };
 
     return (
         <UserLayout title="Dashboard">
             <Head title="Dashboard" />
-            <div className="py-6">
+            <div className="min-h-screen bg-gray-50 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-foreground">
-                            Business Competition Dashboard
-                        </h1>
-                        <p className="mt-2 text-muted-foreground">
-                            Track your business proposal submission and
-                            competition progress
-                        </p>
-                    </div>
+                    {/* Header Section */}
+                    <header className="mb-8">
+                        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                                    {team?.category_name || "Competition"}{" "}
+                                    Dashboard
+                                </h1>
+                                <p className="text-gray-500 mt-1">
+                                    Track your competition progress and
+                                    submissions
+                                </p>
+                            </div>
 
-                    {/* Current Round Status */}
-                    <div className="mb-8">
-                        <div className="overflow-hidden rounded-lg bg-card shadow border-l-4 border-l-blue-500">
-                            <div className="p-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-foreground">
-                                            Current Round: {currentRound.name}
-                                        </h2>
-                                        <p className="mt-1 text-muted-foreground">
-                                            Business Proposal Deadline:{" "}
-                                            {new Date(
-                                                currentRound.deadline
-                                            ).toLocaleDateString("id-ID", {
-                                                weekday: "long",
-                                                year: "numeric",
-                                                month: "long",
-                                                day: "numeric",
-                                            })}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-3xl font-bold text-blue-600">
-                                            {currentRound.daysLeft}
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            days left
-                                        </div>
-                                    </div>
+                            {team?.name && (
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs md:text-sm font-medium text-blue-800">
+                                        Team: {team.name}
+                                    </span>
+                                    {team?.category_name && (
+                                        <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs md:text-sm font-medium text-green-800">
+                                            {team.category_name}
+                                        </span>
+                                    )}
+                                    <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs md:text-sm font-medium text-purple-800">
+                                        {completionText}
+                                    </span>
                                 </div>
+                            )}
+                        </div>
+                    </header>
+
+                    {/* Progress Bar */}
+                    <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="p-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                                <span className="text-sm font-medium text-gray-700">
+                                    Competition Progress
+                                </span>
+                                <span className="text-sm font-medium text-blue-600">
+                                    {completionText}
+                                </span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-2.5">
+                                <div
+                                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all duration-500 ease-in-out"
+                                    style={{
+                                        width: `${completionPercentage}%`,
+                                    }}
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* Urgent Reminders */}
-                    {urgentTasks.length > 0 && (
-                        <div className="mb-8">
-                            <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-                                <div className="flex items-center">
-                                    <Bell className="h-5 w-5 text-red-600 mr-2" />
-                                    <h3 className="text-lg font-medium text-red-800">
-                                        Urgent: Proposal Submission Due Soon!
+                    {/* Urgent Notifications */}
+                    {urgentSubmissions.length > 0 && (
+                        <div className="mb-6 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 p-4 rounded-r-lg">
+                            <div className="flex items-start">
+                                <Bell className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
+                                <div>
+                                    <h3 className="text-lg font-semibold text-red-800">
+                                        Urgent: Submission Deadline Approaching!
                                     </h3>
-                                </div>
-                                <div className="mt-4 space-y-3">
-                                    {urgentTasks.map((task) => (
-                                        <div
-                                            key={task.id}
-                                            className="flex items-center justify-between bg-white rounded-lg p-3 border border-red-200"
-                                        >
-                                            <div>
-                                                <p className="font-medium text-red-800">
-                                                    {task.title}
+                                    <div className="mt-2 space-y-2">
+                                        {urgentSubmissions.map((stage) => (
+                                            <div
+                                                key={stage.id}
+                                                className="pl-1"
+                                            >
+                                                <p className="text-red-700 font-medium">
+                                                    {stage.name} due in{" "}
+                                                    {stage.days_left} day
+                                                    {stage.days_left !== 1
+                                                        ? "s"
+                                                        : ""}
                                                 </p>
                                                 <p className="text-sm text-red-600">
-                                                    Due in {task.daysLeft} days
+                                                    Deadline:{" "}
+                                                    {new Date(
+                                                        stage.end_date
+                                                    ).toLocaleDateString(
+                                                        "en-US",
+                                                        {
+                                                            month: "short",
+                                                            day: "numeric",
+                                                            year: "numeric",
+                                                        }
+                                                    )}
                                                 </p>
                                             </div>
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                {task.priority}
-                                            </span>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                        {/* Task Reminders */}
-                        <div className="overflow-hidden rounded-lg bg-card shadow">
-                            <div className="p-6">
-                                <h3 className="text-lg font-medium leading-6 text-foreground mb-6">
-                                    Submission Requirements
-                                </h3>
-                                <div className="space-y-4">
-                                    {taskReminders.map((task) => {
-                                        const StatusIcon = getStatusIcon(
-                                            task.status
-                                        );
-                                        return (
-                                            <div
-                                                key={task.id}
-                                                className="border border-border rounded-lg p-4"
-                                            >
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex items-start space-x-3">
-                                                        <StatusIcon
-                                                            className={`h-5 w-5 mt-0.5 ${
-                                                                getStatusColor(
-                                                                    task.status
-                                                                ).split(" ")[0]
-                                                            }`}
-                                                        />
-                                                        <div className="flex-1">
-                                                            <h4 className="text-sm font-medium text-foreground">
-                                                                {task.title}
-                                                            </h4>
-                                                            <p className="mt-1 text-sm text-muted-foreground">
-                                                                {
-                                                                    task.description
-                                                                }
-                                                            </p>
-
-                                                            {/* Requirements List */}
-                                                            {task.requirements && (
-                                                                <div className="mt-3">
-                                                                    <p className="text-xs font-medium text-muted-foreground mb-2">
-                                                                        Required
-                                                                        Components:
-                                                                    </p>
-                                                                    <ul className="space-y-1">
-                                                                        {task.requirements.map(
-                                                                            (
-                                                                                req,
-                                                                                index
-                                                                            ) => (
-                                                                                <li
-                                                                                    key={
-                                                                                        index
-                                                                                    }
-                                                                                    className="flex items-center text-xs text-muted-foreground"
-                                                                                >
-                                                                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
-                                                                                    {
-                                                                                        req
-                                                                                    }
-                                                                                </li>
-                                                                            )
-                                                                        )}
-                                                                    </ul>
-                                                                </div>
-                                                            )}
-
-                                                            <div className="mt-2 flex items-center space-x-4 text-xs text-muted-foreground">
-                                                                <span>
-                                                                    Deadline:{" "}
-                                                                    {new Date(
-                                                                        task.deadline
-                                                                    ).toLocaleDateString(
-                                                                        "id-ID"
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex flex-col items-end space-y-2">
-                                                        <span
-                                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                                                                task.status
-                                                            )}`}
-                                                        >
-                                                            {task.status ===
-                                                            "submitted"
-                                                                ? "Submitted"
-                                                                : task.status ===
-                                                                  "pending"
-                                                                ? "Pending"
-                                                                : task.status ===
-                                                                  "not_started"
-                                                                ? "Not Started"
-                                                                : "Locked"}
-                                                        </span>
-                                                        {task.status !==
-                                                            "submitted" &&
-                                                            task.status !==
-                                                                "locked" && (
-                                                                <span
-                                                                    className={`text-xs font-medium ${
-                                                                        task.daysLeft <=
-                                                                        3
-                                                                            ? "text-red-600"
-                                                                            : task.daysLeft <=
-                                                                              7
-                                                                            ? "text-yellow-600"
-                                                                            : "text-green-600"
-                                                                    }`}
-                                                                >
-                                                                    {
-                                                                        task.daysLeft
-                                                                    }{" "}
-                                                                    days left
-                                                                </span>
-                                                            )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                    {/* Main Cards Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        {/* Current Stage Card */}
+                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-1">
+                            <div className="p-5">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-gray-900">
+                                            Current Stage
+                                        </h2>
+                                        <p className="mt-1 text-xl font-bold text-blue-600">
+                                            {currentStage.name}
+                                        </p>
+                                    </div>
+                                    <div className="bg-blue-100 p-2 rounded-lg">
+                                        <Target className="h-6 w-6 text-blue-600" />
+                                    </div>
+                                </div>
+                                <div className="mt-5">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-500">
+                                            Deadline:
+                                        </span>
+                                        <span className="text-sm font-medium text-gray-700">
+                                            {new Date(
+                                                currentStage.end_date
+                                            ).toLocaleDateString("id-ID", {
+                                                day: "numeric",
+                                                month: "long",
+                                                year: "numeric",
+                                            })}
+                                        </span>
+                                    </div>
+                                    <div className="mt-3 flex items-center">
+                                        <span className="text-3xl font-bold text-blue-600 mr-2">
+                                            {currentStage.days_left}
+                                        </span>
+                                        <span className="text-sm text-gray-500">
+                                            day
+                                            {currentStage.days_left !== 1
+                                                ? "s"
+                                                : ""}{" "}
+                                            remaining
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Competition Timeline */}
-                        <div className="overflow-hidden rounded-lg bg-card shadow">
-                            <div className="p-6">
-                                <h3 className="text-lg font-medium leading-6 text-foreground mb-6">
-                                    Competition Timeline
-                                </h3>
-                                <div className="space-y-6">
-                                    {timeline.map((round, index) => (
-                                        <div
-                                            key={round.round}
-                                            className="relative"
-                                        >
-                                            {index !== timeline.length - 1 && (
-                                                <div className="absolute left-4 top-8 h-full w-0.5 bg-gray-200"></div>
-                                            )}
-                                            <div className="flex items-start space-x-4">
-                                                <div
-                                                    className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                                                        round.status ===
-                                                        "active"
-                                                            ? "bg-blue-500 text-white"
-                                                            : round.status ===
-                                                              "completed"
-                                                            ? "bg-green-500 text-white"
-                                                            : "bg-gray-300 text-gray-600"
-                                                    }`}
-                                                >
-                                                    <Target className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-center justify-between">
-                                                        <h4
-                                                            className={`text-sm font-medium ${
-                                                                round.status ===
-                                                                "active"
-                                                                    ? "text-blue-600"
-                                                                    : round.status ===
-                                                                      "completed"
-                                                                    ? "text-green-600"
-                                                                    : "text-gray-500"
-                                                            }`}
-                                                        >
-                                                            {round.round}
-                                                        </h4>
-                                                        <span
-                                                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                                                round.status ===
-                                                                "active"
-                                                                    ? "bg-blue-100 text-blue-800"
-                                                                    : round.status ===
-                                                                      "completed"
-                                                                    ? "bg-green-100 text-green-800"
-                                                                    : "bg-gray-100 text-gray-800"
-                                                            }`}
-                                                        >
-                                                            {round.status ===
-                                                            "active"
-                                                                ? "Active"
-                                                                : round.status ===
-                                                                  "completed"
-                                                                ? "Completed"
-                                                                : "Locked"}
-                                                        </span>
-                                                    </div>
-                                                    <p className="mt-1 text-xs text-muted-foreground">
-                                                        {round.period}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground italic">
-                                                        {round.description}
-                                                    </p>
-                                                    <div className="mt-3 space-y-2">
-                                                        {round.tasks.map(
-                                                            (
-                                                                task,
-                                                                taskIndex
-                                                            ) => (
-                                                                <div
-                                                                    key={
-                                                                        taskIndex
-                                                                    }
-                                                                    className="flex items-center justify-between text-xs"
-                                                                >
-                                                                    <div className="flex items-center space-x-2">
-                                                                        <span className="text-sm">
-                                                                            {getTaskTypeIcon(
-                                                                                task.type
-                                                                            )}
-                                                                        </span>
-                                                                        <span
-                                                                            className={
-                                                                                task.status ===
-                                                                                "locked"
-                                                                                    ? "text-gray-400"
-                                                                                    : "text-foreground"
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                task.name
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                    <div className="flex items-center space-x-2">
-                                                                        <span
-                                                                            className={
-                                                                                task.status ===
-                                                                                "locked"
-                                                                                    ? "text-gray-400"
-                                                                                    : "text-muted-foreground"
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                task.deadline
-                                                                            }
-                                                                        </span>
-                                                                        <div
-                                                                            className={`w-2 h-2 rounded-full ${
-                                                                                task.status ===
-                                                                                "completed"
-                                                                                    ? "bg-green-500"
-                                                                                    : task.status ===
-                                                                                      "pending"
-                                                                                    ? "bg-yellow-500"
-                                                                                    : "bg-gray-300"
-                                                                            }`}
-                                                                        ></div>
-                                                                    </div>
-                                                                </div>
-                                                            )
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                        {/* Requirements Card */}
+                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
+                            <div className="p-5">
+                                <div className="flex items-center mb-4">
+                                    <div className="bg-green-100 p-2 rounded-lg mr-3">
+                                        <ClipboardList className="h-5 w-5 text-green-600" />
+                                    </div>
+                                    <h2 className="text-lg font-semibold text-gray-900">
+                                        Submission Requirements
+                                    </h2>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                                        <h3 className="font-medium text-gray-800">
+                                            {currentStage.name} Requirements
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            {currentStage.days_left > 0
+                                                ? "Prepare these documents for submission when the stage begins."
+                                                : "Submission period has ended for this stage."}
+                                        </p>
+
+                                        <ul className="mt-3 space-y-2">
+                                            <li className="flex items-center text-sm text-gray-700">
+                                                <span className="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                                                Business Proposal Document
+                                            </li>
+                                            <li className="flex items-center text-sm text-gray-700">
+                                                <span className="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                                                Team Presentation Deck
+                                            </li>
+                                            <li className="flex items-center text-sm text-gray-700">
+                                                <span className="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                                                Financial Projections
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <p className="text-xs text-gray-400 italic">
+                                        * Specific requirements and templates
+                                        will be provided when the submission
+                                        period opens
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Quick Stats */}
-                    <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-                        <div className="overflow-hidden rounded-lg bg-card shadow">
-                            <div className="p-6">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <FileText className="h-8 w-8 text-blue-500" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <div className="text-2xl font-bold text-foreground">
-                                            0
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            Proposals Submitted
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    {/* Timeline Section */}
+                    <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+                        <div className="p-5">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-5">
+                                Competition Timeline
+                            </h3>
 
-                        <div className="overflow-hidden rounded-lg bg-card shadow">
-                            <div className="p-6">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <Clock className="h-8 w-8 text-yellow-500" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <div className="text-2xl font-bold text-foreground">
-                                            7
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            Days Until Deadline
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            <div className="relative">
+                                {/* Timeline line */}
+                                <div className="absolute left-4 top-0 h-full w-0.5 bg-gray-200"></div>
 
-                        <div className="overflow-hidden rounded-lg bg-card shadow">
-                            <div className="p-6">
-                                <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <Target className="h-8 w-8 text-green-500" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <div className="text-2xl font-bold text-foreground">
-                                            1/3
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            Competition Rounds
-                                        </div>
-                                    </div>
+                                <div className="space-y-6">
+                                    {stages.map((stage, index) => {
+                                        const progress = currentProgress.find(
+                                            (p) =>
+                                                p.competition_stage_id ===
+                                                stage.id
+                                        ) || { status: "not_started" };
+
+                                        const isCurrent =
+                                            stage.id === currentStage.id;
+                                        const isApproved =
+                                            progress.status === "approved";
+                                        const isUpcoming =
+                                            index >
+                                            stages.findIndex(
+                                                (s) => s.id === currentStage.id
+                                            );
+                                        const status = isApproved
+                                            ? "approved"
+                                            : isCurrent
+                                            ? "current"
+                                            : isUpcoming
+                                            ? "upcoming"
+                                            : "not_started";
+
+                                        return (
+                                            <div
+                                                key={stage.id}
+                                                className="relative pl-8"
+                                            >
+                                                {/* Timeline dot */}
+                                                <div
+                                                    className={`absolute left-0 top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-4 ${
+                                                        isCurrent
+                                                            ? "border-blue-500 bg-white"
+                                                            : isApproved
+                                                            ? "border-green-500 bg-white"
+                                                            : "border-gray-300 bg-white"
+                                                    }`}
+                                                ></div>
+
+                                                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                                        <div>
+                                                            <h4
+                                                                className={`font-medium ${
+                                                                    isCurrent
+                                                                        ? "text-blue-600"
+                                                                        : isApproved
+                                                                        ? "text-green-600"
+                                                                        : "text-gray-600"
+                                                                }`}
+                                                            >
+                                                                {stage.name}
+                                                            </h4>
+                                                            <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                                <span>
+                                                                    {new Date(
+                                                                        stage.start_date
+                                                                    ).toLocaleDateString()}
+                                                                </span>
+                                                                <ChevronRight className="h-3 w-3 mx-1" />
+                                                                <span>
+                                                                    {new Date(
+                                                                        stage.end_date
+                                                                    ).toLocaleDateString()}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <span
+                                                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                                                isApproved
+                                                                    ? "bg-green-100 text-green-800"
+                                                                    : isCurrent
+                                                                    ? "bg-blue-100 text-blue-800"
+                                                                    : "bg-gray-100 text-gray-800"
+                                                            }`}
+                                                        >
+                                                            {status
+                                                                .toUpperCase()
+                                                                .replace(
+                                                                    "_",
+                                                                    " "
+                                                                )}
+                                                        </span>
+                                                    </div>
+
+                                                    {stage.days_left <= 7 && (
+                                                        <div className="mt-2 flex items-center text-xs font-medium text-red-500">
+                                                            <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                                                            Due in{" "}
+                                                            {stage.days_left}{" "}
+                                                            day
+                                                            {stage.days_left !==
+                                                            1
+                                                                ? "s"
+                                                                : ""}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
