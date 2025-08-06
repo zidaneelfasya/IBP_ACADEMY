@@ -56,16 +56,22 @@ Route::get('/timeline', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
+Route::get('/admin', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
-    Route::get('/dashboard', function () {
+    Route::get('/admin', function () {
+        return Inertia::render('admin/dashboard');
+    })->name('dashboard');
+        Route::get('/admin', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
     Route::prefix('/admin/dashboard')->group(function () {
         Route::get('/', [AllParticipantController::class, 'index'])->name('team.index');
+
+        Route::get('/participant', [AllParticipantController::class, 'index'])->name('team.index');
+        
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
             ->name('export.team-registrations');
         Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');

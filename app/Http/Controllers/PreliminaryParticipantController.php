@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompetitionCategory;
+use App\Models\ParticipantProgress;
+use App\Models\TeamRegistration;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,20 +14,24 @@ class PreliminaryParticipantController extends Controller
     {
         $search = $request->query('search');
         $stageStatus = $request->query('progress_status', 'all');
+        $categoryFilter = $request->query('category', 'all');
 
-        // Ambil ID stage 'Registrasi Awal' (order = 1)
-        $registrasiStage = \App\Models\CompetitionStage::where('order', 2)->firstOrFail();
-
-        // Base query: ambil peserta yang punya progress di tahap Registrasi Awal
-        $query = \App\Models\TeamRegistration::whereHas('progress', function ($q) use ($registrasiStage) {
-            $q->where('competition_stage_id', $registrasiStage->id);
-        })
-            ->with(['progress' => function ($q) use ($registrasiStage) {
-                $q->where('competition_stage_id', $registrasiStage->id)->with('stage');
-            }])
+        // Base query with eager loading - mencari order = 2
+        $query = TeamRegistration::with([
+            'competitionCategory',
+            'progress' => function ($query) {
+                $query->whereHas('stage', function ($q) {
+                    $q->where('order', 2); // Hanya ambil progress dengan order 2
+                });
+            },
+            'progress.stage'
+        ])
+            ->whereHas('progress.stage', function ($q) {
+                $q->where('order', 2); // Filter tim yang memiliki progress dengan order = 2
+            })
             ->orderBy('created_at', 'desc');
 
-        // Filter pencarian
+        // Search filter (tetap sama)
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('leader_name', 'like', "%{$search}%")
@@ -36,33 +43,53 @@ class PreliminaryParticipantController extends Controller
             });
         }
 
-        // Filter berdasarkan status progress untuk stage Registrasi Awal
+        // Filter by progress status - untuk order 2
         if ($stageStatus !== 'all') {
-            $query->whereHas('progress', function ($q) use ($stageStatus, $registrasiStage) {
-                $q->where('competition_stage_id', $registrasiStage->id)
-                    ->where('status', $stageStatus);
+            $query->whereHas('progress', function ($q) use ($stageStatus) {
+                $q->where('status', $stageStatus)
+                    ->whereHas('stage', function ($q2) {
+                        $q2->where('order', 2); // Pastikan filter status hanya berlaku untuk order 2
+                    });
+            });
+        }
+
+        // Filter by category (tetap sama)
+        if ($categoryFilter !== 'all') {
+            $query->whereHas('competitionCategory', function ($q) use ($categoryFilter) {
+                $q->where('name', $categoryFilter);
             });
         }
 
         $teams = $query->paginate(8);
 
-        // Stats untuk stage Registrasi Awal saja
+        // Get active categories for filter dropdown (tetap sama)
+        $categories = CompetitionCategory::active()->pluck('name');
+
+        // Stats by progress status - hanya untuk order 2
         $stats = [
-            'total' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->count(),
-            'approved' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->where('status', 'approved')->count(),
-            'pending' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->where('status', 'submitted')->count(),
-            'not_started' => \App\Models\ParticipantProgress::where('competition_stage_id', $registrasiStage->id)->where('status', 'not_started')->count(),
+            'total' => TeamRegistration::whereHas('progress.stage', function ($q) {
+                $q->where('order', 2);
+            })->count(),
+            'approved' => ParticipantProgress::whereHas('stage', function ($q) {
+                $q->where('order', 2);
+            })->where('status', 'approved')->count(),
+            'pending' => ParticipantProgress::whereHas('stage', function ($q) {
+                $q->where('order', 2);
+            })->where('status', 'submitted')->count(),
+            'not_started' => ParticipantProgress::whereHas('stage', function ($q) {
+                $q->where('order', 2);
+            })->where('status', 'not_started')->count(),
         ];
 
-        return Inertia::render('admin/Preliminary', [
+        return Inertia::render('admin/team-management', [
             'teams' => $teams,
             'filters' => [
                 'search' => $search,
                 'progress_status' => $stageStatus,
+                'category' => $categoryFilter,
             ],
             'stats' => $stats,
-            'stage' => 'Registrasi Awal',
+            'categories' => $categories,
         ]);
     }
-   
 }
