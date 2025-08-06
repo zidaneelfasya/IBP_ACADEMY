@@ -12,6 +12,8 @@ class CompetitionStage extends Model
     protected $fillable = [
         'name',
         'order',
+        'start_date',
+        'end_date',
     ];
 
     public function progresses()
