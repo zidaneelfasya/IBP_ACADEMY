@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use PHPUnit\Event\Code\Test;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,9 +22,12 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
+
         TestSeeder::class,
          CompetitionCategoriesSeeder::class,
          UserSeeder::class,
+        TestSeeder::class,
+
 
 
 

@@ -108,6 +108,7 @@ export default function Login({
                             Forgot your password?
                         </Link>
                     )}
+
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Log in
                     </PrimaryButton>
