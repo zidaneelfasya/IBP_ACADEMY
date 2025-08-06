@@ -1,48 +1,30 @@
-import { BookOpen, Lock, User, LayoutDashboard } from "lucide-react";
+"use client";
+
+import { useState } from "react";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-    TooltipProvider,
-} from "@/Components/ui/tooltip";
-import UserProfile  from "@/Components/UserProfile";
-import App from "@/Pages/Landing";
+    BookOpen,
+    User,
+    LayoutDashboard,
+    ClipboardList,
+    Home,
+    Menu,
+    X,
+} from "lucide-react";
+import { TooltipProvider } from "@/Components/ui/tooltip";
+import { Button } from "@/Components/ui/button";
+import UserProfile from "@/Components/UserProfile";
 import ApplicationLogo from "./ApplicationLogo";
-
-type StageStatus = "active" | "completed" | "locked";
-
-interface DashboardStage {
-    title: string;
-    url: string;
-    status: StageStatus;
-    lockedMessage: string;
-}
-
-const dashboardStages: DashboardStage[] = [
-    {
-        title: "Form Penyisihan",
-        url: "/dashboard/elimination",
-        status: "active",
-        lockedMessage: "Selesaikan tahap penyisihan untuk membuka",
-    },
-    {
-        title: "Form Semifinal",
-        url: "/dashboard/semifinal",
-        status: "locked",
-        lockedMessage: "Hanya tersedia untuk peserta yang lolos semifinal",
-    },
-    {
-        title: "Final",
-        url: "/dashboard/final",
-        status: "locked",
-        lockedMessage: "Hanya tersedia untuk finalis",
-    },
-];
 
 interface CourseItem {
     title: string;
     url: string;
     icon: typeof BookOpen;
+}
+
+interface NavItem {
+    title: string;
+    url: string;
+    icon: typeof LayoutDashboard;
 }
 
 const course: CourseItem = {
@@ -51,183 +33,153 @@ const course: CourseItem = {
     icon: BookOpen,
 };
 
+const navItems: NavItem[] = [
+    {
+        title: "Dashboard",
+        url: "/user/dashboard",
+        icon: LayoutDashboard,
+    },
+    {
+    title: "Profile",
+    url: route('dashboard.user.profile'),
+    icon: User,
+},
+    {
+        title: "Course",
+        url: "#",
+        icon: BookOpen,
+    },
+    {
+        title: "Tugas",
+        url: "/user/tugas",
+        icon: ClipboardList,
+    },
+];
+
 export function SiteHeaderLMS() {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+    };
+
     return (
         <TooltipProvider delayDuration={300}>
             <header className="bg-primary border-b border-primary/20 sticky top-0 z-50">
-                <div className="container mx-auto px-4">
-                    <div className="flex items-center justify-between h-16">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-14 sm:h-16">
                         {/* Logo and Title */}
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                                    <ApplicationLogo className="h-6 w-6 text-primary" />
+                        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <ApplicationLogo className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                                 </div>
-                                <h1 className="text-white font-bold text-xl">
+                                <h1 className="text-white font-bold text-base sm:text-xl truncate">
                                     IBP LMS Platform
                                 </h1>
                             </div>
                         </div>
 
-                        {/* Navigation Menu */}
-                        <nav className="hidden md:flex items-center gap-8">
-                            {/* Dashboard */}
+                        {/* Desktop Navigation */}
+                        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+                            {/* Back to Home */}
                             <a
-                                href="/user/dashboard"
+                                href="/"
                                 className="flex items-center gap-2 text-white/80 hover:text-white transition-colors relative group py-2"
                             >
-                                <LayoutDashboard className="h-4 w-4" />
-                                <span className="font-medium">Dashboard</span>
+                                <Home className="h-4 w-4" />
+                                <span className="font-medium">Beranda</span>
                                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
                             </a>
 
-                            {/* Profile */}
-                            <a
-                                href="/user/profile"
-                                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors relative group py-2"
-                            >
-                                <User className="h-4 w-4" />
-                                <span className="font-medium">Profile</span>
-                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                            </a>
-
-                            {/* Course */}
-                            <a
-                                href="#"
-                                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors relative group py-2"
-                            >
-                                <course.icon className="h-4 w-4" />
-                                <span className="font-medium">
-                                    {course.title}
-                                </span>
-                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                            </a>
-
-                            {/* Form Stages */}
-                            {dashboardStages.map((stage, index) => (
-                                <div key={stage.title}>
-                                    {stage.status === "locked" ? (
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div className="flex items-center gap-2 text-white/50 cursor-not-allowed py-2">
-                                                    <div className="w-2 h-2 rounded-full bg-gray-400" />
-                                                    <span className="font-medium text-sm">
-                                                        {stage.title}
-                                                    </span>
-                                                    <Lock className="h-3 w-3" />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent
-                                                side="bottom"
-                                                className="bg-white text-primary font-medium"
-                                            >
-                                                <p>{stage.lockedMessage}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    ) : (
-                                        <a
-                                            href={stage.url}
-                                            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors relative group py-2"
-                                        >
-                                            <div
-                                                className={`w-2 h-2 rounded-full ${
-                                                    stage.status === "active"
-                                                        ? "bg-green-400"
-                                                        : "bg-blue-400"
-                                                }`}
-                                            />
-                                            <span className="font-medium text-sm">
-                                                {stage.title}
-                                            </span>
-                                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                                        </a>
-                                    )}
-                                </div>
+                            {/* Navigation Items */}
+                            {navItems.map((item) => (
+                                <a
+                                    key={item.title}
+                                    href={item.url}
+                                    className="flex items-center gap-2 text-white/80 hover:text-white transition-colors relative group py-2"
+                                >
+                                    <item.icon className="h-4 w-4" />
+                                    <span className="font-medium">
+                                        {item.title}
+                                    </span>
+                                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
+                                </a>
                             ))}
                         </nav>
 
-                        {/* User Profile Dropdown */}
-                        <div className="flex items-center">
+                        {/* Desktop User Profile */}
+                        <div className="hidden md:flex items-center">
                             <UserProfile />
                         </div>
 
                         {/* Mobile Menu Button */}
-                        <div className="md:hidden">
-                            <button className="text-white/80 hover:text-white">
-                                <svg
-                                    className="h-6 w-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                </svg>
-                            </button>
+                        <div className="flex items-center gap-2 md:hidden">
+                            {/* Mobile User Profile */}
+                            <div className="lg:hidden">
+                                <UserProfile />
+                            </div>
+
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={toggleMobileMenu}
+                                className="text-white/80 hover:text-white hover:bg-white/10 p-2"
+                                aria-label="Toggle mobile menu"
+                            >
+                                {isMobileMenuOpen ? (
+                                    <X className="h-5 w-5" />
+                                ) : (
+                                    <Menu className="h-5 w-5" />
+                                )}
+                            </Button>
                         </div>
                     </div>
 
-                    {/* Mobile Menu (hidden by default) */}
-                    <div className="md:hidden border-t border-primary/20 py-4 space-y-2">
-                        <a
-                            href="/user/dashboard"
-                            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors py-2"
-                        >
-                            <LayoutDashboard className="h-4 w-4" />
-                            <span className="font-medium">Dashboard</span>
-                        </a>
+                    {/* Mobile Menu */}
+                    <div
+                        className={`lg:hidden border-t border-primary/20 transition-all duration-300 ease-in-out ${
+                            isMobileMenuOpen
+                                ? "max-h-96 opacity-100 py-4"
+                                : "max-h-0 opacity-0 py-0 overflow-hidden"
+                        }`}
+                    >
+                        <div className="space-y-1">
+                            {/* Back to Home - Mobile */}
+                            <a
+                                href="/"
+                                onClick={closeMobileMenu}
+                                className="flex items-center gap-3 text-white/80 hover:text-white hover:bg-white/10 transition-colors py-3 px-2 rounded-md"
+                            >
+                                <Home className="h-5 w-5" />
+                                <span className="font-medium">Beranda</span>
+                            </a>
 
-                        <a
-                            href="/user/profile"
-                            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors py-2"
-                        >
-                            <User className="h-4 w-4" />
-                            <span className="font-medium">Profile</span>
-                        </a>
+                            {/* Navigation Items - Mobile */}
+                            {navItems.map((item) => (
+                                <a
+                                    key={item.title}
+                                    href={item.url}
+                                    onClick={closeMobileMenu}
+                                    className="flex items-center gap-3 text-white/80 hover:text-white hover:bg-white/10 transition-colors py-3 px-2 rounded-md"
+                                >
+                                    <item.icon className="h-5 w-5" />
+                                    <span className="font-medium">
+                                        {item.title}
+                                    </span>
+                                </a>
+                            ))}
+                        </div>
 
-                        <a
-                            href="#"
-                            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors py-2"
-                        >
-                            <course.icon className="h-4 w-4" />
-                            <span className="font-medium">{course.title}</span>
-                        </a>
-
-                        {dashboardStages.map((stage, index) => (
-                            <div key={stage.title}>
-                                {stage.status === "locked" ? (
-                                    <div className="flex items-center gap-2 text-white/50 cursor-not-allowed py-2">
-                                        <div className="w-2 h-2 rounded-full bg-gray-400" />
-                                        <span className="font-medium text-sm">
-                                            {stage.title}
-                                        </span>
-                                        <Lock className="h-3 w-3" />
-                                    </div>
-                                ) : (
-                                    <a
-                                        href={stage.url}
-                                        className="flex items-center gap-2 text-white/80 hover:text-white transition-colors py-2"
-                                    >
-                                        <div
-                                            className={`w-2 h-2 rounded-full ${
-                                                stage.status === "active"
-                                                    ? "bg-green-400"
-                                                    : "bg-blue-400"
-                                            }`}
-                                        />
-                                        <span className="font-medium text-sm">
-                                            {stage.title}
-                                        </span>
-                                    </a>
-                                )}
+                        {/* Mobile User Profile Section */}
+                        <div className="pt-4 mt-4 border-t border-primary/20 md:hidden">
+                            <div className="px-2">
+                                <UserProfile />
                             </div>
-                        ))}
-                        <div className="pt-2 border-t border-primary/20">
-                            <UserProfile />
                         </div>
                     </div>
                 </div>

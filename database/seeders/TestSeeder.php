@@ -24,37 +24,39 @@ class TestSeeder extends Seeder
             ['name' => 'Final', 'order' => 4],
         ]);
 
-        $team = TeamRegistration::create([
-            'tim_name' => 'Tim Inovator',
-            'asal_universitas' => 'Universitas Teknologi Cerdas',
-            'prodi_fakultas' => 'Teknik Industri / Fakultas Teknik',
-            'leader_name' => 'Andi Wijaya',
-            'leader_nim' => 'TI20210123',
-            'leader_email' => 'andi.wijaya@email.com',
-            'leader_phone' => '081234567890',
-            'member1_name' => 'Budi Santoso',
-            'member1_nim' => 'TI20210124',
-            'member2_name' => 'Citra Lestari',
-            'member2_nim' => 'TI20210125',
-            'member3_name' => 'Dewi Pertiwi',
-            'member3_nim' => 'TI20210126',
-            'link_berkas' => 'https://example.com/berkas/registrasi.pdf',
-            'status' => 'verified',
-            'kategori_lomba' => 'BCC'
-        ]);
 
-        // Ambil tahap pertama
-        $registrasiStage = CompetitionStage::where('name', 'Registrasi Awal')->first();
-
-        // Tambah progress untuk registrasi awal (sudah di-approve)
-        ParticipantProgress::create([
-            'participant_id' => $team->id,
-            'competition_stage_id' => $registrasiStage->id,
-            'status' => 'in_progress',
-
-        ]);
+        // $team = TeamRegistration::create([
+        //     'tim_name' => 'Tim Inovator',
+        //     'asal_universitas' => 'Universitas Teknologi Cerdas',
+        //     'prodi_fakultas' => 'Teknik Industri / Fakultas Teknik',
+        //     'leader_name' => 'Andi Wijaya',
+        //     'leader_nim' => 'TI20210123',
+        //     'leader_email' => 'andi.wijaya@email.com',
+        //     'leader_phone' => '081234567890',
+        //     'member1_name' => 'Budi Santoso',
+        //     'member1_nim' => 'TI20210124',
+        //     'member2_name' => 'Citra Lestari',
+        //     'member2_nim' => 'TI20210125',
+        //     'member3_name' => 'Dewi Pertiwi',
+        //     'member3_nim' => 'TI20210126',
+        //     'link_berkas' => 'https://example.com/berkas/registrasi.pdf',
+        //     'status' => 'verified',
+        //     'kategori_lomba' => 'BCC'
+        // ]);
 
 
-    
+        // // Ambil tahap pertama
+        // $registrasiStage = CompetitionStage::where('name', 'Registrasi Awal')->first();
+
+        // // Tambah progress untuk registrasi awal (sudah di-approve)
+        // ParticipantProgress::create([
+        //     'participant_id' => $team->id,
+        //     'competition_stage_id' => $registrasiStage->id,
+        //     'status' => 'in_progress',
+
+        // ]);
+
+
+
     }
 }

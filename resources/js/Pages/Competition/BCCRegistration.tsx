@@ -34,6 +34,13 @@ interface TeamRegistration {
     created_at: string;
 }
 
+interface Member {
+    name: string;
+    nim: string;
+    email: string;
+    phone: string;
+}
+
 interface Props {
     category: CompetitionCategory;
     existingRegistration?: TeamRegistration;
@@ -50,18 +57,7 @@ interface FormData {
     leader_nim: string;
     leader_email: string;
     leader_phone: string;
-    member1_name: string;
-    member1_nim: string;
-    member1_email: string;
-    member1_phone: string;
-    member2_name: string;
-    member2_nim: string;
-    member2_email: string;
-    member2_phone: string;
-    member3_name: string;
-    member3_nim: string;
-    member3_email: string;
-    member3_phone: string;
+    members: Member[];
     link_berkas: string;
 }
 
@@ -77,7 +73,7 @@ export default function BCCRegistration({
         []
     );
     const [validatedSteps, setValidatedSteps] = useState<number[]>([]);
-    const totalSteps = 6;
+    const totalSteps = 4; // Reduced from 6 to 4 steps
 
     // Show existing registration modal if user already registered
     useEffect(() => {
@@ -94,18 +90,14 @@ export default function BCCRegistration({
         leader_nim: "",
         leader_email: auth.user?.email || "",
         leader_phone: "",
-        member1_name: "",
-        member1_nim: "",
-        member1_email: "",
-        member1_phone: "",
-        member2_name: "",
-        member2_nim: "",
-        member2_email: "",
-        member2_phone: "",
-        member3_name: "",
-        member3_nim: "",
-        member3_email: "",
-        member3_phone: "",
+        members: [
+            {
+                name: "",
+                nim: "",
+                email: "",
+                phone: "",
+            },
+        ],
         link_berkas: "",
     });
 
@@ -132,6 +124,41 @@ export default function BCCRegistration({
         }
 
         post(route("competition.bcc.register.store"));
+    };
+
+    // Add new member form
+    const addMember = () => {
+        if (data.members.length < 3) { // Maximum 3 members (1 leader + 2 members)
+            setData("members", [
+                ...data.members,
+                {
+                    name: "",
+                    nim: "",
+                    email: "",
+                    phone: "",
+                },
+            ]);
+        }
+    };
+
+    // Remove member form
+    const removeMember = (index: number) => {
+        if (data.members.length > 1) {
+            const newMembers = [...data.members];
+            newMembers.splice(index, 1);
+            setData("members", newMembers);
+        }
+    };
+
+    // Handle member input change
+    const handleMemberChange = (
+        index: number,
+        field: keyof Member,
+        value: string
+    ) => {
+        const newMembers = [...data.members];
+        newMembers[index][field] = value;
+        setData("members", newMembers);
     };
 
     // Validasi per step
@@ -187,148 +214,101 @@ export default function BCCRegistration({
                 }
                 break;
 
-            case 3: // Anggota 1
-                if (!data.member1_name.trim()) {
-                    errors.push("Nama anggota 1 harus diisi");
-                } else if (data.member1_name.length < 3) {
-                    errors.push("Nama anggota 1 minimal 3 karakter");
-                }
+            case 3: // Anggota Tim
+                // Validate each member
+                data.members.forEach((member, index) => {
+                    if (!member.name.trim()) {
+                        errors.push(`Nama anggota ${index + 1} harus diisi`);
+                    } else if (member.name.length < 3) {
+                        errors.push(
+                            `Nama anggota ${index + 1} minimal 3 karakter`
+                        );
+                    }
 
-                if (!data.member1_nim.trim()) {
-                    errors.push("NIM anggota 1 harus diisi");
-                } else if (data.member1_nim.length < 5) {
-                    errors.push("NIM anggota 1 minimal 5 karakter");
-                } else if (data.member1_nim === data.leader_nim) {
-                    errors.push(
-                        "NIM anggota 1 tidak boleh sama dengan NIM ketua"
-                    );
-                }
+                    if (!member.nim.trim()) {
+                        errors.push(`NIM anggota ${index + 1} harus diisi`);
+                    } else if (member.nim.length < 5) {
+                        errors.push(
+                            `NIM anggota ${index + 1} minimal 5 karakter`
+                        );
+                    } else if (member.nim === data.leader_nim) {
+                        errors.push(
+                            `NIM anggota ${index + 1} tidak boleh sama dengan NIM ketua`
+                        );
+                    }
 
-                if (!data.member1_email.trim()) {
-                    errors.push("Email anggota 1 harus diisi");
-                } else if (
-                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member1_email)
-                ) {
-                    errors.push("Format email anggota 1 tidak valid");
-                } else if (data.member1_email === data.leader_email) {
-                    errors.push(
-                        "Email anggota 1 tidak boleh sama dengan email ketua"
-                    );
-                }
+                    // Check for duplicate NIMs among members
+                    data.members.forEach((otherMember, otherIndex) => {
+                        if (
+                            index !== otherIndex &&
+                            member.nim &&
+                            member.nim === otherMember.nim
+                        ) {
+                            errors.push(
+                                `NIM anggota ${index + 1} tidak boleh sama dengan NIM anggota ${otherIndex + 1}`
+                            );
+                        }
+                    });
 
-                if (!data.member1_phone.trim()) {
-                    errors.push("Nomor telepon anggota 1 harus diisi");
-                } else if (data.member1_phone.length < 10) {
-                    errors.push("Nomor telepon anggota 1 minimal 10 digit");
-                } else if (data.member1_phone === data.leader_phone) {
-                    errors.push(
-                        "Nomor telepon anggota 1 tidak boleh sama dengan ketua"
-                    );
-                }
+                    if (!member.email.trim()) {
+                        errors.push(
+                            `Email anggota ${index + 1} harus diisi`
+                        );
+                    } else if (
+                        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)
+                    ) {
+                        errors.push(
+                            `Format email anggota ${index + 1} tidak valid`
+                        );
+                    } else if (member.email === data.leader_email) {
+                        errors.push(
+                            `Email anggota ${index + 1} tidak boleh sama dengan email ketua`
+                        );
+                    }
+
+                    // Check for duplicate emails among members
+                    data.members.forEach((otherMember, otherIndex) => {
+                        if (
+                            index !== otherIndex &&
+                            member.email &&
+                            member.email === otherMember.email
+                        ) {
+                            errors.push(
+                                `Email anggota ${index + 1} tidak boleh sama dengan email anggota ${otherIndex + 1}`
+                            );
+                        }
+                    });
+
+                    if (!member.phone.trim()) {
+                        errors.push(
+                            `Nomor telepon anggota ${index + 1} harus diisi`
+                        );
+                    } else if (member.phone.length < 10) {
+                        errors.push(
+                            `Nomor telepon anggota ${index + 1} minimal 10 digit`
+                        );
+                    } else if (member.phone === data.leader_phone) {
+                        errors.push(
+                            `Nomor telepon anggota ${index + 1} tidak boleh sama dengan ketua`
+                        );
+                    }
+
+                    // Check for duplicate phones among members
+                    data.members.forEach((otherMember, otherIndex) => {
+                        if (
+                            index !== otherIndex &&
+                            member.phone &&
+                            member.phone === otherMember.phone
+                        ) {
+                            errors.push(
+                                `Nomor telepon anggota ${index + 1} tidak boleh sama dengan nomor telepon anggota ${otherIndex + 1}`
+                            );
+                        }
+                    });
+                });
                 break;
 
-            case 4: // Anggota 2
-                if (!data.member2_name.trim()) {
-                    errors.push("Nama anggota 2 harus diisi");
-                } else if (data.member2_name.length < 3) {
-                    errors.push("Nama anggota 2 minimal 3 karakter");
-                }
-
-                if (!data.member2_nim.trim()) {
-                    errors.push("NIM anggota 2 harus diisi");
-                } else if (data.member2_nim.length < 5) {
-                    errors.push("NIM anggota 2 minimal 5 karakter");
-                } else if (
-                    data.member2_nim === data.leader_nim ||
-                    data.member2_nim === data.member1_nim
-                ) {
-                    errors.push(
-                        "NIM anggota 2 tidak boleh sama dengan NIM ketua atau anggota 1"
-                    );
-                }
-
-                if (!data.member2_email.trim()) {
-                    errors.push("Email anggota 2 harus diisi");
-                } else if (
-                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member2_email)
-                ) {
-                    errors.push("Format email anggota 2 tidak valid");
-                } else if (
-                    data.member2_email === data.leader_email ||
-                    data.member2_email === data.member1_email
-                ) {
-                    errors.push(
-                        "Email anggota 2 tidak boleh sama dengan email ketua atau anggota 1"
-                    );
-                }
-
-                if (!data.member2_phone.trim()) {
-                    errors.push("Nomor telepon anggota 2 harus diisi");
-                } else if (data.member2_phone.length < 10) {
-                    errors.push("Nomor telepon anggota 2 minimal 10 digit");
-                } else if (
-                    data.member2_phone === data.leader_phone ||
-                    data.member2_phone === data.member1_phone
-                ) {
-                    errors.push(
-                        "Nomor telepon anggota 2 tidak boleh sama dengan ketua atau anggota 1"
-                    );
-                }
-                break;
-
-            case 5: // Anggota 3
-                if (!data.member3_name.trim()) {
-                    errors.push("Nama anggota 3 harus diisi");
-                } else if (data.member3_name.length < 3) {
-                    errors.push("Nama anggota 3 minimal 3 karakter");
-                }
-
-                if (!data.member3_nim.trim()) {
-                    errors.push("NIM anggota 3 harus diisi");
-                } else if (data.member3_nim.length < 5) {
-                    errors.push("NIM anggota 3 minimal 5 karakter");
-                } else if (
-                    data.member3_nim === data.leader_nim ||
-                    data.member3_nim === data.member1_nim ||
-                    data.member3_nim === data.member2_nim
-                ) {
-                    errors.push(
-                        "NIM anggota 3 tidak boleh sama dengan NIM ketua, anggota 1, atau anggota 2"
-                    );
-                }
-
-                if (!data.member3_email.trim()) {
-                    errors.push("Email anggota 3 harus diisi");
-                } else if (
-                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member3_email)
-                ) {
-                    errors.push("Format email anggota 3 tidak valid");
-                } else if (
-                    data.member3_email === data.leader_email ||
-                    data.member3_email === data.member1_email ||
-                    data.member3_email === data.member2_email
-                ) {
-                    errors.push(
-                        "Email anggota 3 tidak boleh sama dengan email ketua, anggota 1, atau anggota 2"
-                    );
-                }
-
-                if (!data.member3_phone.trim()) {
-                    errors.push("Nomor telepon anggota 3 harus diisi");
-                } else if (data.member3_phone.length < 10) {
-                    errors.push("Nomor telepon anggota 3 minimal 10 digit");
-                } else if (
-                    data.member3_phone === data.leader_phone ||
-                    data.member3_phone === data.member1_phone ||
-                    data.member3_phone === data.member2_phone
-                ) {
-                    errors.push(
-                        "Nomor telepon anggota 3 tidak boleh sama dengan ketua, anggota 1, atau anggota 2"
-                    );
-                }
-                break;
-
-            case 6: // Dokumen
+            case 4: // Dokumen
                 if (!data.link_berkas.trim()) {
                     errors.push("Link berkas persyaratan harus diisi");
                 } else if (!/^https?:\/\/.+/.test(data.link_berkas)) {
@@ -542,291 +522,180 @@ export default function BCCRegistration({
                 return (
                     <div>
                         <h2 className="mb-4 text-xl font-semibold text-ibp-primary">
-                            Anggota 1
+                            Anggota Tim
                         </h2>
 
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member1_name"
-                                value="Nama Lengkap *"
-                            />
-                            <TextInput
-                                id="member1_name"
-                                name="member1_name"
-                                value={data.member1_name}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member1_name", e.target.value)
-                                }
-                                placeholder="Nama lengkap anggota 1"
-                                required
-                            />
-                            <InputError
-                                message={errors.member1_name}
-                                className="mt-2"
-                            />
-                        </div>
+                        <p className="mb-6 text-sm text-gray-600">
+                            Tambahkan anggota tim Anda (maksimal 2 anggota).
+                        </p>
 
-                        <div className="mb-4">
-                            <InputLabel htmlFor="member1_nim" value="NIM *" />
-                            <TextInput
-                                id="member1_nim"
-                                name="member1_nim"
-                                value={data.member1_nim}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member1_nim", e.target.value)
-                                }
-                                placeholder="Nomor Induk Mahasiswa"
-                                required
-                            />
-                            <InputError
-                                message={errors.member1_nim}
-                                className="mt-2"
-                            />
-                        </div>
+                        {data.members.map((member, index) => (
+                            <div key={index} className="mb-8">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-medium text-ibp-secondary">
+                                        Anggota {index + 1}
+                                    </h3>
+                                    {index > 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeMember(index)}
+                                            className="px-3 py-1 text-sm text-red-600 transition-colors duration-200 bg-red-100 rounded-lg hover:bg-red-200"
+                                        >
+                                            Hapus
+                                        </button>
+                                    )}
+                                </div>
 
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member1_email"
-                                value="Email *"
-                            />
-                            <TextInput
-                                id="member1_email"
-                                name="member1_email"
-                                type="email"
-                                value={data.member1_email}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member1_email", e.target.value)
-                                }
-                                placeholder="email@example.com"
-                                required
-                            />
-                            <InputError
-                                message={errors.member1_email}
-                                className="mt-2"
-                            />
-                        </div>
+                                <div className="mb-4">
+                                    <InputLabel
+                                        htmlFor={`member${index}_name`}
+                                        value="Nama Lengkap *"
+                                    />
+                                    <TextInput
+                                        id={`member${index}_name`}
+                                        name={`member${index}_name`}
+                                        value={member.name}
+                                        className="block w-full mt-1"
+                                        onChange={(e) =>
+                                            handleMemberChange(
+                                                index,
+                                                "name",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Nama lengkap anggota"
+                                        required
+                                    />
+                                    <InputError
+                                        message={
+                                            (errors as any)[
+                                                `members.${index}.name`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
 
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member1_phone"
-                                value="Nomor Telepon *"
-                            />
-                            <TextInput
-                                id="member1_phone"
-                                name="member1_phone"
-                                type="tel"
-                                value={data.member1_phone}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member1_phone", e.target.value)
-                                }
-                                placeholder="08xxxxxxxxxx"
-                                required
-                            />
-                            <InputError
-                                message={errors.member1_phone}
-                                className="mt-2"
-                            />
-                        </div>
+                                <div className="mb-4">
+                                    <InputLabel
+                                        htmlFor={`member${index}_nim`}
+                                        value="NIM *"
+                                    />
+                                    <TextInput
+                                        id={`member${index}_nim`}
+                                        name={`member${index}_nim`}
+                                        value={member.nim}
+                                        className="block w-full mt-1"
+                                        onChange={(e) =>
+                                            handleMemberChange(
+                                                index,
+                                                "nim",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Nomor Induk Mahasiswa"
+                                        required
+                                    />
+                                    <InputError
+                                        message={
+                                            (errors as any)[
+                                                `members.${index}.nim`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                <div className="mb-4">
+                                    <InputLabel
+                                        htmlFor={`member${index}_email`}
+                                        value="Email *"
+                                    />
+                                    <TextInput
+                                        id={`member${index}_email`}
+                                        name={`member${index}_email`}
+                                        type="email"
+                                        value={member.email}
+                                        className="block w-full mt-1"
+                                        onChange={(e) =>
+                                            handleMemberChange(
+                                                index,
+                                                "email",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="email@example.com"
+                                        required
+                                    />
+                                    <InputError
+                                        message={
+                                            (errors as any)[
+                                                `members.${index}.email`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                <div className="mb-4">
+                                    <InputLabel
+                                        htmlFor={`member${index}_phone`}
+                                        value="Nomor Telepon *"
+                                    />
+                                    <TextInput
+                                        id={`member${index}_phone`}
+                                        name={`member${index}_phone`}
+                                        type="tel"
+                                        value={member.phone}
+                                        className="block w-full mt-1"
+                                        onChange={(e) =>
+                                            handleMemberChange(
+                                                index,
+                                                "phone",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="08xxxxxxxxxx"
+                                        required
+                                    />
+                                    <InputError
+                                        message={
+                                            (errors as any)[
+                                                `members.${index}.phone`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+
+                        {data.members.length < 3 && (
+                            <button
+                                type="button"
+                                onClick={addMember}
+                                className="flex items-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-blue-600 rounded-lg hover:bg-blue-700"
+                            >
+                                <svg
+                                    className="w-5 h-5 mr-2"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                    />
+                                </svg>
+                                Tambah Anggota
+                            </button>
+                        )}
                     </div>
                 );
 
             case 4:
-                return (
-                    <div>
-                        <h2 className="mb-4 text-xl font-semibold text-ibp-secondary">
-                            Anggota 2
-                        </h2>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member2_name"
-                                value="Nama Lengkap *"
-                            />
-                            <TextInput
-                                id="member2_name"
-                                name="member2_name"
-                                value={data.member2_name}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member2_name", e.target.value)
-                                }
-                                placeholder="Nama lengkap anggota 2"
-                                required
-                            />
-                            <InputError
-                                message={errors.member2_name}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel htmlFor="member2_nim" value="NIM *" />
-                            <TextInput
-                                id="member2_nim"
-                                name="member2_nim"
-                                value={data.member2_nim}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member2_nim", e.target.value)
-                                }
-                                placeholder="Nomor Induk Mahasiswa"
-                                required
-                            />
-                            <InputError
-                                message={errors.member2_nim}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member2_email"
-                                value="Email *"
-                            />
-                            <TextInput
-                                id="member2_email"
-                                name="member2_email"
-                                type="email"
-                                value={data.member2_email}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member2_email", e.target.value)
-                                }
-                                placeholder="email@example.com"
-                                required
-                            />
-                            <InputError
-                                message={errors.member2_email}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member2_phone"
-                                value="Nomor Telepon *"
-                            />
-                            <TextInput
-                                id="member2_phone"
-                                name="member2_phone"
-                                type="tel"
-                                value={data.member2_phone}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member2_phone", e.target.value)
-                                }
-                                placeholder="08xxxxxxxxxx"
-                                required
-                            />
-                            <InputError
-                                message={errors.member2_phone}
-                                className="mt-2"
-                            />
-                        </div>
-                    </div>
-                );
-
-            case 5:
-                return (
-                    <div>
-                        <h2 className="mb-4 text-xl font-semibold text-ibp-primary">
-                            Anggota 3
-                        </h2>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member3_name"
-                                value="Nama Lengkap *"
-                            />
-                            <TextInput
-                                id="member3_name"
-                                name="member3_name"
-                                value={data.member3_name}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member3_name", e.target.value)
-                                }
-                                placeholder="Nama lengkap anggota 3"
-                                required
-                            />
-                            <InputError
-                                message={errors.member3_name}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel htmlFor="member3_nim" value="NIM *" />
-                            <TextInput
-                                id="member3_nim"
-                                name="member3_nim"
-                                value={data.member3_nim}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member3_nim", e.target.value)
-                                }
-                                placeholder="Nomor Induk Mahasiswa"
-                                required
-                            />
-                            <InputError
-                                message={errors.member3_nim}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member3_email"
-                                value="Email *"
-                            />
-                            <TextInput
-                                id="member3_email"
-                                name="member3_email"
-                                type="email"
-                                value={data.member3_email}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member3_email", e.target.value)
-                                }
-                                placeholder="email@example.com"
-                                required
-                            />
-                            <InputError
-                                message={errors.member3_email}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="member3_phone"
-                                value="Nomor Telepon *"
-                            />
-                            <TextInput
-                                id="member3_phone"
-                                name="member3_phone"
-                                type="tel"
-                                value={data.member3_phone}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("member3_phone", e.target.value)
-                                }
-                                placeholder="08xxxxxxxxxx"
-                                required
-                            />
-                            <InputError
-                                message={errors.member3_phone}
-                                className="mt-2"
-                            />
-                        </div>
-                    </div>
-                );
-
-            case 6:
                 return (
                     <div>
                         <h2 className="mb-4 text-xl font-semibold text-ibp-secondary">
@@ -1020,9 +889,7 @@ export default function BCCRegistration({
                                         <div className="justify-between hidden mt-2 text-xs sm:flex text-ibp-white/80">
                                             <span>Tim</span>
                                             <span>Ketua</span>
-                                            <span>Anggota 1</span>
-                                            <span>Anggota 2</span>
-                                            <span>Anggota 3</span>
+                                            <span>Anggota</span>
                                             <span>Dokumen</span>
                                         </div>
 

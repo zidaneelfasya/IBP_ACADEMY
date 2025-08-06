@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\ParticipantProgressController;
+use App\Http\Controllers\ParticipantProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -172,7 +173,7 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
         Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
     });
 
-    
+
     Route::get('/competition/success/{registration}', [CompetitionController::class, 'success'])->name('competition.success');
 
     // Common Team Registration Routes (for user's own registrations)
@@ -183,22 +184,21 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
     //     Route::delete('/{id}', [TeamRegistrationController::class, 'destroy'])->name('destroy');
 });
 
-Route::get('/user', function () {
-    return Inertia::render('User/Template');
-})->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
-Route::get('/user/dashboard', function () {
-    return Inertia::render('User/Dashboard');
-})->middleware(['auth', 'verified', 'user'])->name('dashboard.user');
-Route::get('/user/profile', function () {
-    return Inertia::render('User/Profile');
 
-})->middleware(['auth', 'verified', 'user'])->name('dashboard.user.profile');
+Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function () {
+    Route::get('/', fn() => Inertia::render('User/Template'))->name('dashboard.user');
+    Route::get('/dashboard', fn() => Inertia::render('User/Dashboard'))->name('dashboard.user.dashboard');
+    Route::get('/tugas', fn() => Inertia::render('User/Tugas'))->name('dashboard.user.tugas');
+    Route::get('/profile', [ParticipantProfileController::class, 'show'])
+        ->name('dashboard.user.profile');
+});
 
 
 
 
 
-// route aprove logic
+
+
 
 
 
