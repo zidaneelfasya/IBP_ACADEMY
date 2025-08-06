@@ -157,15 +157,12 @@ const BusinessPlanCompetition: React.FC = () => {
 
     const contactPersons = [
         {
-            name: "Sarah Wijaya",
-            whatsapp: "+62 812-3456-7890",
-            instagram: "@sarahwijaya_ibp",
-            line: "sarahwijaya",
+            name: "Tiara Ramadhani",
+            whatsapp: "+62 821-6702-7236",
         },
         {
-            name: "Ahmad Rizki",
-            whatsapp: "+62 813-9876-5432",
-            instagram: "@ahmadrizki_ibp",
+            name: "Najwa Laili",
+            whatsapp: "+62 813-3338-4548",
         },
     ];
 
