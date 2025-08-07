@@ -206,7 +206,15 @@ export default function About() {
                                 <div className="absolute inset-0 bg-white/20 rounded-3xl blur-lg" />
                                 <div className="relative p-6 border shadow-sm bg-white/30 backdrop-blur-sm border-white/20 rounded-3xl md:p-8">
                                     <p className="text-lg font-normal leading-relaxed text-[#1E3A8A] md:text-xl lg:text-2xl">
-                                        IBP Academy is a strategic learning platform designed to transform participants' curiosity into tangible creations. As a bridge between ideas and implementation, IBP Academy challenges participants to explore critical thinking, learn from top mentors, and create innovative solutions to real-world challenges.
+                                        IBP Academy is a strategic learning
+                                        platform designed to transform
+                                        participants' curiosity into tangible
+                                        creations. As a bridge between ideas and
+                                        implementation, IBP Academy challenges
+                                        participants to explore critical
+                                        thinking, learn from top mentors, and
+                                        create innovative solutions to
+                                        real-world challenges.
                                     </p>
                                 </div>
                             </div>
@@ -251,7 +259,8 @@ export default function About() {
                                     className="p-6 bg-white border border-gray-100 shadow-lg rounded-2xl"
                                     whileHover={{
                                         y: -5,
-                                        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                                        boxShadow:
+                                            "0 20px 40px rgba(0,0,0,0.1)",
                                     }}
                                     transition={{ duration: 0.3 }}
                                 >
@@ -264,7 +273,11 @@ export default function About() {
                                                 Learning
                                             </h3>
                                             <p className="leading-relaxed text-gray-600">
-                                                Providing intensive materials on business, technology, and implementation strategies through learning modules, videos, and case studies.
+                                                Providing intensive materials on
+                                                business, technology, and
+                                                implementation strategies
+                                                through learning modules,
+                                                videos, and case studies.
                                             </p>
                                         </div>
                                     </div>
@@ -274,7 +287,8 @@ export default function About() {
                                     className="p-6 bg-white border border-gray-100 shadow-lg rounded-2xl"
                                     whileHover={{
                                         y: -5,
-                                        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                                        boxShadow:
+                                            "0 20px 40px rgba(0,0,0,0.1)",
                                     }}
                                     transition={{ duration: 0.3 }}
                                 >
@@ -287,7 +301,11 @@ export default function About() {
                                                 Networking
                                             </h3>
                                             <p className="leading-relaxed text-gray-600">
-                                                Connecting participants with academics, practitioners, and investors through discussion forums, mentoring sessions, and networking events.
+                                                Connecting participants with
+                                                academics, practitioners, and
+                                                investors through discussion
+                                                forums, mentoring sessions, and
+                                                networking events.
                                             </p>
                                         </div>
                                     </div>
@@ -297,7 +315,8 @@ export default function About() {
                                     className="p-6 bg-white border border-gray-100 shadow-lg rounded-2xl"
                                     whileHover={{
                                         y: -5,
-                                        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                                        boxShadow:
+                                            "0 20px 40px rgba(0,0,0,0.1)",
                                     }}
                                     transition={{ duration: 0.3 }}
                                 >
@@ -310,7 +329,11 @@ export default function About() {
                                                 Implementation
                                             </h3>
                                             <p className="leading-relaxed text-gray-600">
-                                                Providing opportunities for participants to apply their knowledge to develop competition works into applicable and commercializable solutions.
+                                                Providing opportunities for
+                                                participants to apply their
+                                                knowledge to develop competition
+                                                works into applicable and
+                                                commercializable solutions.
                                             </p>
                                         </div>
                                     </div>
@@ -347,7 +370,10 @@ export default function About() {
                                         Learning Management System
                                     </h3>
                                     <p className="leading-relaxed text-white/90">
-                                        A digital platform providing access to business and technology modules, work documentation, and flexible mentoring for sustainable development.
+                                        A digital platform providing access to
+                                        business and technology modules, work
+                                        documentation, and flexible mentoring
+                                        for sustainable development.
                                     </p>
                                 </div>
                             </div>
@@ -421,20 +447,25 @@ export default function About() {
 
                             <div className="p-8 border border-gray-100 bg-gradient-to-br from-gray-50 to-amber-50/50 rounded-2xl">
                                 <p className="mb-6 text-lg leading-relaxed text-gray-700 md:text-xl">
-                                    IBP Academy aims to be an intellectual and professional mentoring ecosystem based on real challenges by integrating business training, technology, and leadership.
+                                    IBP Academy aims to be an intellectual and
+                                    professional mentoring ecosystem based on
+                                    real challenges by integrating business
+                                    training, technology, and leadership.
                                 </p>
 
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="flex items-center space-x-3">
                                         <div className="w-2 h-2 bg-[#1E3A8A] rounded-full" />
                                         <span className="font-medium text-gray-600">
-                                            Providing space for critical thinking and tangible solutions
+                                            Providing space for critical
+                                            thinking and tangible solutions
                                         </span>
                                     </div>
                                     <div className="flex items-center space-x-3">
                                         <div className="w-2 h-2 rounded-full bg-amber-400" />
                                         <span className="font-medium text-gray-600">
-                                            Post-competition development platform
+                                            Post-competition development
+                                            platform
                                         </span>
                                     </div>
                                     <div className="flex items-center space-x-3">
@@ -587,7 +618,10 @@ export default function About() {
 
                             <div className="bg-gradient-to-br from-gray-50 to-[#1E3A8A]/5 rounded-2xl p-8 border border-gray-100">
                                 <p className="mb-8 text-lg leading-relaxed text-gray-700 md:text-xl">
-                                    The series of IBP 2025 activities are designed to holistically support participant development through various integrated programs.
+                                    The series of IBP 2025 activities are
+                                    designed to holistically support participant
+                                    development through various integrated
+                                    programs.
                                 </p>
 
                                 <div className="grid gap-6 md:grid-cols-2">
@@ -602,7 +636,7 @@ export default function About() {
                                         },
                                         {
                                             name: "Competition Phase",
-                                            icon: "",
+                                            icon: "⚔️",
                                         },
                                         {
                                             name: "Company Sessions",

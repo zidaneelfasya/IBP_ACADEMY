@@ -196,23 +196,23 @@ const BusinessCaseCompetition: React.FC = () => {
     // Prize data updated with IBP Academy values
     const prizeData = [
         {
-            title: "1st Place",
-            prize: "Rp 25,000,000",
-            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
+            title: "Champion",
+            prize: "Prize Money",
+            benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
-            icon: "🏆",
+            icon: "🥇",
         },
         {
-            title: "2nd Place",
-            prize: "Rp 15,000,000",
-            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
+            title: "1st Runner-up",
+            prize: "Prize Money",
+            benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-blue-400 to-blue-600",
             icon: "🥈",
         },
         {
-            title: "3rd Place",
-            prize: "Rp 10,000,000",
-            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
+            title: "2nd Runner-up",
+            prize: "Prize Money",
+            benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-green-400 to-green-600",
             icon: "🥉",
         },

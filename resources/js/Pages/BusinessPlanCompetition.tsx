@@ -155,21 +155,21 @@ const BusinessPlanCompetition: React.FC = () => {
     const prizeData = [
         {
             title: "Champion",
-            prize: "Rp 25,000,000",
+            prize: "Prize Money",
             benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
-            icon: "🏆",
+            icon: "🥇",
         },
         {
             title: "1st Runner-up",
-            prize: "Rp 15,000,000",
+            prize: "Prize Money",
             benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-blue-400 to-blue-600",
             icon: "🥈",
         },
         {
             title: "2nd Runner-up",
-            prize: "Rp 10,000,000",
+            prize: "Prize Money",
             benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-green-400 to-green-600",
             icon: "🥉",
