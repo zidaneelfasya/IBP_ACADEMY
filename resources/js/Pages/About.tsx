@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import SpotlightCard from "@/Components/ReactBits/SpotlightCard/SpotlightCard";
 import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 export default function About() {
     const [visibleSections, setVisibleSections] = useState<Set<string>>(
@@ -51,7 +51,7 @@ export default function About() {
 
     const isVisible = (id: string) => visibleSections.has(id);
 
-    const fadeInUp = {
+    const fadeInUp: Variants = {
         hidden: { opacity: 0, y: 60 },
         visible: {
             opacity: 1,
@@ -60,7 +60,7 @@ export default function About() {
         },
     };
 
-    const fadeInLeft = {
+    const fadeInLeft: Variants = {
         hidden: { opacity: 0, x: -60 },
         visible: {
             opacity: 1,
@@ -69,7 +69,7 @@ export default function About() {
         },
     };
 
-    const fadeInRight = {
+    const fadeInRight: Variants = {
         hidden: { opacity: 0, x: 60 },
         visible: {
             opacity: 1,
@@ -183,13 +183,13 @@ export default function About() {
                         {/* Title */}
                         <div className="space-y-4">
                             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#1E3A8A] tracking-tight">
-                                About
+                                IBP Academy
                             </h1>
 
                             <div className="flex items-center justify-center space-x-2 text-amber-500">
                                 <Sparkles className="w-6 h-6" />
                                 <span className="text-lg font-semibold">
-                                    Industrial Business Project
+                                    From Curiosity to Creation
                                 </span>
                                 <Sparkles className="w-6 h-6" />
                             </div>
@@ -206,17 +206,7 @@ export default function About() {
                                 <div className="absolute inset-0 bg-white/20 rounded-3xl blur-lg" />
                                 <div className="relative p-6 border shadow-sm bg-white/30 backdrop-blur-sm border-white/20 rounded-3xl md:p-8">
                                     <p className="text-lg font-normal leading-relaxed text-[#1E3A8A] md:text-xl lg:text-2xl">
-                                        IBP (Industrial Business Project) tidak
-                                        hanya bertujuan sebagai sebuah{" "}
-                                        <span className="font-bold text-ibp-primary">
-                                            kompetisi bisnis dan teknologi
-                                        </span>
-                                        , tetapi juga sebagai media{" "}
-                                        <span className="font-bold text-ibp-primary">
-                                            edukasi dan inkubasi bakat
-                                        </span>{" "}
-                                        bagi peserta yang terdiri dari mahasiswa
-                                        dan praktisi muda.
+                                        IBP Academy is a strategic learning platform designed to transform participants' curiosity into tangible creations. As a bridge between ideas and implementation, IBP Academy challenges participants to explore critical thinking, learn from top mentors, and create innovative solutions to real-world challenges.
                                     </p>
                                 </div>
                             </div>
@@ -250,7 +240,7 @@ export default function About() {
                                 </motion.div>
                                 <div>
                                     <h2 className="text-4xl md:text-5xl font-black text-[#1E3A8A]">
-                                        Our Objectives
+                                        Our Concept
                                     </h2>
                                     <div className="w-24 h-1 bg-gradient-to-r from-[#1E3A8A] to-amber-400 rounded-full mt-2" />
                                 </div>
@@ -260,8 +250,8 @@ export default function About() {
                                 <motion.div
                                     className="p-6 bg-white border border-gray-100 shadow-lg rounded-2xl"
                                     whileHover={{
-                                        y: -5,
-                                        shadow: "0 20px 40px rgba(0,0,0,0.1)",
+                                        y: -5, 
+                                        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
                                     }}
                                     transition={{ duration: 0.3 }}
                                 >
@@ -271,14 +261,10 @@ export default function About() {
                                         </div>
                                         <div>
                                             <h3 className="mb-2 text-xl font-bold text-gray-800">
-                                                Pengembangan Potensi
+                                                Learning
                                             </h3>
                                             <p className="leading-relaxed text-gray-600">
-                                                Mengembangkan potensi,
-                                                kreativitas, dan inovasi
-                                                mahasiswa serta praktisi muda
-                                                dalam bidang bisnis dan
-                                                teknologi.
+                                                Providing intensive materials on business, technology, and implementation strategies through learning modules, videos, and case studies.
                                             </p>
                                         </div>
                                     </div>
@@ -288,7 +274,7 @@ export default function About() {
                                     className="p-6 bg-white border border-gray-100 shadow-lg rounded-2xl"
                                     whileHover={{
                                         y: -5,
-                                        shadow: "0 20px 40px rgba(0,0,0,0.1)",
+                                        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
                                     }}
                                     transition={{ duration: 0.3 }}
                                 >
@@ -298,13 +284,33 @@ export default function About() {
                                         </div>
                                         <div>
                                             <h3 className="mb-2 text-xl font-bold text-gray-800">
-                                                Media Edukasi
+                                                Networking
                                             </h3>
                                             <p className="leading-relaxed text-gray-600">
-                                                Menjadi wadah edukasi dan
-                                                inkubasi melalui kompetisi,
-                                                workshop, dan mentoring yang
-                                                komprehensif.
+                                                Connecting participants with academics, practitioners, and investors through discussion forums, mentoring sessions, and networking events.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                <motion.div
+                                    className="p-6 bg-white border border-gray-100 shadow-lg rounded-2xl"
+                                    whileHover={{
+                                        y: -5,
+                                        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <div className="flex items-start space-x-4">
+                                        <div className="flex items-center justify-center w-12 h-12 bg-green-500/10 rounded-xl">
+                                            <GitBranch className="w-6 h-6 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="mb-2 text-xl font-bold text-gray-800">
+                                                Implementation
+                                            </h3>
+                                            <p className="leading-relaxed text-gray-600">
+                                                Providing opportunities for participants to apply their knowledge to develop competition works into applicable and commercializable solutions.
                                             </p>
                                         </div>
                                     </div>
@@ -328,22 +334,20 @@ export default function About() {
                                 <div className="relative space-y-6 text-center text-white">
                                     <div className="flex justify-center space-x-4">
                                         <div className="flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl">
-                                            <Target className="w-8 h-8" />
-                                        </div>
-                                        <div className="flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl">
                                             <Lightbulb className="w-8 h-8" />
                                         </div>
                                         <div className="flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl">
                                             <Users className="w-8 h-8" />
                                         </div>
+                                        <div className="flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl">
+                                            <GitBranch className="w-8 h-8" />
+                                        </div>
                                     </div>
                                     <h3 className="text-2xl font-bold">
-                                        Empowering Innovation
+                                        Learning Management System
                                     </h3>
                                     <p className="leading-relaxed text-white/90">
-                                        Membangun ekosistem inovasi yang
-                                        berkelanjutan untuk generasi muda
-                                        Indonesia
+                                        A digital platform providing access to business and technology modules, work documentation, and flexible mentoring for sustainable development.
                                     </p>
                                 </div>
                             </div>
@@ -409,7 +413,7 @@ export default function About() {
                                 </motion.div>
                                 <div>
                                     <h2 className="text-4xl md:text-5xl font-black text-[#1E3A8A]">
-                                        Competition Theme
+                                        Our Purpose
                                     </h2>
                                     <div className="w-24 h-1 bg-gradient-to-r from-amber-400 to-[#1E3A8A] rounded-full mt-2" />
                                 </div>
@@ -417,34 +421,32 @@ export default function About() {
 
                             <div className="p-8 border border-gray-100 bg-gradient-to-br from-gray-50 to-amber-50/50 rounded-2xl">
                                 <p className="mb-6 text-lg leading-relaxed text-gray-700 md:text-xl">
-                                    Tema kompetisi tahun ini fokus pada
-                                    pemberdayaan inovator muda untuk
-                                    transformasi industri yang berkelanjutan.
+                                    IBP Academy aims to be an intellectual and professional mentoring ecosystem based on real challenges by integrating business training, technology, and leadership.
                                 </p>
 
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="flex items-center space-x-3">
                                         <div className="w-2 h-2 bg-[#1E3A8A] rounded-full" />
                                         <span className="font-medium text-gray-600">
-                                            Sustainable Innovation
+                                            Providing space for critical thinking and tangible solutions
                                         </span>
                                     </div>
                                     <div className="flex items-center space-x-3">
                                         <div className="w-2 h-2 rounded-full bg-amber-400" />
                                         <span className="font-medium text-gray-600">
-                                            Digital Transformation
+                                            Post-competition development platform
                                         </span>
                                     </div>
                                     <div className="flex items-center space-x-3">
                                         <div className="w-2 h-2 bg-[#1E3A8A] rounded-full" />
                                         <span className="font-medium text-gray-600">
-                                            Industry 4.0
+                                            Tracking participant progress
                                         </span>
                                     </div>
                                     <div className="flex items-center space-x-3">
                                         <div className="w-2 h-2 rounded-full bg-amber-400" />
                                         <span className="font-medium text-gray-600">
-                                            Green Technology
+                                            Long-term material repository
                                         </span>
                                     </div>
                                 </div>
@@ -477,7 +479,7 @@ export default function About() {
                             </motion.div>
                             <div>
                                 <h2 className="text-4xl md:text-5xl font-black text-[#1E3A8A]">
-                                    Competition Branches
+                                    Key Features
                                 </h2>
                                 <div className="w-24 h-1 bg-gradient-to-r from-[#1E3A8A] to-amber-400 rounded-full mt-2 mx-auto" />
                             </div>
@@ -488,25 +490,25 @@ export default function About() {
                         {[
                             {
                                 icon: Award,
-                                title: "Business Plan Competition",
+                                title: "Learning Modules",
                                 description:
-                                    "Kompetisi rencana bisnis komprehensif untuk mengembangkan ide bisnis inovatif",
+                                    "Video content, modules, and case studies accessible to participants based on their needs and project development stage",
                                 color: "from-[#1E3A8A] to-blue-600",
                                 bgColor: "from-[#1E3A8A]/10 to-blue-600/10",
                             },
                             {
                                 icon: Lightbulb,
-                                title: "Technology Innovation",
+                                title: "Mentorship & Project Clinic",
                                 description:
-                                    "Kompetisi inovasi teknologi untuk solusi industri masa depan",
+                                    "Guidance from academics, practitioners, and IBP alumni for project and business development",
                                 color: "from-amber-400 to-amber-600",
                                 bgColor: "from-amber-400/10 to-amber-600/10",
                             },
                             {
                                 icon: Users,
-                                title: "Startup Pitching",
+                                title: "Certification & Roadmap",
                                 description:
-                                    "Kompetisi presentasi startup untuk menarik investor dan stakeholder",
+                                    "Providing certificates and development roadmaps for participants as appreciation and guidance",
                                 color: "from-green-500 to-green-600",
                                 bgColor: "from-green-500/10 to-green-600/10",
                             },
@@ -525,7 +527,7 @@ export default function About() {
                                 }}
                                 whileHover={{
                                     y: -10,
-                                    shadow: "0 20px 40px rgba(0,0,0,0.15)",
+                                    boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
                                 }}
                                 className="p-8 transition-all duration-300 bg-white border border-gray-100 shadow-lg rounded-3xl hover:border-gray-200"
                             >
@@ -585,20 +587,17 @@ export default function About() {
 
                             <div className="bg-gradient-to-br from-gray-50 to-[#1E3A8A]/5 rounded-2xl p-8 border border-gray-100">
                                 <p className="mb-8 text-lg leading-relaxed text-gray-700 md:text-xl">
-                                    Rangkaian kegiatan IBP 2025 dirancang untuk
-                                    mendukung pengembangan peserta secara
-                                    holistik melalui berbagai program yang
-                                    terintegrasi.
+                                    The series of IBP 2025 activities are designed to holistically support participant development through various integrated programs.
                                 </p>
 
                                 <div className="grid gap-6 md:grid-cols-2">
                                     {[
                                         {
-                                            name: "Seminar & Workshop",
+                                            name: "Seminars & Workshops",
                                             icon: "📚",
                                         },
                                         {
-                                            name: "Mentoring Session",
+                                            name: "Mentoring Sessions",
                                             icon: "👥",
                                         },
                                         {
@@ -606,11 +605,11 @@ export default function About() {
                                             icon: "🏆",
                                         },
                                         {
-                                            name: "Inkubasi Program",
+                                            name: "Program Incubation",
                                             icon: "🚀",
                                         },
                                         {
-                                            name: "Networking Event",
+                                            name: "Networking Events",
                                             icon: "🤝",
                                         },
                                         { name: "Awarding Night", icon: "🎉" },
@@ -656,26 +655,34 @@ export default function About() {
                                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-3xl" />
                                 <div className="relative space-y-8 text-center text-white">
                                     <h3 className="text-2xl font-bold">
-                                        Timeline Overview
+                                        Main Events
                                     </h3>
 
                                     <div className="space-y-6">
                                         {[
                                             {
-                                                phase: "Registration",
-                                                time: "Jan - Feb 2025",
+                                                phase: "Registration Phase 1",
+                                                time: "August 8-21",
                                             },
                                             {
-                                                phase: "Preliminary",
-                                                time: "Mar 2025",
+                                                phase: "Preliminary Round",
+                                                time: "August 15-31",
                                             },
                                             {
-                                                phase: "Semi Final",
-                                                time: "Apr 2025",
+                                                phase: "Semifinal Round",
+                                                time: "September 10-23",
                                             },
                                             {
-                                                phase: "Grand Final",
-                                                time: "May 2025",
+                                                phase: "Final Round",
+                                                time: "October 1-20",
+                                            },
+                                            {
+                                                phase: "IBP International Day 1",
+                                                time: "October 25",
+                                            },
+                                            {
+                                                phase: "IBP International Day 2",
+                                                time: "October 26",
                                             },
                                         ].map((item, index) => (
                                             <motion.div

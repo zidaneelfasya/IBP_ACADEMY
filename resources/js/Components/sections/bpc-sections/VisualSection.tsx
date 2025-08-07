@@ -1,19 +1,12 @@
 "use client";
 
 import type React from "react";
-
-import { motion } from "framer-motion";
-
-
-import RollingGallery from "@/Components/ReactBits/RollingGalery/RollingGalery";
-import { easeInOut } from "framer-motion";
-
-
+import { motion,easeInOut } from "framer-motion";
 
 interface VisualSectionProps {
     images?: {
-        main: string;
-        secondary: string[];
+        main: string; // Bisa berupa path lokal atau URL eksternal
+        secondary: string[]; // Bisa berupa path lokal atau URL eksternal
     };
 }
 
@@ -42,14 +35,28 @@ const VisualSection: React.FC<VisualSectionProps> = ({ images }) => {
     };
 
     const defaultImages = {
-        main: "https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        main: "/images/bcc/main.jpg", // Path default lokal
         secondary: [
-            "https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "/images/bcc/secondary1.jpg",
+            "/images/bcc/secondary2.jpg",
         ],
     };
 
     const imageData = images || defaultImages;
+
+    // Fungsi untuk menentukan apakah gambar adalah URL eksternal
+    const isExternalUrl = (url: string) => {
+        return url.startsWith('http://') || url.startsWith('https://');
+    };
+
+    // Fungsi untuk mendapatkan URL gambar yang benar
+    const getImageUrl = (url: string) => {
+        if (isExternalUrl(url)) {
+            return url;
+        }
+        // Untuk path lokal, gunakan path langsung (Laravel akan melayani dari public/)
+        return url;
+    };
 
     return (
         <div className="container px-4 mx-auto mb-16">
@@ -65,7 +72,7 @@ const VisualSection: React.FC<VisualSectionProps> = ({ images }) => {
                         className="md:col-span-2"
                     >
                         <img
-                            src={imageData.main || "/placeholder.svg"}
+                            src={getImageUrl(imageData.main)}
                             alt="Business Plan Competition Main"
                             className="object-cover w-full shadow-lg h-80 rounded-2xl"
                         />
@@ -78,7 +85,7 @@ const VisualSection: React.FC<VisualSectionProps> = ({ images }) => {
                                     scale: 1.05,
                                     rotateX: index % 2 === 0 ? 5 : -5,
                                 }}
-                                src={src}
+                                src={getImageUrl(src)}
                                 alt={`Competition Image ${index + 1}`}
                                 className="object-cover w-full shadow-lg h-36 rounded-2xl"
                             />

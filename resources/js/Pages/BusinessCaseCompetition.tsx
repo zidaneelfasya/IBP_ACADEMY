@@ -59,12 +59,10 @@ const BusinessCaseCompetition: React.FC = () => {
     const flash = page.props.flash as FlashData | undefined;
     const [showModal, setShowModal] = useState(false);
 
-    // Show modal if redirected with flash data
     useEffect(() => {
         console.log("All props:", page.props);
         console.log("Flash data:", flash);
 
-        // Check for URL parameters as fallback
         const urlParams = new URLSearchParams(window.location.search);
         const showModalParam = urlParams.get("showModal") === "true";
 
@@ -80,168 +78,163 @@ const BusinessCaseCompetition: React.FC = () => {
         }
     }, [flash, page.props]);
 
-    // Debug flash data
     useEffect(() => {
         if (flash) {
             console.log("Flash data:", flash);
         }
     }, [flash]);
-    // Stats data
+
+    // Updated stats data based on IBP 2025 document
     const statsData = [
         {
-            number: 150,
-            label: "Tim Peserta",
+            number: 100,
+            label: "Participating Teams",
             suffix: "+",
             icon: <Users className="w-8 h-8 text-white" />,
         },
         {
-            number: 25,
-            label: "Universitas",
+            number: 30,
+            label: "Universities",
             suffix: "+",
             icon: <Trophy className="w-8 h-8 text-white" />,
         },
         {
-            number: 48,
-            label: "Jam Kompetisi",
-            icon: <Clock className="w-8 h-8 text-white" />,
+            number: 6,
+            label: "Learning Modules",
+            icon: <FileText className="w-8 h-8 text-white" />,
         },
         {
             number: 50,
-            label: "Total Hadiah",
+            label: "Total Prizes",
             prefix: "Rp ",
-            suffix: "Jt",
+            suffix: "M+",
             icon: <Target className="w-8 h-8 text-white" />,
         },
     ];
 
-    // Requirements data
+    // Updated requirements based on IBP registration process
     const requirementsData = [
         {
-            title: "Tim Maksimal 4 Orang",
+            title: "Maximum 4 Members per Team",
             description:
-                "Setiap tim terdiri dari maksimal 4 anggota dengan minimal 1 ketua tim",
+                "Each team consists of maximum 4 members with 1 team leader",
             icon: <Users className="w-6 h-6 text-blue-600" />,
         },
         {
-            title: "Mahasiswa Aktif S1/D4",
+            title: "Active S1/D4 Students",
             description:
-                "Peserta adalah mahasiswa aktif program S1 atau D4 dari universitas terakreditasi",
+                "Participants must be active undergraduate (S1) or diploma (D4) students from accredited universities",
             icon: <CheckCircle className="w-6 h-6 text-green-600" />,
         },
         {
-            title: "Dokumen Lengkap",
+            title: "Complete Documents",
             description:
-                "Menyertakan KTM, CV, dan surat keterangan aktif kuliah dari semua anggota tim",
+                "Must include student ID, twibbon proof, Instagram follow screenshot, and Instagram Story post",
             icon: <FileText className="w-6 h-6 text-purple-600" />,
         },
         {
-            title: "Komitmen Waktu",
+            title: "Program Commitment",
             description:
-                "Sanggup mengikuti seluruh rangkaian kompetisi dari awal hingga akhir",
+                "Must commit to participate in all IBP Academy series from preliminary to final round",
             icon: <Clock className="w-6 h-6 text-orange-600" />,
         },
     ];
 
-    // Process steps data
+    // Updated process steps based on IBP 2025 timeline
     const processSteps = [
         {
-            title: "Registrasi",
-            description: "Daftar tim dan lengkapi dokumen persyaratan",
+            title: "Registration",
+            description: "Register your team and complete required documents",
             icon: <UserPlus className="w-8 h-8" />,
             color: "bg-gradient-to-r from-blue-500 to-blue-600",
         },
         {
-            title: "Case Release",
-            description: "Terima case study dan mulai analisis",
+            title: "Preliminary Round",
+            description: "Case release and initial solution submission",
             icon: <FileText className="w-8 h-8" />,
             color: "bg-gradient-to-r from-purple-500 to-purple-600",
         },
         {
-            title: "Analysis",
-            description: "Kerjakan case study dan buat solusi",
+            title: "Semifinal Round",
+            description: "Advanced solution development with mentoring",
             icon: <Target className="w-8 h-8" />,
             color: "bg-gradient-to-r from-green-500 to-green-600",
         },
         {
-            title: "Presentation",
-            description: "Presentasikan solusi di hadapan juri",
+            title: "Final Round",
+            description: "Solution presentation at IBP International Day",
             icon: <Trophy className="w-8 h-8" />,
             color: "bg-gradient-to-r from-yellow-500 to-orange-500",
         },
     ];
 
-    // Timeline data
+    // Updated timeline based on IBP 2025 schedule
     const timelineData = [
         {
-            date: "15 - 30 Maret 2024",
-            phase: "Pendaftaran Tim",
+            date: "August 8 - 21, 2025",
+            phase: "Participant Registration",
             description:
-                "Periode pendaftaran tim dan verifikasi kelengkapan dokumen",
+                "Team registration period and document verification",
         },
         {
-            date: "1 - 5 April 2024",
-            phase: "Technical Meeting",
-            description: "Briefing kompetisi dan pembagian case study",
+            date: "August 15 - 31, 2025",
+            phase: "Preliminary Round",
+            description: "Case release and initial solution submission",
         },
         {
-            date: "6 - 20 April 2024",
-            phase: "Analisis Case Study",
-            description: "Periode analisis mendalam dan penyusunan solusi",
+            date: "September 9 - 23, 2025",
+            phase: "Semifinal Round",
+            description: "Advanced solution development with BCC module access",
         },
         {
-            date: "21 - 25 April 2024",
-            phase: "Submission Proposal",
-            description: "Pengumpulan proposal solusi case study",
-        },
-        {
-            date: "30 April - 1 Mei 2024",
-            phase: "Final Presentation",
-            description: "Presentasi final dan penilaian juri",
+            date: "October 25 - 26, 2025",
+            phase: "IBP International Day",
+            description: "Final presentation and international judging",
         },
     ];
 
-    // Prize data
+    // Prize data updated with IBP Academy values
     const prizeData = [
         {
-            title: "Juara 1",
-            prize: "Rp 20.000.000",
-            benefits: "+ Trophy + Sertifikat + Mentoring",
+            title: "1st Place",
+            prize: "Rp 25,000,000",
+            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
             gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
             icon: "🏆",
         },
         {
-            title: "Juara 2",
-            prize: "Rp 12.500.000",
-            benefits: "+ Trophy + Sertifikat + Mentoring",
+            title: "2nd Place",
+            prize: "Rp 15,000,000",
+            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
             gradient: "bg-gradient-to-br from-blue-400 to-blue-600",
             icon: "🥈",
         },
         {
-            title: "Juara 3",
-            prize: "Rp 8.000.000",
-            benefits: "+ Trophy + Sertifikat + Mentoring",
+            title: "3rd Place",
+            prize: "Rp 10,000,000",
+            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
             gradient: "bg-gradient-to-br from-green-400 to-green-600",
             icon: "🥉",
         },
     ];
 
     const specialAwards = [
-        "🎯 Special Awards: Best Analysis, Most Creative Solution, Best Presentation",
-        "💼 Kesempatan magang di perusahaan partner",
-        "🌟 Fast track interview untuk program graduate trainee",
+        "🎯 Special Awards: Best Innovation, Most Sustainable Solution, Best Implementation",
+        "💼 Business incubation opportunities through IBP Academy",
+        "🌟 Exclusive access to mentor and investor networks",
     ];
 
-    // CTA buttons
+    // Updated CTA buttons
     const ctaButtons = [
         {
-            text: "📋 Download Case Study Guide",
-            href: "/files/ibp-business-case-guide.pdf",
+            text: "📋 Download BCC Guideline",
+            href: "/files/ibp-bcc-guideline.pdf",
             type: "secondary" as const,
             icon: <FileText className="w-6 h-6" />,
             external: true,
         },
         {
-            text: "🚀 Register Team",
+            text: "🚀 Register Now",
             href: route("competition.bcc.register.create"),
             type: "primary" as const,
             icon: <UserPlus className="w-6 h-6" />,
@@ -261,77 +254,76 @@ const BusinessCaseCompetition: React.FC = () => {
         },
     ];
 
+    // Updated description content based on IBP Academy concept
     const descriptionContent = [
-        "Business Case Competition IBP Academy adalah kompetisi analisis kasus bisnis yang menantang peserta untuk memecahkan permasalahan bisnis nyata dari perusahaan-perusahaan terkemuka. Kompetisi ini dirancang untuk mengasah kemampuan analitis, strategic thinking, dan problem-solving skills peserta.",
-        "Peserta akan diberikan case study yang kompleks dan harus mengembangkan solusi inovatif dengan pendekatan yang sistematis dan data-driven. Tim akan dinilai berdasarkan kedalaman analisis, kreativitas solusi, dan kemampuan presentasi di hadapan panel juri yang terdiri dari senior executives dan business leaders.",
-        "Kompetisi ini menjadi platform ideal untuk mendemonstrasikan kemampuan konsultasi bisnis dan membangun portfolio yang kuat untuk karir di bidang strategy consulting, business development, dan management.",
+        "IBP Academy Business Case Competition (BCC) is a business case analysis competition challenging participants to develop innovative solutions based on Sustainable Development Goals (SDGs). This competition is part of the IBP Academy education ecosystem that bridges ideas to real implementation.",
+        "Participants will get access to the IBP Academy LMS platform providing business and technology modules, mentoring from industry practitioners, and opportunities to develop their work from preliminary to final stages. Solutions will be judged based on innovation, implementation feasibility, and industry impact.",
+        "Through the 'From Curiosity to Creation' approach, IBP Academy BCC focuses not only on competition but also on participant capacity development through continuous learning and professional networking.",
     ];
 
     return (
         <>
             <Navbar />
-            <Head title="Business Case Competition - IBP Academy" />
+            <Head title="Business Case Competition - IBP Academy 2025" />
 
             <div className="relative min-h-screen py-20 overflow-hidden bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-                <HeroSection title="Business Case Competition" backUrl="/" />
+                <HeroSection
+                    title="Business Case Competition"
+                    backUrl="/"
+                />
 
                 <VisualSection
                     images={{
-                        main: "https://images.unsplash.com/photo-1506781961370-37a89d6b3095?q=80&w=3264&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                        main: "/image/bcc/bcc1.JPG",
                         secondary: [
-                            "https://images.unsplash.com/photo-1599576838688-8a6c11263108?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                            "https://images.unsplash.com/photo-1494094892896-7f14a4433b7a?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                            "/image/bcc/bcc2.JPG",
+                            "/image/bcc/bcc3.JPG",
                         ],
                     }}
                 />
 
                 <DescriptionSection
-                    title="Tentang Kompetisi"
+                    title="About IBP Academy BCC"
                     content={descriptionContent}
                     icon={<Briefcase className="w-8 h-8 text-[#1E3A8A]" />}
                 />
 
                 <StatsSection
-                    title="Kompetisi dalam Angka"
-                    subtitle="Bergabunglah dengan ratusan peserta dari seluruh Indonesia"
+                    title="IBP Academy in Numbers"
+                    subtitle="Sustainable business and technology education platform"
                     stats={statsData}
-                    backgroundColor="bg-gradient-to-r from-purple-600 to-blue-600"
+                    backgroundColor="bg-gradient-to-r from-[#1E3A8A] to-blue-600"
                 />
 
                 <RequirementsSection
-                    title="Persyaratan Kompetisi"
-                    subtitle="Pastikan tim Anda memenuhi semua persyaratan berikut"
+                    title="Participant Requirements"
+                    subtitle="Requirements to join IBP Academy BCC 2025"
                     requirements={requirementsData}
                 />
 
-                <ProcessSection
-                    title="Alur Kompetisi"
-                    subtitle="Ikuti langkah-langkah berikut untuk mengikuti kompetisi"
-                    steps={processSteps}
-                />
-
                 <TimelineSection
-                    title="Timeline Kompetisi"
+                    title="IBP Academy 2025 Timeline"
                     items={timelineData}
                 />
 
                 <PrizeSection
-                    title="Prize & Recognition"
+                    title="Prizes & Recognition"
                     prizes={prizeData}
                     specialAwards={specialAwards}
                 />
 
-                <CTASection buttons={ctaButtons} />
+                <CTASection
+                    buttons={ctaButtons}
+                />
 
                 <ContactSection
-                    title="Contact Person"
-                    subtitle="Hubungi kami untuk informasi lebih lanjut tentang kompetisi"
+                    title="Contact Us"
+                    subtitle="For more information about IBP Academy BCC"
                     contacts={contactPersons}
                 />
             </div>
             <Footer />
 
-            {/* Registration Exists Modal */}
             {flash?.existingRegistration && flash?.category && (
                 <RegistrationExistsModal
                     show={showModal}
