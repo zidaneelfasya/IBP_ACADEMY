@@ -140,7 +140,7 @@ const TimelineSection = () => {
     };
 
     return (
-        <section className="relative py-32 overflow-hidden bg-gradient-to-br from-[#FB9F32] via-[#FFE86F] to-[#FB9F32]">
+        <section className="relative py-16 overflow-hidden bg-gradient-to-br from-[#FB9F32] via-[#FFE86F] to-[#FB9F32] sm:py-20 lg:py-32">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
                 <div
@@ -227,7 +227,7 @@ const TimelineSection = () => {
                                 Competition Timeline
                             </h2>
                             <motion.div
-                                className="w-32 h-2 bg-gradient-to-r from-[#1E3A8A] via-[#FB9F32] to-[#FFE86F] rounded-full mx-auto"
+                                className="w-32 h-2 bg-gradient-to-r from-[#1E3A8A] via-blue-400 to-[#1E3A8A] rounded-full mx-auto"
                                 initial={{ width: 0 }}
                                 whileInView={{ width: 128 }}
                                 transition={{ duration: 1.2, delay: 0.6 }}
@@ -484,7 +484,7 @@ const TimelineSection = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center justify-center mb-8 space-x-6 mt-16">
+                <div className="flex items-center justify-center mt-16 mb-8 space-x-6">
                     <motion.div
                         className="relative"
                         whileHover={{ scale: 1.1, rotate: 5 }}
@@ -514,35 +514,35 @@ const TimelineSection = () => {
                         />
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row justify-center gap-8 mt-16">
+                <div className="flex flex-col justify-center gap-8 mt-16 md:flex-row">
                     {/* Poster 1 */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                         viewport={{ once: true }}
-                        className="w-full md:w-1/2 max-w-md"
+                        className="w-full max-w-md md:w-1/2"
                     >
                         <div className="relative group">
                             {/* Glassmorphism Card - made clickable */}
                             <a
                                 href="/image/poster/bpc.png"
                                 download="IBP_Timeline_Poster_BPC.png"
-                                className="relative overflow-hidden bg-white/30 backdrop-blur-sm border border-white/40 rounded-3xl shadow-2xl transition-all duration-500 group-hover:shadow-3xl block"
+                                className="relative block overflow-hidden transition-all duration-500 border shadow-2xl bg-white/30 backdrop-blur-sm border-white/40 rounded-3xl group-hover:shadow-3xl"
                             >
                                 {/* Gradient overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-[#FB9F32]/10 to-[#1E3A8A]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                                 {/* Poster Image */}
                                 <div className="p-6">
-                                    <div className="relative overflow-hidden rounded-2xl shadow-lg">
+                                    <div className="relative overflow-hidden shadow-lg rounded-2xl">
                                         <img
                                             src="/image/poster/bpc.png"
                                             alt="IBP 2025 Timeline Poster"
                                             className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                                         />
                                         {/* Overlay effect */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        <div className="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-t from-black/30 to-transparent group-hover:opacity-100" />
                                     </div>
 
                                     {/* Download Indicator */}
@@ -566,28 +566,28 @@ const TimelineSection = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
                         viewport={{ once: true }}
-                        className="w-full md:w-1/2 max-w-md"
+                        className="w-full max-w-md md:w-1/2"
                     >
                         <div className="relative group">
                             {/* Glassmorphism Card - made clickable */}
                             <a
                                 href="/image/poster/bcc.png"
                                 download="IBP_Timeline_Poster_BCC.png"
-                                className="relative overflow-hidden bg-white/30 backdrop-blur-sm border border-white/40 rounded-3xl shadow-2xl transition-all duration-500 group-hover:shadow-3xl block"
+                                className="relative block overflow-hidden transition-all duration-500 border shadow-2xl bg-white/30 backdrop-blur-sm border-white/40 rounded-3xl group-hover:shadow-3xl"
                             >
                                 {/* Gradient overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-[#FFE86F]/10 to-[#FB9F32]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                                 {/* Poster Image */}
                                 <div className="p-6">
-                                    <div className="relative overflow-hidden rounded-2xl shadow-lg">
+                                    <div className="relative overflow-hidden shadow-lg rounded-2xl">
                                         <img
                                             src="/image/poster/bcc.png"
                                             alt="IBP Detailed Timeline Poster"
                                             className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                                         />
                                         {/* Overlay effect */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        <div className="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-t from-black/30 to-transparent group-hover:opacity-100" />
                                     </div>
 
                                     {/* Download Indicator */}

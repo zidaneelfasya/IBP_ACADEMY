@@ -4,7 +4,7 @@ const CompetitionSection: React.FC = () => {
             {/* Enhanced Background with Modern Effects - Rotated for seamless connection */}
             <div className="absolute inset-0 bg-gradient-to-tl from-indigo-900 via-blue-900 to-slate-900">
                 {/* Geometric Grid Pattern - Rotated */}
-                <div className="absolute inset-0 opacity-20 transform rotate-45">
+                <div className="absolute inset-0 transform rotate-45 opacity-20">
                     <div
                         className="absolute inset-0"
                         style={{
@@ -23,7 +23,7 @@ const CompetitionSection: React.FC = () => {
                 <div className="absolute w-64 h-64 transform -translate-x-1/2 -translate-y-1/2 rounded-full top-1/2 right-1/4 bg-gradient-to-br from-blue-400/20 to-cyan-600/20 blur-2xl" />
 
                 {/* Additional orb for better flow */}
-                <div className="absolute w-80 h-80 transform translate-x-1/3 -translate-y-1/3 rounded-full top-1/4 left-1/2 bg-gradient-to-br from-violet-400/25 to-purple-600/25 blur-3xl" />
+                <div className="absolute transform rounded-full w-80 h-80 translate-x-1/3 -translate-y-1/3 top-1/4 left-1/2 bg-gradient-to-br from-violet-400/25 to-purple-600/25 blur-3xl" />
 
                 {/* Radial Gradients - Rotated */}
                 <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-indigo-900/50" />
