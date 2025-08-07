@@ -19,7 +19,7 @@ const RecapSection = () => {
             id: 1,
             icon: <Calendar className="h-[16px] w-[16px] text-white" />,
             color: "from-blue-600 to-purple-700",
-            imageUrl: "/image/img1.jpg",
+            imageUrl: "/image/img6.JPG",
         },
         {
             title: "Competition Highlights",
@@ -28,7 +28,7 @@ const RecapSection = () => {
             id: 2,
             icon: <Trophy className="h-[16px] w-[16px] text-white" />,
             color: "from-green-600 to-blue-600",
-            imageUrl: "/image/img2.jpg",
+            imageUrl: "/image/img2.JPG",
         },
         {
             title: "Team Collaboration",
@@ -37,7 +37,7 @@ const RecapSection = () => {
             id: 3,
             icon: <Users className="h-[16px] w-[16px] text-white" />,
             color: "from-orange-600 to-pink-600",
-            imageUrl: "/image/img3.jpg",
+            imageUrl: "/image/img4.JPG",
         },
         {
             title: "Winners Celebration",
@@ -46,7 +46,7 @@ const RecapSection = () => {
             id: 4,
             icon: <Award className="h-[16px] w-[16px] text-white" />,
             color: "from-purple-600 to-red-600",
-            imageUrl: "/image/img1.jpg",
+            imageUrl: "/image/img1.JPG",
         },
         {
             title: "Networking Sessions",
@@ -55,7 +55,7 @@ const RecapSection = () => {
             id: 5,
             icon: <Target className="h-[16px] w-[16px] text-white" />,
             color: "from-indigo-600 to-purple-600",
-            imageUrl: "/image/img2.jpg",
+            imageUrl: "/image/img3.JPG",
         },
         {
             title: "Innovation Showcase",
@@ -64,7 +64,7 @@ const RecapSection = () => {
             id: 6,
             icon: <Lightbulb className="h-[16px] w-[16px] text-white" />,
             color: "from-cyan-600 to-blue-600",
-            imageUrl: "/image/img3.jpg",
+            imageUrl: "/image/img7.JPG",
         },
     ];
 
@@ -154,7 +154,7 @@ const RecapSection = () => {
                             autoplay={true}
                             autoplayDelay={4000}
                             pauseOnHover={true}
-                            loop={true}
+                            loop={false}
                             round={false}
                             showImageOnCard={true}
                             showThumbnails={false}
@@ -162,7 +162,7 @@ const RecapSection = () => {
                     </div>
 
                     {/* Call to Action */}
-                    <div className="mt-16 text-center">
+                    {/* <div className="mt-16 text-center">
                         <div className="inline-flex flex-col items-center gap-4 sm:flex-row">
                             <button className="relative px-8 py-4 text-lg font-semibold text-white transition-all duration-300 transform rounded-full shadow-xl group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-2xl hover:scale-105">
                                 <span className="relative z-10">
@@ -174,7 +174,7 @@ const RecapSection = () => {
                                 Download Highlights
                             </button>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </section>
         </div>

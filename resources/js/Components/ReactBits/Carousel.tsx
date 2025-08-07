@@ -1,9 +1,8 @@
-import { useEffect, useState, useRef } from "react";
-import { motion, PanInfo, useMotionValue, useTransform } from "framer-motion";
-import React, { JSX } from "react";
-
-// Using Lucide React icons instead of react-icons
+import { useEffect, useState, useRef, useCallback } from "react";
+import { motion, PanInfo, useMotionValue } from "framer-motion";
+import React from "react";
 import { Circle, Code, FileText, Layers, Layout } from "lucide-react";
+
 export interface CarouselItem {
     title: string;
     description?: string;
@@ -59,10 +58,15 @@ const DEFAULT_ITEMS: CarouselItem[] = [
     },
 ];
 
-const DRAG_BUFFER = 0;
+const DRAG_BUFFER = 50;
 const VELOCITY_THRESHOLD = 500;
-const GAP = 16;
-const SPRING_OPTIONS = { type: "spring" as const, stiffness: 300, damping: 30 };
+const GAP = 28;
+const SPRING_OPTIONS = { 
+    type: "spring" as const, 
+    stiffness: 300, 
+    damping: 50,
+    mass: 0.5
+};
 
 export default function Carousel({
     items = DEFAULT_ITEMS,
@@ -74,23 +78,26 @@ export default function Carousel({
     round = false,
     showImageOnCard = true,
     showThumbnails = false,
-}: CarouselProps): JSX.Element {
-    const containerPadding = 16;
+}: CarouselProps) {
+    const containerPadding = 20;
     const itemWidth = baseWidth - containerPadding * 2;
     const trackItemOffset = itemWidth + GAP;
 
+    // Only clone the first item if loop is enabled
     const carouselItems = loop ? [...items, items[0]] : items;
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const x = useMotionValue(0);
     const [isHovered, setIsHovered] = useState<boolean>(false);
-    const [isResetting, setIsResetting] = useState<boolean>(false);
+    const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
+    
+    const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+    const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+
     useEffect(() => {
         if (pauseOnHover && containerRef.current) {
             const container = containerRef.current;
-            const handleMouseEnter = () => setIsHovered(true);
-            const handleMouseLeave = () => setIsHovered(false);
             container.addEventListener("mouseenter", handleMouseEnter);
             container.addEventListener("mouseleave", handleMouseLeave);
             return () => {
@@ -98,75 +105,123 @@ export default function Carousel({
                 container.removeEventListener("mouseleave", handleMouseLeave);
             };
         }
-    }, [pauseOnHover]);
+    }, [pauseOnHover, handleMouseEnter, handleMouseLeave]);
+
+    const goToNext = useCallback(() => {
+        setCurrentIndex((prev) => {
+            if (prev >= items.length - 1) {
+                if (loop) {
+                    // For loop, go to clone item first
+                    return prev + 1;
+                } else {
+                    // For non-loop, stay at last item
+                    return prev;
+                }
+            }
+            return prev + 1;
+        });
+    }, [items.length, loop]);
+
+    const goToPrev = useCallback(() => {
+        setCurrentIndex((prev) => {
+            if (prev <= 0) {
+                if (loop) {
+                    // For loop, go to last real item
+                    return items.length - 1;
+                } else {
+                    // For non-loop, stay at first item
+                    return 0;
+                }
+            }
+            return prev - 1;
+        });
+    }, [items.length, loop]);
 
     useEffect(() => {
-        if (autoplay && (!pauseOnHover || !isHovered)) {
+        if (autoplay && (!pauseOnHover || !isHovered) && !isDragging) {
             const timer = setInterval(() => {
-                setCurrentIndex((prev) => {
-                    if (prev === items.length - 1 && loop) {
-                        return prev + 1;
-                    }
-                    if (prev === carouselItems.length - 1) {
-                        return loop ? 0 : prev;
-                    }
-                    return prev + 1;
-                });
+                if (currentIndex >= carouselItems.length - 1 && loop) {
+                    // Reset to first item with animation
+                    setCurrentIndex(0);
+                } else if (currentIndex < items.length - 1 || loop) {
+                    goToNext();
+                }
             }, autoplayDelay);
             return () => clearInterval(timer);
         }
-    }, [
-        autoplay,
-        autoplayDelay,
-        isHovered,
-        loop,
-        items.length,
-        carouselItems.length,
-        pauseOnHover,
-    ]);
+    }, [autoplay, autoplayDelay, isHovered, pauseOnHover, isDragging, currentIndex, items.length, carouselItems.length, loop, goToNext]);
 
-    const effectiveTransition = isResetting ? { duration: 0 } : SPRING_OPTIONS;
-
-    const handleAnimationComplete = () => {
+    const handleAnimationComplete = useCallback(() => {
         if (loop && currentIndex === carouselItems.length - 1) {
-            setIsResetting(true);
+            // Instantly jump to first item without animation
             x.set(0);
             setCurrentIndex(0);
-            setTimeout(() => setIsResetting(false), 50);
         }
-    };
+    }, [loop, currentIndex, carouselItems.length, x]);
 
-    const handleDragEnd = (
-        _: MouseEvent | TouchEvent | PointerEvent,
-        info: PanInfo
-    ): void => {
-        const offset = info.offset.x;
-        const velocity = info.velocity.x;
-        if (offset < -DRAG_BUFFER || velocity < -VELOCITY_THRESHOLD) {
-            if (loop && currentIndex === items.length - 1) {
-                setCurrentIndex(currentIndex + 1);
+    const handleDragStart = useCallback(() => {
+        setIsDragging(true);
+    }, []);
+
+    const handleDragEnd = useCallback(
+        (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo): void => {
+            setIsDragging(false);
+            
+            const offset = info.offset.x;
+            const velocity = info.velocity.x;
+            
+            // Handle swipe based on velocity
+            if (Math.abs(velocity) > VELOCITY_THRESHOLD) {
+                if (velocity < 0) {
+                    // Swipe left - go to next
+                    if (currentIndex < items.length - 1 || loop) {
+                        goToNext();
+                    }
+                } else {
+                    // Swipe right - go to previous
+                    if (currentIndex > 0 || loop) {
+                        goToPrev();
+                    }
+                }
+            } 
+            // Handle drag based on offset
+            else if (offset < -DRAG_BUFFER) {
+                // Drag left - go to next if possible
+                if (currentIndex < items.length - 1 || loop) {
+                    goToNext();
+                }
+            } else if (offset > DRAG_BUFFER) {
+                // Drag right - go to previous if possible
+                if (currentIndex > 0 || loop) {
+                    goToPrev();
+                }
             } else {
-                setCurrentIndex((prev) =>
-                    Math.min(prev + 1, carouselItems.length - 1)
-                );
+                // Return to current position if not enough drag
+                x.set(-(currentIndex * trackItemOffset));
             }
-        } else if (offset > DRAG_BUFFER || velocity > VELOCITY_THRESHOLD) {
-            if (loop && currentIndex === 0) {
-                setCurrentIndex(items.length - 1);
-            } else {
-                setCurrentIndex((prev) => Math.max(prev - 1, 0));
-            }
+        },
+        [currentIndex, items.length, loop, goToNext, goToPrev, trackItemOffset, x]
+    );
+
+    const goToSlide = useCallback((index: number) => {
+        if (index >= 0 && index < items.length) {
+            setCurrentIndex(index);
         }
-    };
+    }, [items.length]);
 
-    const dragProps = loop
-        ? {}
-        : {
-              dragConstraints: {
-                  left: -trackItemOffset * (carouselItems.length - 1),
-                  right: 0,
-              },
-          };
+    // Calculate drag constraints based on loop mode
+    const getDragConstraints = useCallback(() => {
+        if (loop) {
+            return {};
+        } else {
+            return {
+                dragConstraints: {
+                    left: -trackItemOffset * (items.length - 1),
+                    right: 0,
+                },
+            };
+        }
+    }, [loop, trackItemOffset, items.length]);
 
     return (
         <div
@@ -184,96 +239,86 @@ export default function Carousel({
             <motion.div
                 className="flex"
                 drag="x"
-                {...dragProps}
+                {...getDragConstraints()}
                 style={{
-                    width: itemWidth,
-                    gap: `${GAP}px`,
-                    perspective: 1000,
-                    perspectiveOrigin: `${
-                        currentIndex * trackItemOffset + itemWidth / 2
-                    }px 50%`,
                     x,
+                    width: '100%',
+                    gap: `${GAP}px`,
                 }}
+                onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                animate={{ x: -(currentIndex * trackItemOffset) }}
-                transition={effectiveTransition}
+                animate={{ 
+                    x: -(currentIndex * trackItemOffset),
+                    transition: SPRING_OPTIONS
+                }}
                 onAnimationComplete={handleAnimationComplete}
             >
-                {carouselItems.map((item, index) => {
-                    const range = [
-                        -(index + 1) * trackItemOffset,
-                        -index * trackItemOffset,
-                        -(index - 1) * trackItemOffset,
-                    ];
-                    const outputRange = [90, 0, -90];
-                    const rotateY = useTransform(x, range, outputRange, {
-                        clamp: false,
-                    });
-                    return (
-                        <motion.div
-                            key={index}
-                            className={`relative shrink-0 flex flex-col overflow-hidden cursor-grab active:cursor-grabbing ${
-                                round
-                                    ? "items-center justify-center text-center bg-[#060010] border-0"
-                                    : "items-start justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl"
-                            }`}
-                            style={{
-                                width: itemWidth,
-                                height: round ? itemWidth : showImageOnCard ? 380 : 280,
-                                rotateY: rotateY,
-                                ...(round && { borderRadius: "50%" }),
-                            }}
-                            transition={effectiveTransition}
-                        >
-                            {/* Image Section */}
-                            {showImageOnCard && item.imageUrl && !round && (
-                                <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
-                                    <img
-                                        src={item.imageUrl}
-                                        alt={item.title}
-                                        className="object-cover w-full h-full"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                                    {/* Icon overlay on image */}
-                                    <div className="absolute top-4 left-4">
-                                        <span className="flex h-[32px] w-[32px] items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-                                            {item.icon}
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Icon Section for non-image cards */}
-                            {(!showImageOnCard || !item.imageUrl) && (
-                                <div className={`${round ? "p-0 m-0" : "mb-4 p-5"}`}>
-                                    <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#060010]">
+                {carouselItems.map((item, index) => (
+                    <motion.div
+                        key={index}
+                        className={`relative shrink-0 flex flex-col overflow-hidden cursor-grab active:cursor-grabbing ${
+                            round
+                                ? "items-center justify-center text-center bg-[#060010] border-0"
+                                : "items-start justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl"
+                        }`}
+                        style={{
+                            width: itemWidth,
+                            height: round ? itemWidth : showImageOnCard ? 380 : 280,
+                            ...(round && { borderRadius: "50%" }),
+                        }}
+                        initial={false}
+                    >
+                        {/* Image Section */}
+                        {showImageOnCard && item.imageUrl && !round && (
+                            <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
+                                <img
+                                    src={item.imageUrl}
+                                    alt={item.title}
+                                    className="object-cover w-full h-full"
+                                    loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                {/* Icon overlay on image */}
+                                <div className="absolute top-4 left-4">
+                                    <span className="flex h-[32px] w-[32px] items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
                                         {item.icon}
                                     </span>
                                 </div>
-                            )}
-
-                            {/* Content Section */}
-                            <div className={`${showImageOnCard && item.imageUrl && !round ? "p-6" : "p-5"} flex-1 flex flex-col justify-between`}>
-                                <div>
-                                    <div className={`mb-2 text-lg font-bold ${round ? "text-white" : "text-white"}`}>
-                                        {item.title}
-                                    </div>
-                                    <p className={`text-sm ${round ? "text-white" : "text-gray-200"} leading-relaxed`}>
-                                        {item.description || item.details}
-                                    </p>
-                                </div>
-
-                                {/* Gradient background for better readability */}
-                                {item.color && !round && (
-                                    <div 
-                                        className={`absolute inset-0 opacity-5 rounded-2xl bg-gradient-to-br ${item.color}`}
-                                    />
-                                )}
                             </div>
-                        </motion.div>
-                    );
-                })}
+                        )}
+
+                        {/* Icon Section for non-image cards */}
+                        {(!showImageOnCard || !item.imageUrl) && (
+                            <div className={`${round ? "p-0 m-0" : "mb-4 p-5"}`}>
+                                <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#060010]">
+                                    {item.icon}
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Content Section */}
+                        <div className={`${showImageOnCard && item.imageUrl && !round ? "p-6" : "p-5"} flex-1 flex flex-col justify-between`}>
+                            <div>
+                                <div className={`mb-2 text-lg font-bold ${round ? "text-white" : "text-white"}`}>
+                                    {item.title}
+                                </div>
+                                <p className={`text-sm ${round ? "text-white" : "text-gray-200"} leading-relaxed`}>
+                                    {item.description || item.details}
+                                </p>
+                            </div>
+
+                            {/* Gradient background for better readability */}
+                            {item.color && !round && (
+                                <div 
+                                    className={`absolute inset-0 opacity-5 rounded-2xl bg-gradient-to-br ${item.color}`}
+                                />
+                            )}
+                        </div>
+                    </motion.div>
+                ))}
             </motion.div>
+            
+            {/* Indicators */}
             <div
                 className={`flex w-full justify-center ${
                     round
@@ -285,7 +330,7 @@ export default function Carousel({
                     {items.map((_, index) => (
                         <motion.div
                             key={index}
-                            className={`h-2 w-2 rounded-full cursor-pointer transition-all duration-300 ${
+                            className={`h-2 w-2 rounded-full cursor-pointer ${
                                 currentIndex % items.length === index
                                     ? round
                                         ? "bg-white"
@@ -299,13 +344,9 @@ export default function Carousel({
                                     currentIndex % items.length === index
                                         ? 1.4
                                         : 1,
-                                opacity:
-                                    currentIndex % items.length === index
-                                        ? 1
-                                        : 0.6,
                             }}
-                            onClick={() => setCurrentIndex(index)}
-                            transition={{ duration: 0.3 }}
+                            onClick={() => goToSlide(index)}
+                            transition={{ duration: 0.2 }}
                         />
                     ))}
                 </div>
