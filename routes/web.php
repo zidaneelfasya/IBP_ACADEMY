@@ -190,9 +190,10 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
     Route::get('/', fn() => Inertia::render('User/Template'))->name('dashboard.user');
     Route::get('/dashboard', [DashboardUserController::class, 'index'])
         ->name('dashboard.user.dashboard');
-    Route::get('/tugas', fn() => Inertia::render('User/Tugas'))->name('dashboard.user.tugas');
+    Route::get('/tugas', fn() => Inertia::render('User/Maintenance'))->name('dashboard.user.tugas');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
+    Route::get('/course', fn() => Inertia::render('User/Course'))->name('dashboard.user.course');
 });
 
 

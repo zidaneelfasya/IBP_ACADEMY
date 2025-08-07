@@ -46,7 +46,7 @@ const navItems: NavItem[] = [
     },
     {
         title: "Course",
-        url: "#",
+        url: "/user/course",
         icon: BookOpen,
     },
     {
