@@ -346,6 +346,37 @@ const BusinessPlanCompetition: React.FC = () => {
                     }}
                 />
             ) : null}
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+                * {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+                }
+
+                
+
+
+                /* Custom scrollbar */
+                ::-webkit-scrollbar {
+                    width: 8px;
+                }
+
+                ::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 4px;
+                }
+
+                ::-webkit-scrollbar-thumb {
+                    background: linear-gradient(to bottom, #1E3A8A, #F59E0B);
+                    border-radius: 4px;
+                }
+
+                ::-webkit-scrollbar-thumb:hover {
+                    background: linear-gradient(to bottom, #F59E0B, #1E3A8A);
+                }
+
+                
+            `}</style>
         </>
     );
 };
