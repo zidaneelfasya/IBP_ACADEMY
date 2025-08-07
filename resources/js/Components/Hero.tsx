@@ -37,18 +37,34 @@ const Hero = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, ease: "easeOut" }}
                     >
-                        <h1 className="text-4xl md:text-6xl font-extrabold text-[#082380] mb-4">
-                            WHAT IS IBP 2025?
-                        </h1>
-                        <p className="text-gray-700 text-lg">
-                            Lorem Ipsum is simply dummy text of the printing
-                            and typesetting industry. Lorem Ipsum has been
-                            the industry's standard dummy text ever since
-                            the 1500s, when an unknown printer took a galley
-                            of type and scrambled it to make a type specimen
-                            book. It has survived not only five centuries,
-                            but also the leap into electronic typesetting,
-                            remaining essentially unchanged.
+                        <div className="space-y-4">
+                            <div className="relative">
+                                {/* Background layer */}
+                                <motion.span
+                                    className="absolute inset-0 text-6xl md:text-7xl lg:text-8xl font-black text-[#1E3A8A]/20 blur-sm"
+                                    initial={{ opacity: 0, x: -3, y: 3 }}
+                                    animate={{ opacity: 1, x: -3, y: 3 }}
+                                    transition={{ duration: 1, delay: 0.4 }}
+                                >
+                                    IBP 2025
+                                </motion.span>
+
+                                {/* Foreground layer */}
+                                <motion.span
+                                    className="relative block text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-[#1E3A8A] via-blue-600 to-[#1E3A8A] bg-clip-text text-transparent drop-shadow-2xl"
+                                    style={{
+                                        WebkitTextStroke: "2px rgba(255, 255, 255, 0.9)",
+                                    }}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 1, delay: 0.6 }}
+                                >
+                                    IBP 2025
+                                </motion.span>
+                            </div>
+                        </div>
+                        <p className="text-gray-700 text-lg mt-8">
+                            IBP (Industrial Business Project) 2025 merupakan kompetisi dan platform inovasi internasional yang diselenggarakan oleh Business and Entrepreneurship Departemen Himpunan Mahasiswa Teknik Industri Universitas Brawijaya. Sebagai media edukasi dan inkubasi bakat, IBP bertujuan untuk menciptakan pengalaman menyeluruh dalam dunia industri dan kewirausahaan masa depan dengan penerapan SDGs.
                         </p>
                     </motion.div>
                 </div>
@@ -76,17 +92,74 @@ const Hero = () => {
                                 </div>
                             </div>
                             <div className="text-sm md:text-base text-center md:text-left">
-                                Lorem Ipsum is simply dummy text of the printing
-                                and typesetting industry. Lorem Ipsum has been
-                                the industry's standard dummy text ever since
-                                the 1500s, when an unknown printer took a galley
-                                of type and scrambled it to make a type specimen
-                                book.
+                                "From Curiosity to Creation" - IBP Academy adalah platform pembelajaran strategis yang dirancang untuk mengubah rasa ingin tahu peserta menjadi karya nyata. Sebagai jembatan antara ide dan implementasi, peserta ditantang untuk mengeksplorasi pemikiran kritis, belajar dari mentor terbaik, dan menciptakan solusi inovatif untuk tantangan nyata.
                             </div>
                         </div>
                     </div>
                 </motion.div>
             </div>
+
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+                * {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+                }
+
+                /* Enhanced shadows */
+                .shadow-3xl {
+                    box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+                }
+
+                /* Smooth transitions */
+                .transition-all {
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                /* Enhanced backdrop blur */
+                .backdrop-blur-sm {
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                }
+
+                /* Custom scrollbar */
+                ::-webkit-scrollbar {
+                    width: 8px;
+                }
+
+                ::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 4px;
+                }
+
+                ::-webkit-scrollbar-thumb {
+                    background: linear-gradient(to bottom, #1E3A8A, #F59E0B);
+                    border-radius: 4px;
+                }
+
+                ::-webkit-scrollbar-thumb:hover {
+                    background: linear-gradient(to bottom, #F59E0B, #1E3A8A);
+                }
+
+                /* Card hover effects */
+                .group:hover .group-hover\\:opacity-5 {
+                    opacity: 0.05;
+                }
+
+                /* Timeline line animation */
+                @keyframes flow {
+                    0% { transform: translateY(-100%); }
+                    100% { transform: translateY(2000%); }
+                }
+
+                /* Responsive improvements */
+                @media (max-width: 768px) {
+                    .timeline-card {
+                        margin-left: 2rem;
+                        width: calc(100% - 2rem);
+                    }
+                }
+            `}</style>
         </section>
     );
 };
