@@ -85,7 +85,7 @@ const BusinessPlanCompetition: React.FC = () => {
         {
             title: "Active Undergraduate Students",
             description:
-                "Open for active S1/D4 students from accredited universities worldwide",
+                "Participants must be active undergraduate bachelor or diploma students from accredited universities",
             icon: <CheckCircle className="w-6 h-6 text-green-600" />,
         },
         {
@@ -191,11 +191,11 @@ const BusinessPlanCompetition: React.FC = () => {
         },
         {
             number: 6,
-            label: "Learning Modules",
+            label: "Learning Materials",
             icon: <FileText className="w-8 h-8 text-white" />,
         },
         {
-            number: 50,
+            number: 25,
             label: "Total Prizes",
             prefix: "Rp ",
             suffix: "M+",
@@ -253,8 +253,8 @@ const BusinessPlanCompetition: React.FC = () => {
             <Head title="Business Plan Competition - IBP Academy 2025" />
 
             <div className="relative min-h-screen py-20 overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-                <HeroSection 
-                    title="Business Plan Competition" 
+                <HeroSection
+                    title="Business Plan Competition"
                     backUrl="/"
                 />
 

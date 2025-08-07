@@ -37,7 +37,7 @@ const CompetitionSection: React.FC = () => {
                 <div className="flex justify-center mb-8">
                     <div className="inline-flex items-center px-6 py-3 border rounded-full bg-white/10 backdrop-blur-sm border-white/20">
                         <span className="text-base font-medium text-white">
-                            Kompetisi Utama
+                            Main Competitions
                         </span>
                     </div>
                 </div>
@@ -52,11 +52,11 @@ const CompetitionSection: React.FC = () => {
                 <div className="max-w-3xl mx-auto mb-16 text-center">
                     <div className="p-8 border shadow-2xl bg-white/10 backdrop-blur-md rounded-2xl border-white/20">
                         <p className="text-lg leading-relaxed text-gray-200 lg:text-xl">
-                            Bergabunglah dalam kompetisi bisnis yang menantang
-                            dan inspiratif. Asah kemampuan analitis,
-                            kreativitas, dan jiwa entrepreneurship melalui
-                            kompetisi yang dirancang khusus untuk mengembangkan
-                            potensi terbaik mahasiswa Indonesia.
+                            Join our challenging and inspiring business
+                            competitions. Hone your analytical skills,
+                            creativity, and entrepreneurial spirit through
+                            competitions specifically designed to develop the
+                            best potential of Indonesian students.
                         </p>
                     </div>
                 </div>
@@ -71,11 +71,11 @@ const CompetitionSection: React.FC = () => {
                         </div>
                         <div className="p-8">
                             <p className="mb-8 text-base leading-relaxed text-gray-200 lg:text-lg">
-                                Kompetisi rencana bisnis yang menantang peserta
-                                untuk mengembangkan ide bisnis inovatif dan
-                                berkelanjutan. Presentasikan visi
-                                entrepreneurship dan strategi bisnis yang dapat
-                                memberikan dampak positif bagi masyarakat.
+                                A business plan competition that challenges
+                                participants to develop innovative and
+                                sustainable business ideas. Present your
+                                entrepreneurial vision and business strategies
+                                that can make a positive impact on society.
                             </p>
                             <div className="text-center">
                                 <button className="relative px-8 py-3 text-base font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg">
@@ -97,11 +97,11 @@ const CompetitionSection: React.FC = () => {
                         </div>
                         <div className="p-8">
                             <p className="mb-8 text-base leading-relaxed text-gray-200 lg:text-lg">
-                                Analisis mendalam terhadap studi kasus bisnis
-                                nyata yang menguji kemampuan strategic thinking
-                                dan problem solving. Kembangkan solusi inovatif
-                                untuk tantangan bisnis kontemporer dengan
-                                pendekatan analitis yang komprehensif.
+                                In-depth analysis of real business cases that
+                                test your strategic thinking and problem-solving
+                                skills. Develop innovative solutions to
+                                contemporary business challenges with a
+                                comprehensive analytical approach.
                             </p>
                             <div className="text-center">
                                 <button className="relative px-8 py-3 text-base font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg">

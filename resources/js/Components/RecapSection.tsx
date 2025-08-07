@@ -13,9 +13,9 @@ const RecapSection = () => {
     // IBP Academy specific carousel items
     const recapItems = [
         {
-            title: "Opening Ceremony 2024",
+            title: "2024 Opening Ceremony",
             description:
-                "Pembukaan resmi IBP Academy dengan sambutan dari berbagai stakeholder dan peserta dari seluruh Indonesia.",
+                "The official opening of IBP Academy with welcome speeches from various stakeholders and participants from across Indonesia.",
             id: 1,
             icon: <Calendar className="h-[16px] w-[16px] text-white" />,
             color: "from-blue-600 to-purple-700",
@@ -24,7 +24,7 @@ const RecapSection = () => {
         {
             title: "Competition Highlights",
             description:
-                "Momen-momen terbaik dari berbagai kompetisi: Business Case, Business Plan, dan Innovation Competition.",
+                "The best moments from various competitions: Business Case, Business Plan, and Innovation Competition.",
             id: 2,
             icon: <Trophy className="h-[16px] w-[16px] text-white" />,
             color: "from-green-600 to-blue-600",
@@ -33,7 +33,7 @@ const RecapSection = () => {
         {
             title: "Team Collaboration",
             description:
-                "Kerjasama tim yang solid dan strategi inovatif dari para peserta dalam menghadapi berbagai tantangan bisnis.",
+                "Solid teamwork and innovative strategies from participants in facing various business challenges.",
             id: 3,
             icon: <Users className="h-[16px] w-[16px] text-white" />,
             color: "from-orange-600 to-pink-600",
@@ -42,7 +42,7 @@ const RecapSection = () => {
         {
             title: "Winners Celebration",
             description:
-                "Perayaan pencapaian para juara dan apresiasi untuk semua peserta yang telah memberikan yang terbaik.",
+                "Celebration of the champions' achievements and appreciation for all participants who gave their best.",
             id: 4,
             icon: <Award className="h-[16px] w-[16px] text-white" />,
             color: "from-purple-600 to-red-600",
@@ -51,7 +51,7 @@ const RecapSection = () => {
         {
             title: "Networking Sessions",
             description:
-                "Sesi networking yang mempertemukan peserta dengan mentor, industri, dan sesama entrepreneur muda.",
+                "Networking sessions connecting participants with mentors, industry professionals, and fellow young entrepreneurs.",
             id: 5,
             icon: <Target className="h-[16px] w-[16px] text-white" />,
             color: "from-indigo-600 to-purple-600",
@@ -60,7 +60,7 @@ const RecapSection = () => {
         {
             title: "Innovation Showcase",
             description:
-                "Pameran inovasi dan ide-ide kreatif dari para peserta yang menunjukkan potensi masa depan bisnis Indonesia.",
+                "Exhibition of innovations and creative ideas from participants showcasing the future potential of Indonesian business.",
             id: 6,
             icon: <Lightbulb className="h-[16px] w-[16px] text-white" />,
             color: "from-cyan-600 to-blue-600",
@@ -126,20 +126,20 @@ const RecapSection = () => {
                                 {/* Glass Morphism Container */}
                                 <div className="p-8 border shadow-2xl bg-white/10 backdrop-blur-md rounded-2xl border-white/20">
                                     <p className="text-lg leading-relaxed text-gray-200 lg:text-xl">
-                                        Tahun 2024 menjadi tonggak bersejarah
-                                        bagi IBP Academy dengan partisipasi
-                                        lebih dari
+                                        The year 2024 marked a historic
+                                        milestone for IBP Academy with
+                                        participation from over
                                         <span className="font-semibold text-blue-300">
                                             {" "}
-                                            500 peserta{" "}
+                                            500 participants{" "}
                                         </span>
-                                        dari berbagai universitas di Indonesia.
-                                        Melalui kompetisi bisnis yang inovatif,
-                                        workshop intensif, dan networking yang
-                                        bermakna, kami berhasil menciptakan
-                                        ekosistem pembelajaran yang
-                                        menginspirasi generasi entrepreneur muda
-                                        Indonesia.
+                                        from various universities across
+                                        Indonesia. Through innovative business
+                                        competitions, intensive workshops, and
+                                        meaningful networking, we successfully
+                                        created a learning ecosystem that
+                                        inspires the next generation of young
+                                        Indonesian entrepreneurs.
                                     </p>
                                 </div>
                             </div>
@@ -160,21 +160,6 @@ const RecapSection = () => {
                             showThumbnails={false}
                         />
                     </div>
-
-                    {/* Call to Action */}
-                    {/* <div className="mt-16 text-center">
-                        <div className="inline-flex flex-col items-center gap-4 sm:flex-row">
-                            <button className="relative px-8 py-4 text-lg font-semibold text-white transition-all duration-300 transform rounded-full shadow-xl group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-2xl hover:scale-105">
-                                <span className="relative z-10">
-                                    See Full Recap
-                                </span>
-                                <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:opacity-20" />
-                            </button>
-                            <button className="px-8 py-4 text-lg font-medium text-white transition-all duration-300 border rounded-full bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20">
-                                Download Highlights
-                            </button>
-                        </div>
-                    </div> */}
                 </div>
             </section>
         </div>

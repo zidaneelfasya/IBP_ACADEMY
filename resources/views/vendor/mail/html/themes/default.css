@@ -1,0 +1,87 @@
+/* Base */
+body {
+    background-color: #ffffff;
+    color: #333333; /* Warna teks lebih gelap untuk kontras */
+}
+
+/* Layout */
+.wrapper {
+    background-color: #f8f9fa; /* Light gray background */
+}
+
+.inner-body {
+    background-color: #ffffff;
+    border-color: #e0e0e0;
+    box-shadow: 0 2px 0 rgba(0, 0, 150, 0.025), 2px 4px 0 rgba(0, 0, 150, 0.015);
+}
+
+/* Header */
+.header a {
+    color: #1a56a7; /* Warna biru tua untuk header */
+}
+
+/* Typography */
+h1, h2, h3 {
+    color: #1a56a7; /* Warna biru tua untuk heading */
+}
+
+a {
+    color: #1a56a7; /* Warna biru tua untuk link */
+}
+
+/* Buttons */
+.button-blue,
+.button-primary {
+    background-color: #1a56a7; /* Biru tua */
+    border-bottom: 8px solid #1a56a7;
+    border-left: 18px solid #1a56a7;
+    border-right: 18px solid #1a56a7;
+    border-top: 8px solid #1a56a7;
+}
+
+.button-green,
+.button-success {
+    background-color: #FFD700; /* Kuning emas */
+    border-bottom: 8px solid #FFD700;
+    border-left: 18px solid #FFD700;
+    border-right: 18px solid #FFD700;
+    border-top: 8px solid #FFD700;
+    color: #333333; /* Teks gelap untuk kontras dengan kuning */
+}
+
+/* Panels */
+.panel {
+    border-left: #1a56a7 solid 4px; /* Biru tua */
+}
+
+.panel-content {
+    background-color: #FFFACD; /* Kuning lemon muda */
+    color: #333333;
+}
+
+/* Footer */
+.footer p {
+    color: #666666;
+}
+
+.footer a {
+    color: #1a56a7; /* Biru tua */
+}
+
+/* Subcopy */
+.subcopy {
+    border-top: 1px solid #FFD700; /* Garis kuning */
+}
+
+/* Additional yellow accents */
+.highlight-yellow {
+    background-color: #FFD700;
+    color: #333333;
+    padding: 2px 4px;
+}
+
+.highlight-blue {
+    background-color: #1a56a7;
+    color: white;
+    padding: 2px 4px;
+}

@@ -100,11 +100,11 @@ const BusinessCaseCompetition: React.FC = () => {
         },
         {
             number: 6,
-            label: "Learning Modules",
+            label: "Learning Materials",
             icon: <FileText className="w-8 h-8 text-white" />,
         },
         {
-            number: 50,
+            number: 25,
             label: "Total Prizes",
             prefix: "Rp ",
             suffix: "M+",
@@ -121,9 +121,9 @@ const BusinessCaseCompetition: React.FC = () => {
             icon: <Users className="w-6 h-6 text-blue-600" />,
         },
         {
-            title: "Active S1/D4 Students",
+            title: "Active Undergraduate Students",
             description:
-                "Participants must be active undergraduate (S1) or diploma (D4) students from accredited universities",
+                "Participants must be active undergraduate bachelor or diploma students from accredited universities",
             icon: <CheckCircle className="w-6 h-6 text-green-600" />,
         },
         {

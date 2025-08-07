@@ -537,7 +537,7 @@ const Navbar = () => {
                                                         </div>
                                                     </div>
                                                     <Link
-                                                        href="/dashboard"
+                                                        href="/user/dashboard"
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">
@@ -546,7 +546,7 @@ const Navbar = () => {
                                                         Dashboard
                                                     </Link>
                                                     <Link
-                                                        href="/profile"
+                                                        href="/user/profile"
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">

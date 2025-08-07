@@ -67,8 +67,13 @@ export default function UserProfile() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer">
+                    <Link
+                        href={route("dashboard.user.profile")}
+                        className="flex w-full items-center px-2 py-1.5 text-left"
+                    >
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer p-0 text-destructive focus:text-destructive">
