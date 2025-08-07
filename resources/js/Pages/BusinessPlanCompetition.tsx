@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Head, usePage } from "@inertiajs/react";
-import { FileText, UserPlus } from "lucide-react";
+import { CheckCircle, Clock, FileText, Target, Trophy, UserPlus, Users, Lightbulb, GitBranch, Briefcase } from "lucide-react";
 import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
 import RegistrationExistsModal from "@/Components/RegistrationExistsModal";
@@ -16,6 +16,9 @@ import TimelineSection from "@/Components/sections/bpc-sections/TimelineSection"
 import PrizeSection from "@/Components/sections/bpc-sections/PrizeSection";
 import CTASection from "@/Components/sections/bpc-sections/CTASection";
 import ContactSection from "@/Components/sections/bpc-sections/ContactSection";
+import RequirementsSection from "@/Components/sections/bcc-sections/RequirementsSection";
+import StatsSection from "@/Components/sections/bcc-sections/StatsSection";
+import ProcessSection from "@/Components/sections/bcc-sections/ProcessSection";
 
 interface TeamRegistration {
     id: number;
@@ -47,12 +50,10 @@ const BusinessPlanCompetition: React.FC = () => {
     const flash = page.props.flash as FlashData | undefined;
     const [showModal, setShowModal] = useState(false);
 
-    // Show modal if redirected with flash data
     useEffect(() => {
         console.log("All props:", page.props);
         console.log("Flash data:", flash);
 
-        // Check for URL parameters as fallback
         const urlParams = new URLSearchParams(window.location.search);
         const showModalParam = urlParams.get("showModal") === "true";
 
@@ -68,86 +69,156 @@ const BusinessPlanCompetition: React.FC = () => {
         }
     }, [flash, page.props]);
 
-    // Debug flash data
     useEffect(() => {
         if (flash) {
-            console.log("Flash data received:", flash);
+            console.log("Flash data:", flash);
         }
     }, [flash]);
 
-    // Test modal button (temporary for debugging)
-    const testModal = () => {
-        console.log("Test modal clicked");
-        setShowModal(true);
-    };
-    // Data untuk setiap section
+    const requirementsData = [
+        {
+            title: "Team of 4 Members",
+            description:
+                "Each team consists of maximum 4 members (1 leader + 3 members)",
+            icon: <Users className="w-6 h-6 text-blue-600" />,
+        },
+        {
+            title: "Active Undergraduate Students",
+            description:
+                "Open for active S1/D4 students from accredited universities worldwide",
+            icon: <CheckCircle className="w-6 h-6 text-green-600" />,
+        },
+        {
+            title: "Complete Documentation",
+            description:
+                "Student ID, twibbon proof, Instagram follow & story screenshot",
+            icon: <FileText className="w-6 h-6 text-purple-600" />,
+        },
+        {
+            title: "Full Program Commitment",
+            description:
+                "Must participate in all IBP Academy phases from preliminary to final",
+            icon: <Clock className="w-6 h-6 text-orange-600" />,
+        },
+    ];
+
+    const processSteps = [
+        {
+            title: "Registration",
+            description: "Team registration and document verification",
+            icon: <UserPlus className="w-8 h-8" />,
+            color: "bg-gradient-to-r from-blue-500 to-blue-600",
+        },
+        {
+            title: "Preliminary Round",
+            description: "Business plan submission and initial evaluation",
+            icon: <FileText className="w-8 h-8" />,
+            color: "bg-gradient-to-r from-purple-500 to-purple-600",
+        },
+        {
+            title: "Semifinal Round",
+            description: "Advanced development with LMS access and mentoring",
+            icon: <Lightbulb className="w-8 h-8" />,
+            color: "bg-gradient-to-r from-green-500 to-green-600",
+        },
+        {
+            title: "Final Round",
+            description: "Presentation at IBP International Day",
+            icon: <Trophy className="w-8 h-8" />,
+            color: "bg-gradient-to-r from-yellow-500 to-orange-500",
+        },
+    ];
+
     const timelineData = [
         {
-            date: "1 - 15 Maret 2024",
-            phase: "Pendaftaran",
-            description: "Periode pendaftaran peserta dan pengumpulan berkas",
+            date: "August 8 - 21, 2025",
+            phase: "Phase 1 Registration",
+            description: "Team registration and document submission period",
         },
         {
-            date: "16 - 31 Maret 2024",
-            phase: "Seleksi Administrasi",
-            description: "Verifikasi berkas dan seleksi tahap awal",
+            date: "August 15 - 31, 2025",
+            phase: "Preliminary Round",
+            description: "Business plan development and initial submission",
         },
         {
-            date: "1 - 30 April 2024",
-            phase: "Pengembangan Business Plan",
-            description: "Periode pengembangan dan penyusunan business plan",
+            date: "September 9 - 23, 2025",
+            phase: "Semifinal Round",
+            description: "Advanced development with IBP Academy LMS access",
         },
         {
-            date: "1 - 7 Mei 2024",
-            phase: "Submission",
-            description: "Pengumpulan business plan final",
-        },
-        {
-            date: "15 - 16 Mei 2024",
-            phase: "Presentasi & Final",
-            description: "Presentasi business plan dan penentuan pemenang",
+            date: "October 25 - 26, 2025",
+            phase: "Final Presentation",
+            description: "IBP International Day judging and awarding",
         },
     ];
 
     const prizeData = [
         {
-            title: "Juara 1",
-            prize: "Rp 15.000.000",
-            benefits: "+ Sertifikat + Mentoring",
-            gradient: "bg-gradient-to-br from-yellow-400 to-yellow-500",
-            icon: "🥇",
+            title: "Champion",
+            prize: "Rp 25,000,000",
+            benefits: "+ Trophy + Certificate + LMS Access",
+            gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
+            icon: "🏆",
         },
         {
-            title: "Juara 2",
-            prize: "Rp 10.000.000",
-            benefits: "+ Sertifikat + Mentoring",
-            gradient: "bg-gradient-to-br from-gray-300 to-gray-400",
+            title: "1st Runner-up",
+            prize: "Rp 15,000,000",
+            benefits: "+ Trophy + Certificate + LMS Access",
+            gradient: "bg-gradient-to-br from-blue-400 to-blue-600",
             icon: "🥈",
         },
         {
-            title: "Juara 3",
-            prize: "Rp 7.500.000",
-            benefits: "+ Sertifikat + Mentoring",
-            gradient: "bg-gradient-to-br from-orange-400 to-orange-500",
+            title: "2nd Runner-up",
+            prize: "Rp 10,000,000",
+            benefits: "+ Trophy + Certificate + LMS Access",
+            gradient: "bg-gradient-to-br from-green-400 to-green-600",
             icon: "🥉",
         },
     ];
 
+    const statsData = [
+        {
+            number: 100,
+            label: "Participating Teams",
+            suffix: "+",
+            icon: <Users className="w-8 h-8 text-white" />,
+        },
+        {
+            number: 30,
+            label: "Universities",
+            suffix: "+",
+            icon: <Trophy className="w-8 h-8 text-white" />,
+        },
+        {
+            number: 6,
+            label: "Learning Modules",
+            icon: <FileText className="w-8 h-8 text-white" />,
+        },
+        {
+            number: 50,
+            label: "Total Prizes",
+            prefix: "Rp ",
+            suffix: "M+",
+            icon: <Target className="w-8 h-8 text-white" />,
+        },
+    ];
+
     const specialAwards = [
-        "🎯 Special Awards: Best Innovation, Best Social Impact, Best Presentation",
-        "💼 Kesempatan inkubasi bisnis dan akses ke investor",
+        "🎯 Special Awards: Best Innovation, Most Sustainable Solution, Best Implementation",
+        "💼 Business incubation opportunities through IBP Academy",
+        "🌟 Exclusive access to mentor and investor networks",
     ];
 
     const ctaButtons = [
         {
-            text: "📘 Download Guidebook",
-            href: "/files/ibp-business-plan-guidebook.pdf",
+            text: "📘 Download BPC Guideline",
+            href: "/files/ibp-business-plan-guideline.pdf",
             type: "secondary" as const,
             icon: <FileText className="w-6 h-6" />,
             external: true,
         },
         {
-            text: "📝 Register Now",
+            text: "🚀 Register Your Team",
             href: route("competition.bpc.register.create"),
             type: "primary" as const,
             icon: <UserPlus className="w-6 h-6" />,
@@ -159,52 +230,92 @@ const BusinessPlanCompetition: React.FC = () => {
         {
             name: "Tiara Ramadhani",
             whatsapp: "+62 821-6702-7236",
+            role: "BPC Coordinator"
         },
         {
             name: "Najwa Laili",
             whatsapp: "+62 813-3338-4548",
+            role: "Technical Support"
         },
     ];
 
     const descriptionContent = [
-        "Business Plan Competition IBP Academy adalah kompetisi bergengsi yang dirancang untuk mengasah kemampuan mahasiswa dan praktisi muda dalam menyusun rencana bisnis yang inovatif dan berkelanjutan. Kompetisi ini menjadi wadah untuk mengembangkan ide-ide kreatif menjadi solusi bisnis yang dapat diimplementasikan di dunia nyata.",
-        "Peserta akan dibimbing oleh mentor berpengalaman dan dinilai oleh juri yang terdiri dari praktisi industri, akademisi, dan investor. Kompetisi ini tidak hanya tentang memenangkan hadiah, tetapi juga tentang membangun jaringan, mengembangkan keterampilan, dan menciptakan dampak positif bagi masyarakat.",
+        "The IBP Academy Business Plan Competition (BPC) is a flagship program designed to transform innovative ideas into viable business solutions through our 'From Curiosity to Creation' approach. As part of the Industrial Business Project ecosystem, BPC challenges participants to develop sustainable business models aligned with SDGs.",
+
+        "Participants gain access to the IBP Academy LMS platform featuring business and technology modules, expert mentoring, and networking opportunities with industry practitioners and investors. The competition emphasizes practical implementation, with finalists presenting at IBP International Day.",
+
+        "Beyond competition, BPC serves as an incubation platform where participants continue developing their projects post-event through IBP Academy's learning management system and professional network."
     ];
 
     return (
         <>
             <Navbar />
-            <Head title="Business Plan Competition - IBP Academy" />
+            <Head title="Business Plan Competition - IBP Academy 2025" />
 
             <div className="relative min-h-screen py-20 overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-                <HeroSection title="Business Plan Competition" backUrl="/" />
-
-                <VisualSection />
-
-                <DescriptionSection
-                    title="Tentang Kompetisi"
-                    content={descriptionContent}
+                <HeroSection 
+                    title="Business Plan Competition" 
+                    backUrl="/"
                 />
 
-                <TimelineSection title="Timeline" items={timelineData} />
+                <VisualSection
+                    images={{
+                        main: "/image/bpc/bpc1.JPG",
+                        secondary: [
+                            "/image/bpc/bpc2.JPG",
+                            "/image/bpc/bpc3.JPG",
+                        ],
+                    }}
+                />
+
+                <DescriptionSection
+                    title="About IBP Academy BPC"
+                    content={descriptionContent}
+                    icon={<Briefcase className="w-8 h-8 text-[#1E3A8A]" />}
+                />
+
+                <StatsSection
+                    title="IBP Academy Impact"
+                    subtitle="Sustainable business education platform"
+                    stats={statsData}
+                    backgroundColor="bg-gradient-to-r from-[#1E3A8A] to-blue-600"
+                />
+
+                {/* <ProcessSection
+                    title="Competition Journey"
+                    subtitle="The IBP Academy BPC experience"
+                    steps={processSteps}
+                /> */}
+
+                <RequirementsSection
+                    title="Eligibility Criteria"
+                    subtitle="Requirements for IBP Academy BPC 2025"
+                    requirements={requirementsData}
+                />
+
+                <TimelineSection
+                    title="Competition Timeline"
+                    items={timelineData}
+                />
 
                 <PrizeSection
-                    title="Prize & Awarding"
+                    title="Awards & Benefits"
                     prizes={prizeData}
                     specialAwards={specialAwards}
                 />
 
-                <CTASection buttons={ctaButtons} />
+                <CTASection
+                    buttons={ctaButtons}
+                />
 
                 <ContactSection
-                    title="Contact Person"
-                    subtitle="Hubungi kami untuk informasi lebih lanjut"
+                    title="Our Team"
+                    subtitle="Contact the BPC organizing committee"
                     contacts={contactPersons}
                 />
             </div>
             <Footer />
 
-            {/* Registration Exists Modal */}
             {flash?.existingRegistration && flash?.category ? (
                 <RegistrationExistsModal
                     show={showModal}
@@ -219,12 +330,12 @@ const BusinessPlanCompetition: React.FC = () => {
                     registration={{
                         id: 1,
                         registration_number: "BPC202508001",
-                        tim_name: "Test Team",
-                        asal_universitas: "Test University",
-                        prodi_fakultas: "Test Faculty",
-                        leader_name: "Test Leader",
-                        leader_email: "test@email.com",
-                        leader_phone: "08123456789",
+                        tim_name: "Sample Team",
+                        asal_universitas: "Sample University",
+                        prodi_fakultas: "Sample Faculty",
+                        leader_name: "Team Leader",
+                        leader_email: "team@example.com",
+                        leader_phone: "+628123456789",
                         status: "pending",
                         created_at: new Date().toISOString(),
                     }}
