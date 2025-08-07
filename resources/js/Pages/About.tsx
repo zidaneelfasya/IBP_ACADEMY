@@ -250,7 +250,7 @@ export default function About() {
                                 <motion.div
                                     className="p-6 bg-white border border-gray-100 shadow-lg rounded-2xl"
                                     whileHover={{
-                                        y: -5, 
+                                        y: -5,
                                         boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
                                     }}
                                     transition={{ duration: 0.3 }}
@@ -602,17 +602,17 @@ export default function About() {
                                         },
                                         {
                                             name: "Competition Phase",
-                                            icon: "🏆",
+                                            icon: "",
                                         },
                                         {
-                                            name: "Program Incubation",
-                                            icon: "🚀",
+                                            name: "Company Sessions",
+                                            icon: "🏢",
                                         },
                                         {
-                                            name: "Networking Events",
-                                            icon: "🤝",
+                                            name: "Networking Nights",
+                                            icon: "🌐",
                                         },
-                                        { name: "Awarding Night", icon: "🎉" },
+                                        { name: "Award Ceremony", icon: "🏆" },
                                     ].map((activity, index) => (
                                         <motion.div
                                             key={activity.name}

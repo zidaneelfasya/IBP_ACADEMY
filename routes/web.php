@@ -70,7 +70,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/', [AllParticipantController::class, 'index'])->name('team.index');
 
         Route::get('/participant', [AllParticipantController::class, 'index'])->name('team.index');
-        
+
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
             ->name('export.team-registrations');
         Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');
@@ -197,6 +197,13 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
     Route::get('/course', fn() => Inertia::render('User/Course'))->name('dashboard.user.course');
+});
+
+Route::fallback(function () {
+    return inertia('Error/404', [
+        'status' => 404,
+        'message' => 'Halaman tidak ditemukan'
+    ]);
 });
 
 

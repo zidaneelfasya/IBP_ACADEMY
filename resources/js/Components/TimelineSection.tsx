@@ -35,10 +35,10 @@ const TimelineSection = () => {
     const timelineEvents: TimelineEvent[] = [
         {
             id: 1,
-            title: "Registrasi Tahap 1 & 2",
-            date: "08 - 21 Agustus 2025",
+            title: "Phase 1 & 2 Registration",
+            date: "August 8 - 21, 2025",
             description:
-                "Periode pendaftaran untuk semua kategori kompetisi IBP 2025",
+                "Registration period for all IBP 2025 competition categories",
             icon: Users,
             status: "active",
             type: "registration",
@@ -46,9 +46,9 @@ const TimelineSection = () => {
         {
             id: 2,
             title: "Preliminary Round",
-            date: "15 - 31 Agustus 2025",
+            date: "August 15 - 31, 2025",
             description:
-                "Seleksi tahap awal dengan penilaian proposal dan dokumen peserta",
+                "Initial selection stage with evaluation of participant proposals and documents",
             icon: FileText,
             status: "upcoming",
             type: "preliminary",
@@ -56,9 +56,9 @@ const TimelineSection = () => {
         {
             id: 3,
             title: "Semifinal Round",
-            date: "10 - 23 September 2025",
+            date: "September 10 - 23, 2025",
             description:
-                "Tahap semifinal dengan presentasi dan pitching untuk finalis",
+                "Semifinal stage with presentations and pitching for finalists",
             icon: Trophy,
             status: "upcoming",
             type: "semifinal",
@@ -66,19 +66,19 @@ const TimelineSection = () => {
         {
             id: 4,
             title: "Final Round",
-            date: "25 - 26 Oktober 2025",
+            date: "October 25 - 26, 2025",
             description:
-                "Grand final kompetisi IBP International dengan penjurian akhir",
+                "Grand final of IBP International competition with final judging",
             icon: Award,
             status: "upcoming",
             type: "final",
         },
         {
             id: 5,
-            title: "Pengumuman Pemenang",
-            date: "26 Oktober 2025",
+            title: "Winners Announcement",
+            date: "October 26, 2025",
             description:
-                "Awarding night dan pengumuman juara kompetisi IBP 2025",
+                "Awarding night and announcement of IBP 2025 competition champions",
             icon: Sparkles,
             status: "upcoming",
             type: "announcement",
@@ -224,7 +224,7 @@ const TimelineSection = () => {
 
                         <div>
                             <h2 className="text-4xl md:text-6xl font-black text-[#1E3A8A] mb-2">
-                                Timeline Kompetisi
+                                Competition Timeline
                             </h2>
                             <motion.div
                                 className="w-32 h-2 bg-gradient-to-r from-[#1E3A8A] via-[#FB9F32] to-[#FFE86F] rounded-full mx-auto"
@@ -247,13 +247,12 @@ const TimelineSection = () => {
                             <div className="absolute inset-0 bg-white/20 rounded-3xl blur-xl" />
                             <div className="relative p-8 border shadow-2xl backdrop-blur-sm bg-white/30 border-white/40 rounded-3xl">
                                 <p className="text-xl md:text-2xl font-semibold leading-relaxed text-[#1E3A8A]">
-                                    Ikuti jadwal lengkap kompetisi{" "}
+                                    Follow the complete schedule of the{" "}
                                     <span className="px-3 py-1 font-bold text-[#1E3A8A] bg-[#FFE86F]/30 rounded-xl border border-[#FB9F32]/30">
                                         IBP 2025
                                     </span>{" "}
-                                    dan pastikan Anda tidak melewatkan setiap
-                                    tahapan penting dalam perjalanan menuju
-                                    kesuksesan.
+                                    competition and make sure you don't miss any
+                                    important stages on your journey to success.
                                 </p>
                             </div>
                         </div>
@@ -444,11 +443,11 @@ const TimelineSection = () => {
                                                                 >
                                                                     {event.status ===
                                                                     "active"
-                                                                        ? "🔥 Sedang Berlangsung"
+                                                                        ? "🔥 Ongoing Now"
                                                                         : event.status ===
                                                                           "completed"
-                                                                        ? "✅ Selesai"
-                                                                        : "⏳ Akan Datang"}
+                                                                        ? "✅ Completed"
+                                                                        : "⏳ Upcoming"}
                                                                 </motion.span>
                                                             </div>
 
@@ -504,7 +503,7 @@ const TimelineSection = () => {
 
                     <div>
                         <h2 className="text-4xl md:text-6xl font-black text-[#1E3A8A] mb-2">
-                            Lihat Poster Timeline
+                            View Timeline Posters
                         </h2>
                         <motion.div
                             className="w-32 h-2 bg-gradient-to-r from-[#1E3A8A] via-[#FB9F32] to-[#FFE86F] rounded-full mx-auto"
@@ -525,10 +524,10 @@ const TimelineSection = () => {
                         className="w-full md:w-1/2 max-w-md"
                     >
                         <div className="relative group">
-                            {/* Glassmorphism Card - dibuat clickable */}
+                            {/* Glassmorphism Card - made clickable */}
                             <a
-                                href="/image/poster/bpc.png" // Path ke file poster di public folder
-                                download="IBP_Timeline_Poster_BPC.png" // Nama file saat didownload
+                                href="/image/poster/bpc.png"
+                                download="IBP_Timeline_Poster_BPC.png"
                                 className="relative overflow-hidden bg-white/30 backdrop-blur-sm border border-white/40 rounded-3xl shadow-2xl transition-all duration-500 group-hover:shadow-3xl block"
                             >
                                 {/* Gradient overlay */}
@@ -539,7 +538,7 @@ const TimelineSection = () => {
                                     <div className="relative overflow-hidden rounded-2xl shadow-lg">
                                         <img
                                             src="/image/poster/bpc.png"
-                                            alt="Poster Timeline IBP 2025"
+                                            alt="IBP 2025 Timeline Poster"
                                             className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                                         />
                                         {/* Overlay effect */}
@@ -550,7 +549,7 @@ const TimelineSection = () => {
                                     <div className="flex justify-center mt-6">
                                         <div className="flex items-center justify-center gap-3 px-4 py-2 bg-gradient-to-r from-[#1E3A8A] via-blue-600 to-[#1E3A8A] text-white font-bold text-sm rounded-xl shadow-2xl border-2 border-white/20">
                                             <Download className="w-4 h-4" />
-                                            Klik untuk Download
+                                            Click to Download
                                         </div>
                                     </div>
                                 </div>
@@ -570,7 +569,7 @@ const TimelineSection = () => {
                         className="w-full md:w-1/2 max-w-md"
                     >
                         <div className="relative group">
-                            {/* Glassmorphism Card - dibuat clickable */}
+                            {/* Glassmorphism Card - made clickable */}
                             <a
                                 href="/image/poster/bcc.png"
                                 download="IBP_Timeline_Poster_BCC.png"
@@ -584,7 +583,7 @@ const TimelineSection = () => {
                                     <div className="relative overflow-hidden rounded-2xl shadow-lg">
                                         <img
                                             src="/image/poster/bcc.png"
-                                            alt="Poster Detail Timeline IBP 2025"
+                                            alt="IBP Detailed Timeline Poster"
                                             className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                                         />
                                         {/* Overlay effect */}
@@ -595,7 +594,7 @@ const TimelineSection = () => {
                                     <div className="flex justify-center mt-6">
                                         <div className="flex items-center justify-center gap-3 px-4 py-2 bg-gradient-to-r from-[#1E3A8A] via-blue-600 to-[#1E3A8A] text-white font-bold text-sm rounded-xl shadow-2xl border-2 border-white/20">
                                             <Download className="w-4 h-4" />
-                                            Klik untuk Download
+                                            Click to Download
                                         </div>
                                     </div>
                                 </div>
@@ -608,7 +607,6 @@ const TimelineSection = () => {
                 </div>
 
                 {/* Enhanced CTA Button */}
-
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -638,7 +636,7 @@ const TimelineSection = () => {
                         }}
                     >
                         <Calendar className="w-6 h-6" />
-                        Lihat Timeline Lengkap
+                        View Full Timeline
                         <motion.div
                             animate={{ x: [0, 5, 0] }}
                             transition={{ duration: 1.5, repeat: Infinity }}
