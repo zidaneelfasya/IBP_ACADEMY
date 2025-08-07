@@ -30,27 +30,27 @@ import { useEffect, useRef, useState } from "react";
 const timelineEvents = [
     {
         id: 1,
-        title: "Registrasi Tahap 1",
-        date: "08 - 14 Agustus 2025",
-        description: "Periode pendaftaran awal untuk peserta lomba IBP 2025",
+        title: "Phase 1 Registration",
+        date: "August 8 - 14, 2025",
+        description: "Initial registration period for IBP 2025 participants",
         type: "registration",
         icon: Users,
         status: "upcoming",
     },
     {
         id: 2,
-        title: "Registrasi Tahap 2",
-        date: "15 - 21 Agustus 2025",
-        description: "Periode pendaftaran tahap kedua",
+        title: "Phase 2 Registration",
+        date: "August 15 - 21, 2025",
+        description: "Second phase registration period",
         type: "registration",
         icon: Users,
         status: "upcoming",
     },
     {
         id: 3,
-        title: "Technical Meeting Preliminary Round",
-        date: "24 Agustus 2025",
-        description: "Pertemuan teknis untuk babak penyisihan",
+        title: "Preliminary Round Technical Meeting",
+        date: "August 24, 2025",
+        description: "Technical meeting for the preliminary round",
         type: "meeting",
         icon: FileText,
         status: "upcoming",
@@ -58,101 +58,101 @@ const timelineEvents = [
     {
         id: 4,
         title: "Preliminary Round",
-        date: "15 - 31 Agustus 2025",
+        date: "August 15 - 31, 2025",
         description:
-            "Case Release (15 Agustus) • Materi (15 Agustus) • Batas pengumpulan (31 Agustus)",
+            "Case Release (August 15) • Materials (August 15) • Submission Deadline (August 31)",
         type: "competition",
         icon: Trophy,
         status: "upcoming",
         details: [
-            "Case Release: 15 Agustus 2025",
-            "Materi: 15 Agustus 2025",
-            "Batas pengumpulan: 31 Agustus 2025",
+            "Case Release: August 15, 2025",
+            "Materials: August 15, 2025",
+            "Submission Deadline: August 31, 2025",
         ],
     },
     {
         id: 5,
-        title: "Penilaian Preliminary Round",
-        date: "04 - 08 September 2025",
-        description: "Periode penilaian babak penyisihan",
+        title: "Preliminary Round Evaluation",
+        date: "September 4 - 8, 2025",
+        description: "Preliminary round evaluation period",
         type: "evaluation",
         icon: CheckCircle,
         status: "upcoming",
     },
     {
         id: 6,
-        title: "Pengumuman Semifinalis",
-        date: "09 September 2025",
-        description: "Pengumuman peserta yang lolos ke babak semifinal",
+        title: "Semifinalists Announcement",
+        date: "September 9, 2025",
+        description: "Announcement of participants advancing to semifinals",
         type: "announcement",
         icon: Trophy,
         status: "upcoming",
     },
     {
         id: 7,
-        title: "Registrasi Ulang Tahap 1",
-        date: "09 - 13 September 2025",
-        description: "Pendaftaran ulang untuk semifinalis tahap pertama",
+        title: "Phase 1 Re-registration",
+        date: "September 9 - 13, 2025",
+        description: "First phase re-registration for semifinalists",
         type: "registration",
         icon: Users,
         status: "upcoming",
     },
     {
         id: 8,
-        title: "Registrasi Ulang Tahap 2",
-        date: "14 - 16 September 2025",
-        description: "Pendaftaran ulang untuk semifinalis tahap kedua",
+        title: "Phase 2 Re-registration",
+        date: "September 14 - 16, 2025",
+        description: "Second phase re-registration for semifinalists",
         type: "registration",
         icon: Users,
         status: "upcoming",
     },
     {
         id: 9,
-        title: "Pengumpulan Semifinalis",
-        date: "10 - 23 September 2025",
+        title: "Semifinalists Submission",
+        date: "September 10 - 23, 2025",
         description:
-            "Case release BCC (10 Sept) • Materi BPC and BCC (10 Sept) • Batas pengumpulan (23 Sept)",
+            "BCC case release (Sept 10) • BPC and BCC materials (Sept 10) • Submission deadline (Sept 23)",
         type: "competition",
         icon: Trophy,
         status: "upcoming",
         details: [
-            "Case release BCC: 10 September 2025",
-            "Materi BPC and BCC: 10 September 2025",
-            "Batas pengumpulan: 23 September 2025",
+            "BCC case release: September 10, 2025",
+            "BPC and BCC materials: September 10, 2025",
+            "Submission deadline: September 23, 2025",
         ],
     },
     {
         id: 10,
-        title: "Penilaian Semifinalis",
-        date: "24 - 28 September 2025",
-        description: "Periode penilaian babak semifinal",
+        title: "Semifinalists Evaluation",
+        date: "September 24 - 28, 2025",
+        description: "Semifinal round evaluation period",
         type: "evaluation",
         icon: CheckCircle,
         status: "upcoming",
     },
     {
         id: 11,
-        title: "Pengumuman Finalis",
-        date: "30 September 2025",
-        description: "Pengumuman peserta yang lolos ke babak final",
+        title: "Finalists Announcement",
+        date: "September 30, 2025",
+        description: "Announcement of participants advancing to finals",
         type: "announcement",
         icon: Trophy,
         status: "upcoming",
     },
     {
         id: 12,
-        title: "Pengumpulan Finalis",
-        date: "01 - 20 Oktober 2025",
-        description: "Periode pengumpulan tugas untuk finalis",
+        title: "Finalists Submission",
+        date: "October 1 - 20, 2025",
+        description: "Submission period for finalists",
         type: "competition",
         icon: Trophy,
         status: "upcoming",
     },
     {
         id: 13,
-        title: "Technical Meeting Final Round",
-        date: "03 Oktober 2025",
-        description: "Pertemuan teknis untuk babak final",
+        title: "Final Round Technical Meeting",
+        date: "October 3, 2025",
+        description: "Technical meeting for the final round",
         type: "meeting",
         icon: FileText,
         status: "upcoming",
@@ -160,26 +160,26 @@ const timelineEvents = [
     {
         id: 14,
         title: "Mentoring Session",
-        date: "04, 05, 11, 12, 18 Oktober 2025",
-        description: "Sesi mentoring untuk finalis",
+        date: "October 4, 5, 11, 12, 18, 2025",
+        description: "Mentoring sessions for finalists",
         type: "mentoring",
         icon: Users,
         status: "upcoming",
     },
     {
         id: 15,
-        title: "Day 1 IBP Internasional",
-        date: "25 Oktober 2025",
-        description: "Hari pertama kompetisi IBP Internasional",
+        title: "Day 1 IBP International",
+        date: "October 25, 2025",
+        description: "First day of IBP International competition",
         type: "final",
         icon: Trophy,
         status: "upcoming",
     },
     {
         id: 16,
-        title: "Day 2 IBP Internasional",
-        date: "26 Oktober 2025",
-        description: "Hari kedua kompetisi IBP Internasional",
+        title: "Day 2 IBP International",
+        date: "October 26, 2025",
+        description: "Second day of IBP International competition",
         type: "final",
         icon: Trophy,
         status: "upcoming",
@@ -210,15 +210,15 @@ const getTypeColor = (type: string) => {
 const getTypeBadge = (type: string) => {
     switch (type) {
         case "registration":
-            return "Registrasi";
+            return "Registration";
         case "meeting":
             return "Meeting";
         case "competition":
-            return "Kompetisi";
+            return "Competition";
         case "evaluation":
-            return "Penilaian";
+            return "Evaluation";
         case "announcement":
-            return "Pengumuman";
+            return "Announcement";
         case "mentoring":
             return "Mentoring";
         case "final":
@@ -285,7 +285,7 @@ export default function TimelinePage() {
     return (
         <div className="min-h-screen">
             <Navbar />
-            <Head title="Timeline IBP 2025" />
+            <Head title="IBP 2025 Timeline" />
 
             {/* Hero Section with Background */}
             <section className="relative min-h-screen overflow-hidden">
@@ -429,14 +429,11 @@ export default function TimelinePage() {
                                     <div className="absolute inset-0 transition-all duration-500 bg-white/20 rounded-3xl blur-lg group-hover:blur-xl" />
                                     <div className="relative p-6 transition-all duration-500 border shadow-lg bg-white/30 backdrop-blur-sm border-white/20 rounded-3xl md:p-8 hover:bg-white/40">
                                         <p className="text-lg font-medium leading-relaxed text-[#1E3A8A] md:text-xl lg:text-2xl">
-                                            Ikuti jadwal lengkap kompetisi{" "}
+                                            Follow the complete competition schedule of {" "}
                                             <span className="px-3 py-1 font-bold text-[#1E3A8A] bg-[#F59E0B]/20 rounded-xl border border-[#F59E0B]/30">
-                                                International Business Project
-                                                2025
+                                                International Business Project 2025
                                             </span>
-                                            . Pastikan Anda tidak melewatkan
-                                            setiap tahapan penting dalam lomba
-                                            ini.
+                                            . Make sure you don't miss any important stages of this competition.
                                         </p>
                                     </div>
                                 </div>
@@ -475,7 +472,7 @@ export default function TimelinePage() {
 
                             <div>
                                 <h2 className="text-4xl md:text-6xl font-black text-[#1E3A8A] mb-2">
-                                    Jadwal Kegiatan
+                                    Event Schedule
                                 </h2>
                                 <motion.div
                                     className="w-32 h-2 bg-gradient-to-r from-[#1E3A8A] via-blue-400 to-[#1E3A8A] rounded-full mx-auto"
@@ -758,8 +755,7 @@ export default function TimelinePage() {
                                                                     }}
                                                                 >
                                                                     <MapPin className="w-4 h-4" />
-                                                                    Detail
-                                                                    Kegiatan:
+                                                                    Event Details:
                                                                 </motion.h4>
 
                                                                 <ul className="space-y-3">
@@ -869,16 +865,11 @@ export default function TimelinePage() {
                                     </motion.div>
 
                                     <h3 className="mb-6 text-3xl font-bold">
-                                        Informasi Penting
+                                        Important Information
                                     </h3>
 
                                     <p className="max-w-4xl mx-auto text-lg leading-relaxed text-blue-100">
-                                        Pastikan untuk selalu memantau timeline
-                                        ini dan mengikuti setiap tahapan sesuai
-                                        jadwal. Jangan lewatkan kesempatan untuk
-                                        menjadi bagian dari kompetisi bergengsi
-                                        ini. Untuk informasi lebih lanjut,
-                                        silakan hubungi panitia penyelenggara.
+                                        Make sure to always monitor this timeline and follow each stage according to schedule. Don't miss the opportunity to be part of this prestigious competition. For more information, please contact the organizing committee.
                                     </p>
 
                                     {/* Decorative elements */}
