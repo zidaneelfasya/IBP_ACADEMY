@@ -249,7 +249,7 @@ const getTypeGlow = (type: string) => {
     }
 };
 
-export default function TimelinePage() {
+export default function RundownPage() {
     const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
     const timelineRefs = useRef<{ [key: number]: HTMLElement | null }>({});
