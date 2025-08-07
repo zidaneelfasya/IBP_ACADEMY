@@ -274,10 +274,10 @@ const BusinessCaseCompetition: React.FC = () => {
 
                 <VisualSection
                     images={{
-                        main: "/image/bcc/bcc1.JPG",
+                        main: "/image/bcc/bcc1.jpeg",
                         secondary: [
-                            "/image/bcc/bcc2.JPG",
-                            "/image/bcc/bcc3.JPG",
+                            "/image/bcc/bcc2.jpeg",
+                            "/image/bcc/bcc3.jpeg",
                         ],
                     }}
                 />
