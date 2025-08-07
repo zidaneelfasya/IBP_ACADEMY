@@ -119,7 +119,7 @@ const Navbar = () => {
         { name: "Home", href: "/", icon: Home },
         { name: "About", href: "/about", icon: Info },
         { name: "Timeline", href: "/timeline", icon: Calendar },
-        { name: "Rundown", href: "/rundown", icon: Calendar },
+        // { name: "Rundown", href: "/rundown", icon: Calendar },
 
     ];
 
