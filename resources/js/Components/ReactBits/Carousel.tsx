@@ -337,13 +337,13 @@ export default function Carousel({
                         {showImageOnCard && item.imageUrl && !round && (
                             <div
                                 className={`relative w-full overflow-hidden rounded-t-2xl ${
-                                    windowWidth < 640 ? "h-48" : "h-80"
+                                    windowWidth < 640 ? "h-52" : "h-96"
                                 }`}
                             >
                                 <img
                                     src={item.imageUrl}
                                     alt={item.title}
-                                    className="object-cover w-full h-full"
+                                    className="object-cover object-center w-full h-full"
                                     loading="lazy"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
