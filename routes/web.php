@@ -58,9 +58,6 @@ Route::get('/timeline', function () {
     ]);
 });
 
-Route::get('/admin', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', function () {
