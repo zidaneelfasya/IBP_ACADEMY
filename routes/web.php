@@ -181,8 +181,9 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
         Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
     });
 
-
-    Route::get('/competition/success/{registration}', [CompetitionController::class, 'success'])->name('competition.success');
+Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
+    ->name('competition.success');
+    // Route::get('/competition/success/{registration}', [CompetitionController::class, 'success'])->name('competition.success');
 
     // Common Team Registration Routes (for user's own registrations)
     // Route::prefix('my-registrations')->name('competition.register.')->group(function () {

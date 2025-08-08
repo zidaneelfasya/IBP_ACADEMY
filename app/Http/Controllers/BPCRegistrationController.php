@@ -247,8 +247,10 @@ class BPCRegistrationController extends Controller
                 'progress_id' => $progress->id,
             ]);
 
-            return redirect()->route('competition.success', $registration->id)
-                ->with('success', 'Pendaftaran Business Case Competition berhasil! Nomor registrasi Anda: ' . $registrationNumber);
+            
+            return redirect()->route('competition.success', $registration->uuid)
+            ->with('success', 'Pendaftaran Business Case Competition berhasil! Nomor registrasi Anda: ' . $registrationNumber);
+
         } catch (\Exception $e) {
             DB::rollBack();
 

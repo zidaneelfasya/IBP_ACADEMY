@@ -11,10 +11,10 @@ class CompetitionController extends Controller
     /**
      * Show registration success page
      */
-    public function success($registrationId)
+    public function success($registrationUuid)
     {
         $registration = TeamRegistration::with('category')
-            ->where('id', $registrationId)
+            ->where('uuid', $registrationUuid)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
