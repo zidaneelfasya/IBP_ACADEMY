@@ -72,7 +72,6 @@ export default function Dashboard({
     urgentSubmissions,
     whatsapp_groups,
 }: DashboardProps) {
-
     const [dismissedRejections, setDismissedRejections] = useState<number[]>(
         []
     );
@@ -83,15 +82,16 @@ export default function Dashboard({
         stages.find((stage) => stage.id === team.current_stage_id) || stages[0];
 
     // Find registration stage (order = 1)
-    const registrationStage = stages.find(stage => stage.order === 1);
-    const registrationProgress = registrationStage 
-        ? currentProgress.find(p => p.competition_stage_id === registrationStage.id)
+    const registrationStage = stages.find((stage) => stage.order === 1);
+    const registrationProgress = registrationStage
+        ? currentProgress.find(
+              (p) => p.competition_stage_id === registrationStage.id
+          )
         : null;
 
     // Check registration status
     const isRegistrationPending = registrationProgress?.status !== "approved";
     const isRegistrationApproved = registrationProgress?.status === "approved";
-
 
     // Approved stages calculation
     const approvedStages = currentProgress.filter(
@@ -214,36 +214,40 @@ export default function Dashboard({
                                             <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                                             <div className="w-full">
                                                 <h3 className="text-lg font-semibold text-green-800">
-                                                    Passed {stageInfo.name}!
+                                                    Passed{" "}
+                                                    {stageInfo.name ||
+                                                        `Stage ${stageId}`}
+                                                    !
                                                 </h3>
                                                 <p className="text-green-700 mb-2">
                                                     {stageInfo.feedback ||
                                                         "Congratulations! You can proceed to the next stage."}
                                                 </p>
 
-                                                {/* WhatsApp Group Information */}
+                                                {/* WhatsApp Group Information - PERBAIKI LOGIKA INI */}
                                                 {whatsapp_groups[
                                                     Number(stageId)
                                                 ] && (
                                                     <div className="mt-3 bg-green-100 p-3 rounded-lg">
                                                         <h4 className="font-medium text-green-800 mb-1">
                                                             WhatsApp Group for{" "}
-                                                            {stageInfo.name}
+                                                            {stageInfo.name ||
+                                                                `Stage ${stageId}`}
                                                         </h4>
                                                         <a
                                                             href={
                                                                 team.category_id ===
-                                                                1
+                                                                1 // 1 untuk BCC
                                                                     ? whatsapp_groups[
                                                                           Number(
                                                                               stageId
                                                                           )
-                                                                      ].bpc
+                                                                      ].bcc
                                                                     : whatsapp_groups[
                                                                           Number(
                                                                               stageId
                                                                           )
-                                                                      ].bcc
+                                                                      ].bpc // 2 untuk BPC
                                                             }
                                                             target="_blank"
                                                             rel="noopener noreferrer"
@@ -251,6 +255,90 @@ export default function Dashboard({
                                                         >
                                                             Join WhatsApp Group
                                                         </a>
+                                                        <p className="text-xs text-green-700 mt-2">
+                                                            {team.category_id ===
+                                                            1
+                                                                ? "For BCC Participants"
+                                                                : "For BPC Participants"}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() =>
+                                                setDismissedApprovals([
+                                                    ...dismissedApprovals,
+                                                    Number(stageId),
+                                                ])
+                                            }
+                                            className="text-green-500 hover:text-green-700"
+                                        >
+                                            <X className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )
+                    )}
+                    {/* Approval Notification Banners - HANYA TAMPILKAN SATU KALI */}
+                    {Object.entries(team.approved_stages || {}).map(
+                        ([stageId, stageInfo]) =>
+                            !dismissedApprovals.includes(Number(stageId)) && (
+                                <div
+                                    key={stageId}
+                                    className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-start">
+                                            <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                                            <div className="w-full">
+                                                <h3 className="text-lg font-semibold text-green-800">
+                                                    Passed{" "}
+                                                    {stageInfo.name ||
+                                                        `Stage ${stageId}`}
+                                                    !
+                                                </h3>
+                                                <p className="text-green-700 mb-2">
+                                                    {stageInfo.feedback ||
+                                                        "Congratulations! You can proceed to the next stage."}
+                                                </p>
+                                                {whatsapp_groups[
+                                                    Number(stageId)
+                                                ] && (
+                                                    <div className="mt-3 bg-green-100 p-3 rounded-lg">
+                                                        <h4 className="font-medium text-green-800 mb-1">
+                                                            {Number(stageId) ===
+                                                            1
+                                                                ? "WhatsApp Group for Team Pass the Registration"
+                                                                : "WhatsApp Group for Preliminary Round"}
+                                                        </h4>
+                                                        <a
+                                                            href={
+                                                                team.category_id ===
+                                                                1 // 1 untuk BCC
+                                                                    ? whatsapp_groups[
+                                                                          Number(
+                                                                              stageId
+                                                                          )
+                                                                      ].bcc
+                                                                    : whatsapp_groups[
+                                                                          Number(
+                                                                              stageId
+                                                                          )
+                                                                      ].bpc // 2 untuk BPC
+                                                            }
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center px-3 py-1.5 bg-green-200 hover:bg-green-300 text-green-900 rounded text-sm font-medium"
+                                                        >
+                                                            Join WhatsApp Group
+                                                        </a>
+                                                        <p className="text-xs text-green-700 mt-2">
+                                                            {team.category_id ===
+                                                            1
+                                                                ? "For BCC Participants"
+                                                                : "For BPC Participants"}
+                                                        </p>
                                                     </div>
                                                 )}
                                             </div>
@@ -281,7 +369,7 @@ export default function Dashboard({
                                 <p className="text-gray-500 mt-1">
                                     Monitor your participation progress
                                 </p>
-                                
+
                                 {/* Registration Status Message */}
                                 {isRegistrationPending && (
                                     <div className="mt-3 flex items-start bg-blue-50 rounded-lg p-3">
@@ -291,13 +379,14 @@ export default function Dashboard({
                                                 Registration Under Review
                                             </p>
                                             <p className="text-xs text-blue-600 mt-1">
-                                                Your team registration is being reviewed. 
-                                                You'll get full access after approval.
+                                                Your team registration is being
+                                                reviewed. You'll get full access
+                                                after approval.
                                             </p>
                                         </div>
                                     </div>
                                 )}
-                                
+
                                 {isRegistrationApproved && (
                                     <div className="mt-3 flex items-start bg-green-50 rounded-lg p-3">
                                         <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -306,8 +395,9 @@ export default function Dashboard({
                                                 Registration Approved!
                                             </p>
                                             <p className="text-xs text-green-600 mt-1">
-                                                Your team registration has been approved. 
-                                                You now have full access to all features.
+                                                Your team registration has been
+                                                approved. You now have full
+                                                access to all features.
                                             </p>
                                         </div>
                                     </div>
@@ -460,7 +550,6 @@ export default function Dashboard({
                                     </button>
                                 </div>
                             </div>
-
 
                             <div className="p-5">
                                 <div className="flex items-center mb-4">
