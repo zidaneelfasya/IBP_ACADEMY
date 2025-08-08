@@ -128,7 +128,7 @@ const Navbar = () => {
             name: "Business Plan Competition",
             href: "/business-plan-competition",
             icon: FileText,
-            description: "Kompetisi rencana bisnis untuk mahasiswa",
+            description: "A business plan competition for university students",
             color: "text-blue-600",
             bgColor: "bg-blue-50",
         },
@@ -136,7 +136,7 @@ const Navbar = () => {
             name: "Business Case Competition",
             href: "/business-case-competition",
             icon: Briefcase,
-            description: "Kompetisi analisis kasus bisnis",
+            description: "A competitive business case analysis challenge",
             color: "text-purple-600",
             bgColor: "bg-purple-50",
         },
@@ -162,7 +162,10 @@ const Navbar = () => {
                     >
                         <div className="flex items-center justify-between">
                             {/* Logo/Brand */}
-                            <Link href="/" className="flex items-center space-x-3">
+                            <Link
+                                href="/"
+                                className="flex items-center space-x-3"
+                            >
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ duration: 0.2 }}
@@ -260,12 +263,11 @@ const Navbar = () => {
                                             >
                                                 <div className="px-3 py-2 border-b border-gray-100">
                                                     <h3 className="text-sm font-semibold text-gray-800">
-                                                        Pilih Kompetisi
+                                                        Select Competition
                                                     </h3>
                                                     <p className="text-xs text-gray-500">
-                                                        Bergabunglah dengan
-                                                        kompetisi yang sesuai
-                                                        minat Anda
+                                                        Join competitions that
+                                                        match your interests
                                                     </p>
                                                 </div>
 
@@ -342,8 +344,8 @@ const Navbar = () => {
                                                     <p className="text-xs text-center text-gray-500">
                                                         💡{" "}
                                                         <strong>Tips:</strong>{" "}
-                                                        Baca guidebook sebelum
-                                                        mendaftar
+                                                        Review the guidebook
+                                                        before registration.
                                                     </p>
                                                 </div>
                                             </motion.div>

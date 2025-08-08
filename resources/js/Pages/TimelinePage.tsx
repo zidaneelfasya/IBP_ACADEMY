@@ -120,9 +120,9 @@ const businessPlanTimeline = [
     },
     {
         id: 11,
-        title: "Mentoring Session",
+        title: "Company Sessions",
         date: "TBA",
-        description: "Mentoring sessions for finalists",
+        description: "Company Sessions for finalists",
         type: "mentoring",
         icon: Users,
         status: "upcoming",

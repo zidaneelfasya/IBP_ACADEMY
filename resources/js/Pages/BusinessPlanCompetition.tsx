@@ -132,7 +132,7 @@ const BusinessPlanCompetition: React.FC = () => {
     const timelineData = [
         {
             date: "August 8 - 21, 2025",
-            phase: "Phase 1 Registration",
+            phase: "Participant Registration",
             description: "Team registration and document submission period",
         },
         {
@@ -155,21 +155,21 @@ const BusinessPlanCompetition: React.FC = () => {
     const prizeData = [
         {
             title: "Champion",
-            prize: "Rp 25,000,000",
+            prize: "Prize Money",
             benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
-            icon: "🏆",
+            icon: "🥇",
         },
         {
             title: "1st Runner-up",
-            prize: "Rp 15,000,000",
+            prize: "Prize Money",
             benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-blue-400 to-blue-600",
             icon: "🥈",
         },
         {
             title: "2nd Runner-up",
-            prize: "Rp 10,000,000",
+            prize: "Prize Money",
             benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-green-400 to-green-600",
             icon: "🥉",
@@ -204,15 +204,15 @@ const BusinessPlanCompetition: React.FC = () => {
     ];
 
     const specialAwards = [
-        "🎯 Special Awards: Best Innovation, Most Sustainable Solution, Best Implementation",
+        "🎯 Special Awards: Best Poster and Best Presentation",
         "💼 Business incubation opportunities through IBP Academy",
-        "🌟 Exclusive access to mentor and investor networks",
+        "🌟 Exclusive access to mentor and company practitioner",
     ];
 
     const ctaButtons = [
         {
-            text: "📘 Download BPC Guideline",
-            href: "/files/ibp-business-plan-guideline.pdf",
+            text: "📘Download BPC Guidebook",
+            href: "/files/GUIDEBOOK BPC.pdf",
             type: "secondary" as const,
             icon: <FileText className="w-6 h-6" />,
             external: true,
@@ -353,7 +353,7 @@ const BusinessPlanCompetition: React.FC = () => {
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
                 }
 
-                
+
 
 
                 /* Custom scrollbar */
@@ -375,7 +375,7 @@ const BusinessPlanCompetition: React.FC = () => {
                     background: linear-gradient(to bottom, #F59E0B, #1E3A8A);
                 }
 
-                
+
             `}</style>
         </>
     );

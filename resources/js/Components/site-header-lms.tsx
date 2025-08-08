@@ -40,7 +40,7 @@ const navItems: NavItem[] = [
         icon: LayoutDashboard,
     },
     {
-        title: "Profile",
+        title: "Team Profile",
         url: route("dashboard.user.profile"),
         icon: User,
     },
@@ -50,7 +50,7 @@ const navItems: NavItem[] = [
         icon: BookOpen,
     },
     {
-        title: "Tugas",
+        title: "Assignments",
         url: "/user/tugas",
         icon: ClipboardList,
     },
@@ -93,7 +93,7 @@ export function SiteHeaderLMS() {
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 <span className="font-medium">
-                                    Kembali ke Beranda
+                                    Back to Home
                                 </span>
                                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
                             </a>
@@ -159,7 +159,7 @@ export function SiteHeaderLMS() {
                             >
                                 <ArrowLeft className="h-5 w-5" />
                                 <span className="font-medium">
-                                    Kembali ke Beranda
+                                    Back to Home
                                 </span>
                             </a>
 

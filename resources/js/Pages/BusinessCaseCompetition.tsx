@@ -196,39 +196,39 @@ const BusinessCaseCompetition: React.FC = () => {
     // Prize data updated with IBP Academy values
     const prizeData = [
         {
-            title: "1st Place",
-            prize: "Rp 25,000,000",
-            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
+            title: "Champion",
+            prize: "Prize Money",
+            benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
-            icon: "🏆",
+            icon: "🥇",
         },
         {
-            title: "2nd Place",
-            prize: "Rp 15,000,000",
-            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
+            title: "1st Runner-up",
+            prize: "Prize Money",
+            benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-blue-400 to-blue-600",
             icon: "🥈",
         },
         {
-            title: "3rd Place",
-            prize: "Rp 10,000,000",
-            benefits: "+ Trophy + Certificate + IBP Academy LMS Access",
+            title: "2nd Runner-up",
+            prize: "Prize Money",
+            benefits: "+ Trophy + Certificate + LMS Access",
             gradient: "bg-gradient-to-br from-green-400 to-green-600",
             icon: "🥉",
         },
     ];
 
     const specialAwards = [
-        "🎯 Special Awards: Best Innovation, Most Sustainable Solution, Best Implementation",
-        "💼 Business incubation opportunities through IBP Academy",
-        "🌟 Exclusive access to mentor and investor networks",
+        "🎯 Special Awards: Best Pitch and Best Deck",
+        "💼 Business opportunities through IBP Academy",
+        "🌟 Exclusive access to mentor and company practitioner",
     ];
 
     // Updated CTA buttons
     const ctaButtons = [
         {
-            text: "📋 Download BCC Guideline",
-            href: "/files/ibp-bcc-guideline.pdf",
+            text: "📘Download BCC Guidebook",
+            href: "/files/GUIDEBOOK BCC.pdf",
             type: "secondary" as const,
             icon: <FileText className="w-6 h-6" />,
             external: true,
@@ -256,7 +256,7 @@ const BusinessCaseCompetition: React.FC = () => {
 
     // Updated description content based on IBP Academy concept
     const descriptionContent = [
-        "IBP Academy Business Case Competition (BCC) is a business case analysis competition challenging participants to develop innovative solutions based on Sustainable Development Goals (SDGs). This competition is part of the IBP Academy education ecosystem that bridges ideas to real implementation.",
+        "IBP Academy Business PBCompetition (BCC) is a business case analysis competition challenging participants to develop innovative solutions based on Sustainable Development Goals (SDGs). This competition is part of the IBP Academy education ecosystem that bridges ideas to real implementation.",
         "Participants will get access to the IBP Academy LMS platform providing business and technology modules, mentoring from industry practitioners, and opportunities to develop their work from preliminary to final stages. Solutions will be judged based on innovation, implementation feasibility, and industry impact.",
         "Through the 'From Curiosity to Creation' approach, IBP Academy BCC focuses not only on competition but also on participant capacity development through continuous learning and professional networking.",
     ];
@@ -339,7 +339,7 @@ const BusinessCaseCompetition: React.FC = () => {
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
                 }
 
-                
+
 
 
                 /* Custom scrollbar */
@@ -361,7 +361,7 @@ const BusinessCaseCompetition: React.FC = () => {
                     background: linear-gradient(to bottom, #F59E0B, #1E3A8A);
                 }
 
-                
+
             `}</style>
         </>
     );
