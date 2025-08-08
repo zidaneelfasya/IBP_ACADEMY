@@ -120,7 +120,6 @@ const Navbar = () => {
         { name: "About", href: "/about", icon: Info },
         { name: "Timeline", href: "/timeline", icon: Calendar },
         // { name: "Rundown", href: "/rundown", icon: Calendar },
-
     ];
 
     const competitionItems = [
@@ -128,7 +127,9 @@ const Navbar = () => {
             name: "Business Plan Competition",
             href: "/business-plan-competition",
             icon: FileText,
+
             description: "A business plan competition for university students",
+
             color: "text-blue-600",
             bgColor: "bg-blue-50",
         },
@@ -136,6 +137,7 @@ const Navbar = () => {
             name: "Business Case Competition",
             href: "/business-case-competition",
             icon: Briefcase,
+
             description: "A competitive business case analysis challenge",
             color: "text-purple-600",
             bgColor: "bg-purple-50",
@@ -344,7 +346,7 @@ const Navbar = () => {
                                                     <p className="text-xs text-center text-gray-500">
                                                         💡{" "}
                                                         <strong>Tips:</strong>{" "}
-                                                        Review the guidebook
+                                                        Read the guidebook
                                                         before registration.
                                                     </p>
                                                 </div>

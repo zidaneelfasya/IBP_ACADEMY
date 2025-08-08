@@ -79,7 +79,7 @@ const BusinessPlanCompetition: React.FC = () => {
         {
             title: "Team of 3 Members",
             description:
-                "Each team consists of maximum 2 members with 1 team leader (1 leader + 2 members)",
+                "Each team consists of 2 members with 1 team leader (1 leader + 2 members)",
             icon: <Users className="w-6 h-6 text-blue-600" />,
         },
         {
