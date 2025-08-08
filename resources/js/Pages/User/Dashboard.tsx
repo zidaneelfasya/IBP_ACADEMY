@@ -72,6 +72,7 @@ export default function Dashboard({
     urgentSubmissions,
     whatsapp_groups,
 }: DashboardProps) {
+
     const [dismissedRejections, setDismissedRejections] = useState<number[]>(
         []
     );
@@ -80,6 +81,17 @@ export default function Dashboard({
     // Get current stage
     const currentStage =
         stages.find((stage) => stage.id === team.current_stage_id) || stages[0];
+
+    // Find registration stage (order = 1)
+    const registrationStage = stages.find(stage => stage.order === 1);
+    const registrationProgress = registrationStage 
+        ? currentProgress.find(p => p.competition_stage_id === registrationStage.id)
+        : null;
+
+    // Check registration status
+    const isRegistrationPending = registrationProgress?.status !== "approved";
+    const isRegistrationApproved = registrationProgress?.status === "approved";
+
 
     // Approved stages calculation
     const approvedStages = currentProgress.filter(
@@ -269,6 +281,37 @@ export default function Dashboard({
                                 <p className="text-gray-500 mt-1">
                                     Monitor your participation progress
                                 </p>
+                                
+                                {/* Registration Status Message */}
+                                {isRegistrationPending && (
+                                    <div className="mt-3 flex items-start bg-blue-50 rounded-lg p-3">
+                                        <Clock className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-sm font-medium text-blue-800">
+                                                Registration Under Review
+                                            </p>
+                                            <p className="text-xs text-blue-600 mt-1">
+                                                Your team registration is being reviewed. 
+                                                You'll get full access after approval.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {isRegistrationApproved && (
+                                    <div className="mt-3 flex items-start bg-green-50 rounded-lg p-3">
+                                        <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-sm font-medium text-green-800">
+                                                Registration Approved!
+                                            </p>
+                                            <p className="text-xs text-green-600 mt-1">
+                                                Your team registration has been approved. 
+                                                You now have full access to all features.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {team?.name && (
@@ -399,7 +442,26 @@ export default function Dashboard({
                         </div>
 
                         {/* Requirements Card */}
-                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
+
+                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2 relative">
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-10 p-4">
+                                <div className="text-center">
+                                    <XCircle className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                                    <h3 className="text-lg font-medium text-gray-700 mb-1">
+                                        Feature Coming Soon
+                                    </h3>
+                                    <p className="text-gray-500 text-sm mb-4">
+                                        Submission Requirements feature is
+                                        currently not available.
+                                    </p>
+                                    <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+
+
                             <div className="p-5">
                                 <div className="flex items-center mb-4">
                                     <div className="bg-green-100 p-2 rounded-lg mr-3">
