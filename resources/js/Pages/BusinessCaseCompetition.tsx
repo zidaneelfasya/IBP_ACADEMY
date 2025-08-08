@@ -115,7 +115,7 @@ const BusinessCaseCompetition: React.FC = () => {
     // Updated requirements based on IBP registration process
     const requirementsData = [
         {
-            title: "Maximum 3 Members per Team",
+            title: "Team of 3 Members",
             description:
                 "Each team consists of maximum 2 members with 1 team leader (1 leader + 2 members)",
             icon: <Users className="w-6 h-6 text-blue-600" />,
@@ -332,6 +332,37 @@ const BusinessCaseCompetition: React.FC = () => {
                     category={flash.category}
                 />
             )}
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+                * {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+                }
+
+                
+
+
+                /* Custom scrollbar */
+                ::-webkit-scrollbar {
+                    width: 8px;
+                }
+
+                ::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 4px;
+                }
+
+                ::-webkit-scrollbar-thumb {
+                    background: linear-gradient(to bottom, #1E3A8A, #F59E0B);
+                    border-radius: 4px;
+                }
+
+                ::-webkit-scrollbar-thumb:hover {
+                    background: linear-gradient(to bottom, #F59E0B, #1E3A8A);
+                }
+
+                
+            `}</style>
         </>
     );
 };

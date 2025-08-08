@@ -79,8 +79,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/final', [FinalParticipantController::class, 'index'])->name('team.preliminary.final.index');
         Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
             ->name('team.update-status');
+        Route::put('/teams/{team}/reject', [TeamRegistrationController::class, 'updateStatusReject'])
+            ->name('team.update-status-reject');
         Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
+        
         Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])-> name('progress.approve');
+        Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
 
 
 
@@ -190,7 +194,8 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
 
 
 Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function () {
-    Route::get('/', fn() => Inertia::render('User/Template'))->name('dashboard.user');
+    Route::get('/', [DashboardUserController::class, 'index'])
+        ->name('dashboard.user');
     Route::get('/dashboard', [DashboardUserController::class, 'index'])
         ->name('dashboard.user.dashboard');
     Route::get('/tugas', fn() => Inertia::render('User/Maintenance'))->name('dashboard.user.tugas');

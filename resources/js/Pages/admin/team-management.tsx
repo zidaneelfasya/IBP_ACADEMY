@@ -227,6 +227,28 @@ export default function TeamManagement({
         }
     };
 
+        const handleStatusChangeReject = async (teamId: number, newStatus: string) => {
+        try {
+            await router.put(
+                route("team.update-status-reject", teamId),
+                { status: newStatus },
+                {
+                    onSuccess: () => {
+                        toast.success(`Status tim berhasil diubah`);
+                        setSelectedTeam(null);
+                        router.reload({ only: ['teams'] });
+                    },
+                    onError: (errors) => {
+                        toast.error("Gagal mengubah status tim");
+                        console.error(errors);
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error("Terjadi kesalahan saat mengubah status");
+        }
+    };
     const handleDeleteTeam = (teamId: number) => {
         router.delete(route("team.destroy", teamId));
     };
@@ -495,7 +517,7 @@ export default function TeamManagement({
                                                                 Approve
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
-                                                                onClick={() => handleStatusChange(team.id, "rejected")}
+                                                                onClick={() => handleStatusChangeReject(team.id, "rejected")}
                                                                 className="text-red-600"
                                                             >
                                                                 Reject

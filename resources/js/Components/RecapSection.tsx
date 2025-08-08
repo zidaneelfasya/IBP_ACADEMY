@@ -71,7 +71,7 @@ const RecapSection = () => {
     return (
         <div>
             {/* Modern Background with Gradient */}
-            <section className="relative py-24 overflow-hidden">
+            <section className="relative py-16 pb-20 overflow-hidden sm:py-20 sm:pb-24 lg:py-24 lg:pb-32">
                 {/* Enhanced Background with Modern Effects */}
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
                     {/* Geometric Grid Pattern */}
@@ -100,19 +100,19 @@ const RecapSection = () => {
                     <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-indigo-900/60 via-blue-900/30 to-transparent" />
                 </div>
 
-                <div className="container relative z-10 px-4 mx-auto">
+                <div className="container relative z-10 px-6 mx-auto sm:px-8 lg:px-4">
                     <div className="flex flex-col items-start gap-8 lg:flex-row">
                         {/* Title Section with Glass Effect */}
-                        <div className="flex flex-col items-start justify-center lg:w-1/3">
+                        <div className="flex flex-col items-start justify-center w-full lg:w-1/3">
                             {/* Glass Badge */}
-                            <div className="inline-flex items-center px-4 py-2 mb-6 border rounded-full bg-white/10 backdrop-blur-sm border-white/20">
+                            <div className="inline-flex items-center px-4 py-2 mb-4 border rounded-full sm:mb-6 bg-white/10 backdrop-blur-sm border-white/20">
                                 <Trophy className="w-4 h-4 mr-2 text-blue-300" />
                                 <span className="text-sm font-medium text-white">
                                     Event Highlights
                                 </span>
                             </div>
 
-                            <h2 className="mb-6 text-5xl font-bold leading-tight text-white lg:text-6xl">
+                            <h2 className="mb-4 text-3xl font-bold leading-tight text-white sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl">
                                 IBP Recap
                                 <span className="block text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">
                                     2024
@@ -121,11 +121,11 @@ const RecapSection = () => {
                         </div>
 
                         {/* Content Section */}
-                        <div className="lg:w-2/3">
-                            <div className="mb-12">
+                        <div className="w-full lg:w-2/3">
+                            <div className="mb-8 sm:mb-12">
                                 {/* Glass Morphism Container */}
-                                <div className="p-8 border shadow-2xl bg-white/10 backdrop-blur-md rounded-2xl border-white/20">
-                                    <p className="text-lg leading-relaxed text-gray-200 lg:text-xl">
+                                <div className="p-6 border shadow-2xl sm:p-8 bg-white/10 backdrop-blur-md rounded-2xl border-white/20">
+                                    <p className="text-base leading-relaxed text-gray-200 sm:text-lg lg:text-xl">
                                         The year 2024 marked a historic
                                         milestone for IBP Academy with
                                         participation from over
@@ -147,18 +147,108 @@ const RecapSection = () => {
                     </div>
 
                     {/* Carousel Section - Full Width and Centered */}
-                    <div className="flex items-center justify-center mt-16">
-                        <Carousel
-                            items={recapItems}
-                            baseWidth={800}
-                            autoplay={true}
-                            autoplayDelay={4000}
-                            pauseOnHover={true}
-                            loop={false}
-                            round={false}
-                            showImageOnCard={true}
-                            showThumbnails={false}
-                        />
+                    <div className="flex items-center justify-center mt-12 sm:mt-16">
+                        <div className="flex justify-center w-full px-2 sm:px-0">
+                            <Carousel
+                                items={recapItems}
+                                baseWidth={1000}
+                                autoplay={true}
+                                autoplayDelay={4000}
+                                pauseOnHover={true}
+                                loop={false}
+                                round={false}
+                                showImageOnCard={true}
+                                showThumbnails={false}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Competition Section - Integrated with better spacing */}
+                    <div className="mt-20 sm:mt-32">
+                        {/* Glass Badge */}
+                        <div className="flex justify-center mb-8">
+                            <div className="inline-flex items-center px-6 py-3 border rounded-full bg-white/10 backdrop-blur-sm border-white/20">
+                                <span className="text-base font-medium text-white">
+                                    Main Competitions
+                                </span>
+                            </div>
+                        </div>
+
+                        <h2 className="mb-6 text-3xl font-bold leading-tight text-center text-white sm:mb-8 sm:text-4xl md:text-5xl lg:text-6xl">
+                            Competition
+                            <span className="block pb-4 text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">
+                                Programs
+                            </span>
+                        </h2>
+
+                        <div className="max-w-3xl mx-auto mb-12 text-center sm:mb-16">
+                            <div className="p-6 border shadow-2xl sm:p-8 bg-white/10 backdrop-blur-md rounded-2xl border-white/20">
+                                <p className="text-base leading-relaxed text-gray-200 sm:text-lg lg:text-xl">
+                                    Join our challenging and inspiring business
+                                    competitions. Hone your analytical skills,
+                                    creativity, and entrepreneurial spirit
+                                    through competitions specifically designed
+                                    to develop the best potential of Indonesian
+                                    students.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid max-w-6xl gap-6 mx-auto sm:gap-8 md:grid-cols-2">
+                            {/* Business Plan Competition Card */}
+                            <div className="overflow-hidden transition-all duration-300 border shadow-2xl bg-white/15 backdrop-blur-lg border-white/25 rounded-3xl hover:shadow-3xl hover:scale-105">
+                                <div className="p-6 sm:p-8 bg-gradient-to-r from-yellow-400/90 to-orange-500/90 backdrop-blur-sm">
+                                    <h3 className="text-xl font-bold text-center text-white sm:text-2xl lg:text-3xl">
+                                        Business Plan Competition (BPC)
+                                    </h3>
+                                </div>
+                                <div className="p-6 sm:p-8">
+                                    <p className="mb-6 text-sm leading-relaxed text-gray-200 sm:mb-8 sm:text-base lg:text-lg">
+                                        A business plan competition that
+                                        challenges participants to develop
+                                        innovative and sustainable business
+                                        ideas. Present your entrepreneurial
+                                        vision and business strategies that can
+                                        make a positive impact on society.
+                                    </p>
+                                    <div className="text-center">
+                                        <button className="relative px-6 py-2 text-sm font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg sm:px-8 sm:py-3 sm:text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg">
+                                            <span className="relative z-10">
+                                                More Information
+                                            </span>
+                                            <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:opacity-20" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Business Case Competition Card */}
+                            <div className="overflow-hidden transition-all duration-300 border shadow-2xl bg-white/15 backdrop-blur-lg border-white/25 rounded-3xl hover:shadow-3xl hover:scale-105">
+                                <div className="p-6 sm:p-8 bg-gradient-to-r from-yellow-400/90 to-orange-500/90 backdrop-blur-sm">
+                                    <h3 className="text-xl font-bold text-center text-white sm:text-2xl lg:text-3xl">
+                                        Business Case Competition (BCC)
+                                    </h3>
+                                </div>
+                                <div className="p-6 sm:p-8">
+                                    <p className="mb-6 text-sm leading-relaxed text-gray-200 sm:mb-8 sm:text-base lg:text-lg">
+                                        In-depth analysis of real business cases
+                                        that test your strategic thinking and
+                                        problem-solving skills. Develop
+                                        innovative solutions to contemporary
+                                        business challenges with a comprehensive
+                                        analytical approach.
+                                    </p>
+                                    <div className="text-center">
+                                        <button className="relative px-6 py-2 text-sm font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg sm:px-8 sm:py-3 sm:text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg">
+                                            <span className="relative z-10">
+                                                More Information
+                                            </span>
+                                            <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:opacity-20" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

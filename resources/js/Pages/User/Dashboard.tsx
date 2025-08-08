@@ -232,7 +232,25 @@ export default function Dashboard({
                         </div>
 
                         {/* Requirements Card */}
-                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
+                        {/* Requirements Card */}
+                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2 relative">
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-10 p-4">
+                                <div className="text-center">
+                                    <XCircle className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                                    <h3 className="text-lg font-medium text-gray-700 mb-1">
+                                        Feature Coming Soon
+                                    </h3>
+                                    <p className="text-gray-500 text-sm mb-4">
+                                        Submission Requirements feature is
+                                        currently not available.
+                                    </p>
+                                    <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="p-5">
                                 <div className="flex items-center mb-4">
                                     <div className="bg-green-100 p-2 rounded-lg mr-3">

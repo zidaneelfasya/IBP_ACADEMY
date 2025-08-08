@@ -266,6 +266,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 <span className="ml-2">
                                                     +62 813-3338-4548
                                                 </span>
+                                                
                                             </div>
                                         </div>
                                     </div>

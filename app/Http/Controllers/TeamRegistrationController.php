@@ -183,4 +183,63 @@ class TeamRegistrationController extends Controller
 
         return redirect()->back()->with('success', 'Status tim dan progress berhasil diperbarui.');
     }
+    public function updateStatusReject(TeamRegistration $team, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected'
+        ]);
+
+        // Update status tim
+        $team->update(['status' => $request->status]);
+
+        if ($request->status === 'rejected') {
+
+            // Ambil progress terakhir berdasarkan urutan tahap terbesar
+            $latestProgress = $team->progress()->with('stage')
+                ->get()
+                ->sortByDesc(fn($progress) => $progress->stage->order)
+                ->first();
+
+            // Jika belum ada progress sama sekali, mulai dari Registrasi Awal
+            if (!$latestProgress) {
+                $registrasiStage = CompetitionStage::where('order', 1)->first();
+
+                $latestProgress = ParticipantProgress::create([
+                    'participant_id' => $team->id,
+                    'competition_stage_id' => $registrasiStage->id,
+                    'status' => 'approved',
+                    'approved_at' => now(),
+                ]);
+            } else {
+                // Update progress yang sedang berlangsung (jika belum di-approve)
+                if ($latestProgress->status !== 'rejected') {
+                    $latestProgress->update([
+                        'status' => 'rejected',
+                        'approved_at' => now(),
+                    ]);
+                }
+            }
+
+            // // Cari tahap berikutnya
+            // $currentOrder = $latestProgress->stage->order;
+            // $nextStage = CompetitionStage::where('order', $currentOrder + 1)->first();
+
+            // if ($nextStage) {
+            //     // Cek apakah sudah punya progress untuk tahap berikut
+            //     $exists = ParticipantProgress::where('participant_id', $team->id)
+            //         ->where('competition_stage_id', $nextStage->id)
+            //         ->exists();
+
+            //     if (! $exists) {
+            //         ParticipantProgress::create([
+            //             'participant_id' => $team->id,
+            //             'competition_stage_id' => $nextStage->id,
+            //             'status' => 'not_started',
+            //         ]);
+            //     }
+            // }
+        }
+
+        return redirect()->back()->with('success', 'Status tim dan progress berhasil diperbarui.');
+    }
 }
