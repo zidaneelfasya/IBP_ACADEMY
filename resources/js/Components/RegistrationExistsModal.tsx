@@ -44,7 +44,7 @@ export default function RegistrationExistsModal({
     category,
 }: Props) {
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("id-ID", {
+        return new Date(dateString).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
             month: "long",
@@ -58,13 +58,13 @@ export default function RegistrationExistsModal({
         const statusConfig = {
             pending: {
                 color: "bg-yellow-100 text-yellow-800",
-                text: "Menunggu Verifikasi",
+                text: "Pending Verification",
             },
             approved: {
                 color: "bg-green-100 text-green-800",
-                text: "Disetujui",
+                text: "Approved",
             },
-            rejected: { color: "bg-red-100 text-red-800", text: "Ditolak" },
+            rejected: { color: "bg-red-100 text-red-800", text: "Rejected" },
         };
 
         const config =
@@ -98,10 +98,10 @@ export default function RegistrationExistsModal({
 
                 <div className="mb-6 text-center">
                     <h3 className="mb-2 text-2xl font-bold text-gray-900">
-                        Anda Sudah Terdaftar!
+                        You Are Already Registered!
                     </h3>
                     <p className="text-gray-600">
-                        Anda telah terdaftar untuk kompetisi{" "}
+                        You have been registered for{" "}
                         <span className="font-semibold text-ibp-primary">
                             {getCompetitionName()}
                         </span>
@@ -112,14 +112,14 @@ export default function RegistrationExistsModal({
                 <div className="p-4 mb-6 rounded-lg bg-gray-50">
                     <h4 className="flex items-center mb-3 font-semibold text-gray-900">
                         <FileText className="w-5 h-5 mr-2 text-ibp-primary" />
-                        Detail Pendaftaran
+                        Registration Details
                     </h4>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-3">
                             <div>
                                 <label className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                                    Nomor Registrasi
+                                    Registration Number
                                 </label>
                                 <p className="font-mono text-sm font-semibold text-gray-900">
                                     {registration.registration_number}
@@ -128,7 +128,7 @@ export default function RegistrationExistsModal({
 
                             <div>
                                 <label className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                                    Nama Tim
+                                    Team Name
                                 </label>
                                 <p className="flex items-center text-sm font-semibold text-gray-900">
                                     <Users className="w-4 h-4 mr-1 text-ibp-primary" />
@@ -138,7 +138,7 @@ export default function RegistrationExistsModal({
 
                             <div>
                                 <label className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                                    Universitas
+                                    University
                                 </label>
                                 <p className="text-sm text-gray-900">
                                     {registration.asal_universitas}
@@ -149,7 +149,7 @@ export default function RegistrationExistsModal({
                         <div className="space-y-3">
                             <div>
                                 <label className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                                    Ketua Tim
+                                    Team Leader
                                 </label>
                                 <p className="flex items-center text-sm font-semibold text-gray-900">
                                     <User className="w-4 h-4 mr-1 text-ibp-primary" />
@@ -159,7 +159,7 @@ export default function RegistrationExistsModal({
 
                             <div>
                                 <label className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                                    Email Ketua
+                                    Leader Email
                                 </label>
                                 <p className="flex items-center text-sm text-gray-900">
                                     <Mail className="w-4 h-4 mr-1 text-ibp-primary" />
@@ -181,8 +181,7 @@ export default function RegistrationExistsModal({
                     <div className="pt-4 mt-4 border-t border-gray-200">
                         <div className="flex items-center text-sm text-gray-600">
                             <Calendar className="w-4 h-4 mr-1" />
-                            Terdaftar pada:{" "}
-                            {formatDate(registration.created_at)}
+                            Registered on: {formatDate(registration.created_at)}
                         </div>
                     </div>
                 </div>
@@ -193,23 +192,23 @@ export default function RegistrationExistsModal({
                         href={route("competition.success", registration.id)}
                         className="flex-1 px-4 py-3 font-semibold text-center text-white transition-colors duration-200 rounded-lg bg-ibp-primary hover:bg-ibp-primary/90"
                     >
-                        Lihat Detail Pendaftaran
+                        View Registration Details
                     </Link>
 
                     <button
                         onClick={onClose}
                         className="flex-1 px-4 py-3 font-semibold text-gray-800 transition-colors duration-200 bg-gray-200 rounded-lg hover:bg-gray-300"
                     >
-                        Tutup
+                        Close
                     </button>
                 </div>
 
                 {/* Help Text */}
                 <div className="p-3 mt-4 rounded-lg bg-blue-50">
                     <p className="text-sm text-blue-800">
-                        <strong>Catatan:</strong> Jika ada perubahan data atau
-                        masalah dengan pendaftaran, silakan hubungi panitia
-                        melalui contact person yang tersedia.
+                        <strong>Note:</strong> If there are any data changes or
+                        issues with your registration, please contact the
+                        committee through the available contact person.
                     </p>
                 </div>
             </div>
