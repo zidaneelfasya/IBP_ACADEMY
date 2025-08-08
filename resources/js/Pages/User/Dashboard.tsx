@@ -201,6 +201,7 @@ export default function Dashboard({
                             )
                     )}
 
+                    {/* Approval Notification Banners - Single version */}
                     {/* Approval Notification Banners */}
                     {Object.entries(team.approved_stages || {}).map(
                         ([stageId, stageInfo]) =>
@@ -214,30 +215,26 @@ export default function Dashboard({
                                             <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                                             <div className="w-full">
                                                 <h3 className="text-lg font-semibold text-green-800">
-                                                    Passed{" "}
-                                                    {stageInfo.name ||
-                                                        `Stage ${stageId}`}
-                                                    !
+                                                    Passed {stageInfo.name}!
                                                 </h3>
                                                 <p className="text-green-700 mb-2">
                                                     {stageInfo.feedback ||
                                                         "Congratulations! You can proceed to the next stage."}
                                                 </p>
 
-                                                {/* WhatsApp Group Information - PERBAIKI LOGIKA INI */}
+                                                {/* WhatsApp Group Information */}
                                                 {whatsapp_groups[
                                                     Number(stageId)
                                                 ] && (
                                                     <div className="mt-3 bg-green-100 p-3 rounded-lg">
                                                         <h4 className="font-medium text-green-800 mb-1">
-                                                            WhatsApp Group for{" "}
-                                                            {stageInfo.name ||
-                                                                `Stage ${stageId}`}
+                                                            WhatsApp Group for
+                                                            Next Round
                                                         </h4>
                                                         <a
                                                             href={
                                                                 team.category_id ===
-                                                                1 // 1 untuk BCC
+                                                                1
                                                                     ? whatsapp_groups[
                                                                           Number(
                                                                               stageId
@@ -247,85 +244,7 @@ export default function Dashboard({
                                                                           Number(
                                                                               stageId
                                                                           )
-                                                                      ].bpc // 2 untuk BPC
-                                                            }
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-flex items-center px-3 py-1.5 bg-green-200 hover:bg-green-300 text-green-900 rounded text-sm font-medium"
-                                                        >
-                                                            Join WhatsApp Group
-                                                        </a>
-                                                        <p className="text-xs text-green-700 mt-2">
-                                                            {team.category_id ===
-                                                            1
-                                                                ? "For BCC Participants"
-                                                                : "For BPC Participants"}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() =>
-                                                setDismissedApprovals([
-                                                    ...dismissedApprovals,
-                                                    Number(stageId),
-                                                ])
-                                            }
-                                            className="text-green-500 hover:text-green-700"
-                                        >
-                                            <X className="h-5 w-5" />
-                                        </button>
-                                    </div>
-                                </div>
-                            )
-                    )}
-                    {/* Approval Notification Banners - HANYA TAMPILKAN SATU KALI */}
-                    {Object.entries(team.approved_stages || {}).map(
-                        ([stageId, stageInfo]) =>
-                            !dismissedApprovals.includes(Number(stageId)) && (
-                                <div
-                                    key={stageId}
-                                    className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg"
-                                >
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex items-start">
-                                            <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                                            <div className="w-full">
-                                                <h3 className="text-lg font-semibold text-green-800">
-                                                    Passed{" "}
-                                                    {stageInfo.name ||
-                                                        `Stage ${stageId}`}
-                                                    !
-                                                </h3>
-                                                <p className="text-green-700 mb-2">
-                                                    {stageInfo.feedback ||
-                                                        "Congratulations! You can proceed to the next stage."}
-                                                </p>
-                                                {whatsapp_groups[
-                                                    Number(stageId)
-                                                ] && (
-                                                    <div className="mt-3 bg-green-100 p-3 rounded-lg">
-                                                        <h4 className="font-medium text-green-800 mb-1">
-                                                            {Number(stageId) ===
-                                                            1
-                                                                ? "WhatsApp Group for Team Pass the Registration"
-                                                                : "WhatsApp Group for Preliminary Round"}
-                                                        </h4>
-                                                        <a
-                                                            href={
-                                                                team.category_id ===
-                                                                1 // 1 untuk BCC
-                                                                    ? whatsapp_groups[
-                                                                          Number(
-                                                                              stageId
-                                                                          )
-                                                                      ].bcc
-                                                                    : whatsapp_groups[
-                                                                          Number(
-                                                                              stageId
-                                                                          )
-                                                                      ].bpc // 2 untuk BPC
+                                                                      ].bpc
                                                             }
                                                             target="_blank"
                                                             rel="noopener noreferrer"
@@ -532,7 +451,6 @@ export default function Dashboard({
                         </div>
 
                         {/* Requirements Card */}
-
                         <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2 relative">
                             {/* Overlay */}
                             <div className="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-10 p-4">
