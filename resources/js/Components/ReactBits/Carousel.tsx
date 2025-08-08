@@ -61,11 +61,11 @@ const DEFAULT_ITEMS: CarouselItem[] = [
 const DRAG_BUFFER = 50;
 const VELOCITY_THRESHOLD = 500;
 const GAP = 28;
-const SPRING_OPTIONS = { 
-    type: "spring" as const, 
-    stiffness: 300, 
+const SPRING_OPTIONS = {
+    type: "spring" as const,
+    stiffness: 300,
     damping: 50,
-    mass: 0.5
+    mass: 0.5,
 };
 
 export default function Carousel({
@@ -79,8 +79,42 @@ export default function Carousel({
     showImageOnCard = true,
     showThumbnails = false,
 }: CarouselProps) {
-    const containerPadding = 20;
-    const itemWidth = baseWidth - containerPadding * 2;
+    // Responsive width calculation
+    const [windowWidth, setWindowWidth] = useState<number>(
+        typeof window !== "undefined" ? window.innerWidth : 1200
+    );
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("resize", handleResize);
+            return () => window.removeEventListener("resize", handleResize);
+        }
+    }, []);
+
+    // Calculate responsive width
+    const getResponsiveWidth = () => {
+        if (windowWidth < 640) {
+            // Mobile
+            return Math.min(windowWidth - 32, 320); // Max 320px with 16px padding on each side
+        } else if (windowWidth < 768) {
+            // Small tablet
+            return Math.min(windowWidth - 64, 500); // Max 500px with 32px padding on each side
+        } else if (windowWidth < 1024) {
+            // Tablet
+            return Math.min(windowWidth - 96, 600); // Max 600px with 48px padding on each side
+        } else {
+            // Desktop
+            return baseWidth;
+        }
+    };
+
+    const responsiveWidth = getResponsiveWidth();
+    const containerPadding = windowWidth < 640 ? 12 : 20;
+    const itemWidth = responsiveWidth - containerPadding * 2;
     const trackItemOffset = itemWidth + GAP;
 
     // Only clone the first item if loop is enabled
@@ -91,7 +125,7 @@ export default function Carousel({
     const [isDragging, setIsDragging] = useState<boolean>(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
-    
+
     const handleMouseEnter = useCallback(() => setIsHovered(true), []);
     const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
@@ -149,7 +183,18 @@ export default function Carousel({
             }, autoplayDelay);
             return () => clearInterval(timer);
         }
-    }, [autoplay, autoplayDelay, isHovered, pauseOnHover, isDragging, currentIndex, items.length, carouselItems.length, loop, goToNext]);
+    }, [
+        autoplay,
+        autoplayDelay,
+        isHovered,
+        pauseOnHover,
+        isDragging,
+        currentIndex,
+        items.length,
+        carouselItems.length,
+        loop,
+        goToNext,
+    ]);
 
     const handleAnimationComplete = useCallback(() => {
         if (loop && currentIndex === carouselItems.length - 1) {
@@ -166,10 +211,10 @@ export default function Carousel({
     const handleDragEnd = useCallback(
         (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo): void => {
             setIsDragging(false);
-            
+
             const offset = info.offset.x;
             const velocity = info.velocity.x;
-            
+
             // Handle swipe based on velocity
             if (Math.abs(velocity) > VELOCITY_THRESHOLD) {
                 if (velocity < 0) {
@@ -183,7 +228,7 @@ export default function Carousel({
                         goToPrev();
                     }
                 }
-            } 
+            }
             // Handle drag based on offset
             else if (offset < -DRAG_BUFFER) {
                 // Drag left - go to next if possible
@@ -200,14 +245,25 @@ export default function Carousel({
                 x.set(-(currentIndex * trackItemOffset));
             }
         },
-        [currentIndex, items.length, loop, goToNext, goToPrev, trackItemOffset, x]
+        [
+            currentIndex,
+            items.length,
+            loop,
+            goToNext,
+            goToPrev,
+            trackItemOffset,
+            x,
+        ]
     );
 
-    const goToSlide = useCallback((index: number) => {
-        if (index >= 0 && index < items.length) {
-            setCurrentIndex(index);
-        }
-    }, [items.length]);
+    const goToSlide = useCallback(
+        (index: number) => {
+            if (index >= 0 && index < items.length) {
+                setCurrentIndex(index);
+            }
+        },
+        [items.length]
+    );
 
     // Calculate drag constraints based on loop mode
     const getDragConstraints = useCallback(() => {
@@ -229,11 +285,12 @@ export default function Carousel({
             className={`relative overflow-hidden ${
                 round
                     ? "rounded-full border border-white p-4"
-                    : "rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 p-6 shadow-2xl"
+                    : "rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-2xl"
             }`}
             style={{
-                width: `${baseWidth}px`,
-                ...(round && { height: `${baseWidth}px` }),
+                width: `${responsiveWidth}px`,
+                padding: `${containerPadding}px`,
+                ...(round && { height: `${responsiveWidth}px` }),
             }}
         >
             <motion.div
@@ -242,14 +299,14 @@ export default function Carousel({
                 {...getDragConstraints()}
                 style={{
                     x,
-                    width: '100%',
+                    width: "100%",
                     gap: `${GAP}px`,
                 }}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                animate={{ 
+                animate={{
                     x: -(currentIndex * trackItemOffset),
-                    transition: SPRING_OPTIONS
+                    transition: SPRING_OPTIONS,
                 }}
                 onAnimationComplete={handleAnimationComplete}
             >
@@ -263,25 +320,58 @@ export default function Carousel({
                         }`}
                         style={{
                             width: itemWidth,
-                            height: round ? itemWidth : showImageOnCard ? 380 : 280,
+                            height: round
+                                ? itemWidth
+                                : showImageOnCard
+                                ? windowWidth < 640
+                                    ? 300
+                                    : 460
+                                : windowWidth < 640
+                                ? 240
+                                : 280,
                             ...(round && { borderRadius: "50%" }),
                         }}
                         initial={false}
                     >
                         {/* Image Section */}
                         {showImageOnCard && item.imageUrl && !round && (
-                            <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
+                            <div
+                                className={`relative w-full overflow-hidden rounded-t-2xl ${
+                                    windowWidth < 640 ? "h-52" : "h-96"
+                                }`}
+                            >
                                 <img
                                     src={item.imageUrl}
                                     alt={item.title}
-                                    className="object-cover w-full h-full"
+                                    className="object-cover object-center w-full h-full"
                                     loading="lazy"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                                 {/* Icon overlay on image */}
-                                <div className="absolute top-4 left-4">
-                                    <span className="flex h-[32px] w-[32px] items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-                                        {item.icon}
+                                <div
+                                    className={`absolute ${
+                                        windowWidth < 640
+                                            ? "top-2 left-2"
+                                            : "top-4 left-4"
+                                    }`}
+                                >
+                                    <span
+                                        className={`flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 ${
+                                            windowWidth < 640
+                                                ? "h-[24px] w-[24px]"
+                                                : "h-[32px] w-[32px]"
+                                        }`}
+                                    >
+                                        {React.cloneElement(
+                                            item.icon as React.ReactElement,
+                                            {
+                                                className: `${
+                                                    windowWidth < 640
+                                                        ? "h-[12px] w-[12px]"
+                                                        : "h-[16px] w-[16px]"
+                                                } text-white`,
+                                            }
+                                        )}
                                     </span>
                                 </div>
                             </div>
@@ -289,27 +379,76 @@ export default function Carousel({
 
                         {/* Icon Section for non-image cards */}
                         {(!showImageOnCard || !item.imageUrl) && (
-                            <div className={`${round ? "p-0 m-0" : "mb-4 p-5"}`}>
-                                <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#060010]">
-                                    {item.icon}
+                            <div
+                                className={`${
+                                    round
+                                        ? "p-0 m-0"
+                                        : windowWidth < 640
+                                        ? "mb-3 p-3"
+                                        : "mb-4 p-5"
+                                }`}
+                            >
+                                <span
+                                    className={`flex items-center justify-center rounded-full bg-[#060010] ${
+                                        windowWidth < 640
+                                            ? "h-[24px] w-[24px]"
+                                            : "h-[28px] w-[28px]"
+                                    }`}
+                                >
+                                    {React.cloneElement(
+                                        item.icon as React.ReactElement,
+                                        {
+                                            className: `${
+                                                windowWidth < 640
+                                                    ? "h-[12px] w-[12px]"
+                                                    : "h-[16px] w-[16px]"
+                                            } text-white`,
+                                        }
+                                    )}
                                 </span>
                             </div>
                         )}
 
                         {/* Content Section */}
-                        <div className={`${showImageOnCard && item.imageUrl && !round ? "p-6" : "p-5"} flex-1 flex flex-col justify-between`}>
+                        <div
+                            className={`${
+                                showImageOnCard && item.imageUrl && !round
+                                    ? windowWidth < 640
+                                        ? "p-3"
+                                        : "p-4"
+                                    : windowWidth < 640
+                                    ? "p-3"
+                                    : "p-5"
+                            } flex-1 flex flex-col justify-between`}
+                        >
                             <div>
-                                <div className={`mb-2 text-lg font-bold ${round ? "text-white" : "text-white"}`}>
+                                <div
+                                    className={`${
+                                        windowWidth < 640
+                                            ? "mb-1 text-sm"
+                                            : "mb-2 text-base"
+                                    } font-bold ${
+                                        round ? "text-white" : "text-white"
+                                    }`}
+                                >
                                     {item.title}
                                 </div>
-                                <p className={`text-sm ${round ? "text-white" : "text-gray-200"} leading-relaxed`}>
+                                <p
+                                    className={`${
+                                        windowWidth < 640
+                                            ? "text-xs"
+                                            : "text-sm"
+                                    } ${
+                                        round ? "text-white" : "text-gray-200"
+                                    } leading-relaxed line-clamp-3`}
+                                >
                                     {item.description || item.details}
                                 </p>
                             </div>
 
                             {/* Gradient background for better readability */}
                             {item.color && !round && (
-                                <div 
+                                <div
                                     className={`absolute inset-0 opacity-5 rounded-2xl bg-gradient-to-br ${item.color}`}
                                 />
                             )}
@@ -317,7 +456,7 @@ export default function Carousel({
                     </motion.div>
                 ))}
             </motion.div>
-            
+
             {/* Indicators */}
             <div
                 className={`flex w-full justify-center ${
@@ -326,11 +465,17 @@ export default function Carousel({
                         : ""
                 }`}
             >
-                <div className="mt-6 flex w-[200px] justify-center gap-3">
+                <div
+                    className={`${windowWidth < 640 ? "mt-3" : "mt-6"} flex ${
+                        windowWidth < 640 ? "w-[150px]" : "w-[200px]"
+                    } justify-center gap-3`}
+                >
                     {items.map((_, index) => (
                         <motion.div
                             key={index}
-                            className={`h-2 w-2 rounded-full cursor-pointer ${
+                            className={`${
+                                windowWidth < 640 ? "h-1.5 w-1.5" : "h-2 w-2"
+                            } rounded-full cursor-pointer ${
                                 currentIndex % items.length === index
                                     ? round
                                         ? "bg-white"
@@ -342,7 +487,9 @@ export default function Carousel({
                             animate={{
                                 scale:
                                     currentIndex % items.length === index
-                                        ? 1.4
+                                        ? windowWidth < 640
+                                            ? 1.2
+                                            : 1.4
                                         : 1,
                             }}
                             onClick={() => goToSlide(index)}
