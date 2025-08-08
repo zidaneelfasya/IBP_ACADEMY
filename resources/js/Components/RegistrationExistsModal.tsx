@@ -100,6 +100,7 @@ export default function RegistrationExistsModal({
                     </h3>
                     <p className="text-gray-600">
                         You have already registered for{" "}
+
                         <span className="font-semibold text-ibp-primary">
                             {getCompetitionName()}
                         </span>
@@ -133,6 +134,7 @@ export default function RegistrationExistsModal({
                                     {registration.tim_name}
                                 </p>
                             </div>
+
                         </div>
 
                         <div className="space-y-3">
@@ -177,7 +179,6 @@ export default function RegistrationExistsModal({
 
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  
                     <button
                         onClick={onClose}
                         className="flex-1 px-4 py-3 font-semibold text-gray-800 transition-colors duration-200 bg-gray-200 rounded-lg hover:bg-gray-300"
