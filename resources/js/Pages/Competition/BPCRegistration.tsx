@@ -743,6 +743,37 @@ export default function BPCRegistration({
                             Required Documents
                         </h2>
 
+                        {/* Tambahkan bagian Twibbon Download di sini */}
+                        <div className="mb-6 p-4 border rounded-lg bg-blue-50 border-blue-200">
+                            <h3 className="mb-3 font-medium text-blue-800">
+                                Download Twibbon
+                            </h3>
+                            <p className="mb-3 text-sm text-blue-700">
+                                Please download the competition twibbon to use
+                                on your social media.
+                            </p>
+                            <a
+                                href="https://drive.google.com/uc?export=download&id=1Ce2DKzzPgmE3k9uhs7kjr9Wa5uO2YmcZ"
+                                download="Twibbon_BCC_IBP_Academy_2024.jpg"
+                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                <svg
+                                    className="w-4 h-4 mr-2"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                    />
+                                </svg>
+                                Download Twibbon
+                            </a>
+                        </div>
+
                         <div className="mb-4">
                             <InputLabel
                                 htmlFor="link_berkas"

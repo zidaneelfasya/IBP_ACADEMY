@@ -127,7 +127,9 @@ const Navbar = () => {
             name: "Business Plan Competition",
             href: "/business-plan-competition",
             icon: FileText,
-            description: "Business plan competition for students",
+
+            description: "A business plan competition for university students",
+
             color: "text-blue-600",
             bgColor: "bg-blue-50",
         },
@@ -135,7 +137,8 @@ const Navbar = () => {
             name: "Business Case Competition",
             href: "/business-case-competition",
             icon: Briefcase,
-            description: "Business case analysis competition",
+
+            description: "A competitive business case analysis challenge",
             color: "text-purple-600",
             bgColor: "bg-purple-50",
         },
@@ -262,12 +265,11 @@ const Navbar = () => {
                                             >
                                                 <div className="px-3 py-2 border-b border-gray-100">
                                                     <h3 className="text-sm font-semibold text-gray-800">
-                                                        Choose Competition
+                                                        Select Competition
                                                     </h3>
                                                     <p className="text-xs text-gray-500">
-                                                        Join the competition
-                                                        that matches your
-                                                        interests
+                                                        Join competitions that
+                                                        match your interests
                                                     </p>
                                                 </div>
 
@@ -345,7 +347,7 @@ const Navbar = () => {
                                                         💡{" "}
                                                         <strong>Tips:</strong>{" "}
                                                         Read the guidebook
-                                                        before registering
+                                                        before registration.
                                                     </p>
                                                 </div>
                                             </motion.div>
