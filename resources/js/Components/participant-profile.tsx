@@ -329,7 +329,7 @@ export default function ParticipantProfile() {
                     <Card className="text-center">
                         <CardContent className="p-4">
                             <div className="text-2xl font-bold text-purple-600">
-                                {teamMembers.length + 1}
+                                {teamMembers.length }
                             </div>
                             <div className="text-sm text-gray-600">
                                 Team Members
