@@ -110,7 +110,7 @@ export default function BCCRegistration({
             return;
         }
 
-        // Validasi final semua step sebelum submit
+        // Final validation of all steps before submission
         let allErrors: string[] = [];
         for (let step = 1; step <= totalSteps; step++) {
             const stepErrors = validateStep(step);
@@ -128,7 +128,8 @@ export default function BCCRegistration({
 
     // Add new member form
     const addMember = () => {
-        if (data.members.length < 3) { // Maximum 3 members (1 leader + 2 members)
+        if (data.members.length < 3) {
+            // Maximum 3 members (1 leader + 2 members)
             setData("members", [
                 ...data.members,
                 {
@@ -161,79 +162,97 @@ export default function BCCRegistration({
         setData("members", newMembers);
     };
 
-    // Validasi per step
+    // Validation per step
     const validateStep = (step: number): string[] => {
         const errors: string[] = [];
 
         switch (step) {
-            case 1: // Informasi Tim
+            case 1: // Team Information
                 if (!data.tim_name.trim()) {
-                    errors.push("Nama tim harus diisi");
+                    errors.push("Team name is required");
                 } else if (data.tim_name.length < 3) {
-                    errors.push("Nama tim minimal 3 karakter");
+                    errors.push("Team name must be at least 3 characters");
                 }
 
                 if (!data.asal_universitas.trim()) {
-                    errors.push("Asal universitas harus diisi");
+                    errors.push("University name is required");
                 } else if (data.asal_universitas.length < 5) {
-                    errors.push("Asal universitas minimal 5 karakter");
+                    errors.push(
+                        "University name must be at least 5 characters"
+                    );
                 }
 
                 if (!data.prodi_fakultas.trim()) {
-                    errors.push("Program studi/fakultas harus diisi");
+                    errors.push("Study program/faculty is required");
                 } else if (data.prodi_fakultas.length < 3) {
-                    errors.push("Program studi/fakultas minimal 3 karakter");
+                    errors.push(
+                        "Study program/faculty must be at least 3 characters"
+                    );
                 }
                 break;
 
-            case 2: // Ketua Tim
+            case 2: // Team Leader
                 if (!data.leader_name.trim()) {
-                    errors.push("Nama ketua tim harus diisi");
+                    errors.push("Team leader name is required");
                 } else if (data.leader_name.length < 3) {
-                    errors.push("Nama ketua tim minimal 3 karakter");
+                    errors.push(
+                        "Team leader name must be at least 3 characters"
+                    );
                 }
 
                 if (!data.leader_nim.trim()) {
-                    errors.push("NIM ketua tim harus diisi");
+                    errors.push("Team leader student ID is required");
                 } else if (data.leader_nim.length < 5) {
-                    errors.push("NIM ketua tim minimal 5 karakter");
+                    errors.push(
+                        "Team leader student ID must be at least 5 characters"
+                    );
                 }
 
                 if (!data.leader_email.trim()) {
-                    errors.push("Email ketua tim harus diisi");
+                    errors.push("Team leader email is required");
                 } else if (
                     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.leader_email)
                 ) {
-                    errors.push("Format email ketua tim tidak valid");
+                    errors.push("Team leader email format is invalid");
                 }
 
                 if (!data.leader_phone.trim()) {
-                    errors.push("Nomor telepon ketua tim harus diisi");
+                    errors.push("Team leader phone number is required");
                 } else if (data.leader_phone.length < 10) {
-                    errors.push("Nomor telepon ketua tim minimal 10 digit");
+                    errors.push(
+                        "Team leader phone number must be at least 10 digits"
+                    );
                 }
                 break;
 
-            case 3: // Anggota Tim
+            case 3: // Team Members
                 // Validate each member
                 data.members.forEach((member, index) => {
                     if (!member.name.trim()) {
-                        errors.push(`Nama anggota ${index + 1} harus diisi`);
+                        errors.push(`Member ${index + 1} name is required`);
                     } else if (member.name.length < 3) {
                         errors.push(
-                            `Nama anggota ${index + 1} minimal 3 karakter`
+                            `Member ${
+                                index + 1
+                            } name must be at least 3 characters`
                         );
                     }
 
                     if (!member.nim.trim()) {
-                        errors.push(`NIM anggota ${index + 1} harus diisi`);
+                        errors.push(
+                            `Member ${index + 1} student ID is required`
+                        );
                     } else if (member.nim.length < 5) {
                         errors.push(
-                            `NIM anggota ${index + 1} minimal 5 karakter`
+                            `Member ${
+                                index + 1
+                            } student ID must be at least 5 characters`
                         );
                     } else if (member.nim === data.leader_nim) {
                         errors.push(
-                            `NIM anggota ${index + 1} tidak boleh sama dengan NIM ketua`
+                            `Member ${
+                                index + 1
+                            } student ID cannot be the same as team leader's student ID`
                         );
                     }
 
@@ -245,24 +264,28 @@ export default function BCCRegistration({
                             member.nim === otherMember.nim
                         ) {
                             errors.push(
-                                `NIM anggota ${index + 1} tidak boleh sama dengan NIM anggota ${otherIndex + 1}`
+                                `Member ${
+                                    index + 1
+                                } student ID cannot be the same as member ${
+                                    otherIndex + 1
+                                } student ID`
                             );
                         }
                     });
 
                     if (!member.email.trim()) {
-                        errors.push(
-                            `Email anggota ${index + 1} harus diisi`
-                        );
+                        errors.push(`Member ${index + 1} email is required`);
                     } else if (
                         !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)
                     ) {
                         errors.push(
-                            `Format email anggota ${index + 1} tidak valid`
+                            `Member ${index + 1} email format is invalid`
                         );
                     } else if (member.email === data.leader_email) {
                         errors.push(
-                            `Email anggota ${index + 1} tidak boleh sama dengan email ketua`
+                            `Member ${
+                                index + 1
+                            } email cannot be the same as team leader's email`
                         );
                     }
 
@@ -274,22 +297,30 @@ export default function BCCRegistration({
                             member.email === otherMember.email
                         ) {
                             errors.push(
-                                `Email anggota ${index + 1} tidak boleh sama dengan email anggota ${otherIndex + 1}`
+                                `Member ${
+                                    index + 1
+                                } email cannot be the same as member ${
+                                    otherIndex + 1
+                                } email`
                             );
                         }
                     });
 
                     if (!member.phone.trim()) {
                         errors.push(
-                            `Nomor telepon anggota ${index + 1} harus diisi`
+                            `Member ${index + 1} phone number is required`
                         );
                     } else if (member.phone.length < 10) {
                         errors.push(
-                            `Nomor telepon anggota ${index + 1} minimal 10 digit`
+                            `Member ${
+                                index + 1
+                            } phone number must be at least 10 digits`
                         );
                     } else if (member.phone === data.leader_phone) {
                         errors.push(
-                            `Nomor telepon anggota ${index + 1} tidak boleh sama dengan ketua`
+                            `Member ${
+                                index + 1
+                            } phone number cannot be the same as team leader's phone number`
                         );
                     }
 
@@ -301,19 +332,23 @@ export default function BCCRegistration({
                             member.phone === otherMember.phone
                         ) {
                             errors.push(
-                                `Nomor telepon anggota ${index + 1} tidak boleh sama dengan nomor telepon anggota ${otherIndex + 1}`
+                                `Member ${
+                                    index + 1
+                                } phone number cannot be the same as member ${
+                                    otherIndex + 1
+                                } phone number`
                             );
                         }
                     });
                 });
                 break;
 
-            case 4: // Dokumen
+            case 4: // Documents
                 if (!data.link_berkas.trim()) {
-                    errors.push("Link berkas persyaratan harus diisi");
+                    errors.push("Required documents link is required");
                 } else if (!/^https?:\/\/.+/.test(data.link_berkas)) {
                     errors.push(
-                        "Format URL link berkas tidak valid (harus dimulai dengan http:// atau https://)"
+                        "Invalid document link URL format (must start with http:// or https://)"
                     );
                 }
                 break;
@@ -323,7 +358,7 @@ export default function BCCRegistration({
     };
 
     const nextStep = () => {
-        // Validasi step saat ini sebelum lanjut
+        // Validate current step before proceeding
         const validationErrors = validateStep(currentStep);
 
         if (validationErrors.length > 0) {
@@ -332,7 +367,7 @@ export default function BCCRegistration({
             return;
         }
 
-        // Tandai step sebagai tervalidasi
+        // Mark step as validated
         if (!validatedSteps.includes(currentStep)) {
             setValidatedSteps([...validatedSteps, currentStep]);
         }
@@ -354,11 +389,14 @@ export default function BCCRegistration({
                 return (
                     <div>
                         <h2 className="mb-4 text-xl font-semibold text-ibp-primary">
-                            Informasi Tim
+                            Team Information
                         </h2>
 
                         <div className="mb-4">
-                            <InputLabel htmlFor="tim_name" value="Nama Tim *" />
+                            <InputLabel
+                                htmlFor="tim_name"
+                                value="Team Name *"
+                            />
                             <TextInput
                                 id="tim_name"
                                 name="tim_name"
@@ -367,7 +405,7 @@ export default function BCCRegistration({
                                 onChange={(e) =>
                                     setData("tim_name", e.target.value)
                                 }
-                                placeholder="Masukkan nama tim yang unik"
+                                placeholder="Enter a unique team name"
                                 required
                             />
                             <InputError
@@ -379,7 +417,7 @@ export default function BCCRegistration({
                         <div className="mb-4">
                             <InputLabel
                                 htmlFor="asal_universitas"
-                                value="Asal Universitas *"
+                                value="University Name *"
                             />
                             <TextInput
                                 id="asal_universitas"
@@ -389,7 +427,7 @@ export default function BCCRegistration({
                                 onChange={(e) =>
                                     setData("asal_universitas", e.target.value)
                                 }
-                                placeholder="Contoh: Universitas Indonesia"
+                                placeholder="Example: University of Indonesia"
                                 required
                             />
                             <InputError
@@ -401,7 +439,7 @@ export default function BCCRegistration({
                         <div className="mb-4">
                             <InputLabel
                                 htmlFor="prodi_fakultas"
-                                value="Program Studi / Fakultas *"
+                                value="Study Program / Faculty *"
                             />
                             <TextInput
                                 id="prodi_fakultas"
@@ -411,7 +449,7 @@ export default function BCCRegistration({
                                 onChange={(e) =>
                                     setData("prodi_fakultas", e.target.value)
                                 }
-                                placeholder="Contoh: Teknik Informatika / FASILKOM"
+                                placeholder="Example: Computer Science / Faculty of Computer Science"
                                 required
                             />
                             <InputError
@@ -426,13 +464,13 @@ export default function BCCRegistration({
                 return (
                     <div>
                         <h2 className="mb-4 text-xl font-semibold text-ibp-secondary">
-                            Ketua Tim
+                            Team Leader
                         </h2>
 
                         <div className="mb-4">
                             <InputLabel
                                 htmlFor="leader_name"
-                                value="Nama Lengkap *"
+                                value="Full Name *"
                             />
                             <TextInput
                                 id="leader_name"
@@ -442,7 +480,7 @@ export default function BCCRegistration({
                                 onChange={(e) =>
                                     setData("leader_name", e.target.value)
                                 }
-                                placeholder="Nama lengkap ketua tim"
+                                placeholder="Team leader's full name"
                                 required
                             />
                             <InputError
@@ -452,7 +490,10 @@ export default function BCCRegistration({
                         </div>
 
                         <div className="mb-4">
-                            <InputLabel htmlFor="leader_nim" value="NIM *" />
+                            <InputLabel
+                                htmlFor="leader_nim"
+                                value="Student ID *"
+                            />
                             <TextInput
                                 id="leader_nim"
                                 name="leader_nim"
@@ -461,7 +502,7 @@ export default function BCCRegistration({
                                 onChange={(e) =>
                                     setData("leader_nim", e.target.value)
                                 }
-                                placeholder="Nomor Induk Mahasiswa"
+                                placeholder="Student ID Number"
                                 required
                             />
                             <InputError
@@ -496,7 +537,7 @@ export default function BCCRegistration({
                         <div className="mb-4">
                             <InputLabel
                                 htmlFor="leader_phone"
-                                value="Nomor Telepon *"
+                                value="Phone Number *"
                             />
                             <TextInput
                                 id="leader_phone"
@@ -522,18 +563,18 @@ export default function BCCRegistration({
                 return (
                     <div>
                         <h2 className="mb-4 text-xl font-semibold text-ibp-primary">
-                            Anggota Tim
+                            Team Members
                         </h2>
 
                         <p className="mb-6 text-sm text-gray-600">
-                            Tambahkan anggota tim Anda (maksimal 2 anggota).
+                            Add your team members (maximum 2 members).
                         </p>
 
                         {data.members.map((member, index) => (
                             <div key={index} className="mb-8">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-medium text-ibp-secondary">
-                                        Anggota {index + 1}
+                                        Member {index + 1}
                                     </h3>
                                     {index > 0 && (
                                         <button
@@ -541,7 +582,7 @@ export default function BCCRegistration({
                                             onClick={() => removeMember(index)}
                                             className="px-3 py-1 text-sm text-red-600 transition-colors duration-200 bg-red-100 rounded-lg hover:bg-red-200"
                                         >
-                                            Hapus
+                                            Remove
                                         </button>
                                     )}
                                 </div>
@@ -549,7 +590,7 @@ export default function BCCRegistration({
                                 <div className="mb-4">
                                     <InputLabel
                                         htmlFor={`member${index}_name`}
-                                        value="Nama Lengkap *"
+                                        value="Full Name *"
                                     />
                                     <TextInput
                                         id={`member${index}_name`}
@@ -563,7 +604,7 @@ export default function BCCRegistration({
                                                 e.target.value
                                             )
                                         }
-                                        placeholder="Nama lengkap anggota"
+                                        placeholder="Member's full name"
                                         required
                                     />
                                     <InputError
@@ -579,7 +620,7 @@ export default function BCCRegistration({
                                 <div className="mb-4">
                                     <InputLabel
                                         htmlFor={`member${index}_nim`}
-                                        value="NIM *"
+                                        value="Student ID *"
                                     />
                                     <TextInput
                                         id={`member${index}_nim`}
@@ -593,7 +634,7 @@ export default function BCCRegistration({
                                                 e.target.value
                                             )
                                         }
-                                        placeholder="Nomor Induk Mahasiswa"
+                                        placeholder="Student ID Number"
                                         required
                                     />
                                     <InputError
@@ -640,7 +681,7 @@ export default function BCCRegistration({
                                 <div className="mb-4">
                                     <InputLabel
                                         htmlFor={`member${index}_phone`}
-                                        value="Nomor Telepon *"
+                                        value="Phone Number *"
                                     />
                                     <TextInput
                                         id={`member${index}_phone`}
@@ -689,7 +730,7 @@ export default function BCCRegistration({
                                         d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                                     />
                                 </svg>
-                                Tambah Anggota
+                                Add Member
                             </button>
                         )}
                     </div>
@@ -699,13 +740,13 @@ export default function BCCRegistration({
                 return (
                     <div>
                         <h2 className="mb-4 text-xl font-semibold text-ibp-secondary">
-                            Dokumen Persyaratan
+                            Required Documents
                         </h2>
 
                         <div className="mb-4">
                             <InputLabel
                                 htmlFor="link_berkas"
-                                value="Link Berkas Persyaratan *"
+                                value="Required Documents Link *"
                             />
                             <TextInput
                                 id="link_berkas"
@@ -716,7 +757,7 @@ export default function BCCRegistration({
                                 onChange={(e) =>
                                     setData("link_berkas", e.target.value)
                                 }
-                                placeholder="https://drive.google.com/... atau link lainnya"
+                                placeholder="https://drive.google.com/... or other link"
                                 required
                             />
                             <InputError
@@ -727,23 +768,23 @@ export default function BCCRegistration({
 
                         <div className="p-4 mt-4 border rounded-lg border-ibp-neutral bg-ibp-neutral/30">
                             <h3 className="mb-2 font-semibold text-blue-900">
-                                Petunjuk Upload Berkas:
+                                Document Upload Instructions:
                             </h3>
                             <ul className="space-y-1 text-sm text-black/70">
                                 <li>
-                                    • Upload berkas ke Google Drive atau
-                                    platform cloud lainnya
+                                    • Upload documents to Google Drive or other
+                                    cloud platforms
                                 </li>
                                 <li>
-                                    • Pastikan link dapat diakses oleh tim
-                                    panitia
+                                    • Ensure the link is accessible by the
+                                    organizing committee
                                 </li>
                                 <li>
-                                    • Berkas harus dalam format PDF atau ZIP
+                                    • Documents must be in PDF or ZIP format
                                 </li>
                                 <li>
-                                    • Sertakan semua dokumen yang diperlukan
-                                    dalam satu folder
+                                    • Include all required documents in one
+                                    folder
                                 </li>
                             </ul>
                         </div>
@@ -757,7 +798,7 @@ export default function BCCRegistration({
 
     return (
         <>
-            <Head title={`Pendaftaran ${category.name} - IBP Academy`} />
+            <Head title={`${category.name} Registration - IBP Academy`} />
             <div className="min-h-screen py-4 sm:py-8 bg-gradient-to-br from-neutral-200 to-white">
                 <div className="container px-4 mx-auto sm:px-6 lg:px-8">
                     <div className="flex items-start max-w-6xl gap-4 mx-auto">
@@ -780,7 +821,7 @@ export default function BCCRegistration({
                                         d="M15 19l-7-7 7-7"
                                     />
                                 </svg>
-                                Kembali
+                                Back
                             </button>
                         </div>
 
@@ -808,7 +849,7 @@ export default function BCCRegistration({
                                         {/* Title Content */}
                                         <div className="flex-1 text-center sm:text-left">
                                             <h1 className="text-2xl font-bold text-transparent sm:text-3xl bg-gradient-to-r from-white to-ibp-accent bg-clip-text">
-                                                Pendaftaran {category.name}
+                                                {category.name} Registration
                                             </h1>
                                             <p className="mt-2 text-sm sm:text-base text-ibp-white opacity-90">
                                                 {category.full_name ||
@@ -834,7 +875,7 @@ export default function BCCRegistration({
                                     <div className="relative p-4 mt-8 rounded-lg bg-white/20 backdrop-blur-sm">
                                         <div className="flex justify-between mb-3 text-sm font-medium">
                                             <span className="text-ibp-accent">
-                                                Langkah {currentStep} dari{" "}
+                                                Step {currentStep} of{" "}
                                                 {totalSteps}
                                             </span>
                                             <span className="text-ibp-white">
@@ -856,15 +897,15 @@ export default function BCCRegistration({
                                                         className={`flex-1 h-3 rounded-full transition-all duration-300 ${
                                                             index + 1 ===
                                                             currentStep
-                                                                ? "bg-ibp-accent shadow-lg shadow-accent/50" // Step saat ini
+                                                                ? "bg-ibp-accent shadow-lg shadow-accent/50" // Current step
                                                                 : validatedSteps.includes(
                                                                       index + 1
                                                                   )
-                                                                ? "bg-ibp-secondary shadow-md shadow-ibp-secondary/30" // Step yang sudah tervalidasi
+                                                                ? "bg-ibp-secondary shadow-md shadow-ibp-secondary/30" // Already validated step
                                                                 : index + 1 <
                                                                   currentStep
-                                                                ? "bg-white opacity-80" // Step sebelumnya
-                                                                : "bg-white/30" // Step yang belum dicapai
+                                                                ? "bg-white opacity-80" // Previous step
+                                                                : "bg-white/30" // Not reached step
                                                         }`}
                                                     />
                                                 )
@@ -887,25 +928,25 @@ export default function BCCRegistration({
 
                                         {/* Step Labels - Hidden on mobile for space */}
                                         <div className="justify-between hidden mt-2 text-xs sm:flex text-ibp-white/80">
-                                            <span>Tim</span>
-                                            <span>Ketua</span>
-                                            <span>Anggota</span>
-                                            <span>Dokumen</span>
+                                            <span>Team</span>
+                                            <span>Leader</span>
+                                            <span>Members</span>
+                                            <span>Documents</span>
                                         </div>
 
                                         {/* Legend - Responsive layout */}
                                         <div className="flex flex-wrap justify-center gap-2 mt-3 text-xs sm:gap-4">
                                             <div className="flex items-center text-ibp-white/90">
                                                 <div className="w-2 h-2 mr-1 rounded-full shadow-sm sm:w-3 sm:h-3 bg-ibp-secondary"></div>
-                                                <span>Tervalidasi</span>
+                                                <span>Validated</span>
                                             </div>
                                             <div className="flex items-center text-ibp-white/90">
                                                 <div className="w-2 h-2 mr-1 rounded-full shadow-lg sm:w-3 sm:h-3 bg-ibp-accent shadow-ibp-accent/50"></div>
-                                                <span>Saat ini</span>
+                                                <span>Current</span>
                                             </div>
                                             <div className="flex items-center text-ibp-white/90">
                                                 <div className="w-2 h-2 mr-1 rounded-full sm:w-3 sm:h-3 bg-ibp-white/30"></div>
-                                                <span>Belum dicapai</span>
+                                                <span>Not reached</span>
                                             </div>
                                         </div>
                                     </div>
@@ -930,18 +971,18 @@ export default function BCCRegistration({
                                             </div>
                                             <div className="flex-1 ml-3">
                                                 <h3 className="text-sm font-medium text-green-800">
-                                                    Anda Sudah Terdaftar
+                                                    You Are Already Registered
                                                 </h3>
                                                 <div className="mt-1 text-sm text-green-700">
                                                     <p>
-                                                        Tim{" "}
+                                                        Team{" "}
                                                         <strong>
                                                             {
                                                                 existingRegistration.tim_name
                                                             }
                                                         </strong>{" "}
-                                                        telah terdaftar dengan
-                                                        nomor registrasi{" "}
+                                                        have already registered
+                                                        with registration number{" "}
                                                         <strong>
                                                             {
                                                                 existingRegistration.registration_number
@@ -960,7 +1001,7 @@ export default function BCCRegistration({
                                                     }
                                                     className="text-sm font-medium text-green-800 hover:text-green-900"
                                                 >
-                                                    Lihat Detail →
+                                                    View Details →
                                                 </button>
                                             </div>
                                         </div>
@@ -1000,7 +1041,7 @@ export default function BCCRegistration({
                                                         : "bg-ibp-neutral text-ibp-black hover:bg-ibp-neutral/80 hover:shadow-md"
                                                 }`}
                                             >
-                                                ← Sebelumnya
+                                                ← Previous
                                             </button>
 
                                             {currentStep < totalSteps ? (
@@ -1009,7 +1050,7 @@ export default function BCCRegistration({
                                                     onClick={nextStep}
                                                     className="order-1 px-4 py-3 font-medium transition-all duration-200 rounded-lg sm:order-2 sm:px-6 text-ibp-white bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-900/90 hover:to-blue-600/90 hover:shadow-lg shadow-blue-900/25"
                                                 >
-                                                    Selanjutnya →
+                                                    Next →
                                                 </button>
                                             ) : (
                                                 <button
@@ -1026,10 +1067,10 @@ export default function BCCRegistration({
                                                     }`}
                                                 >
                                                     {processing
-                                                        ? "Mendaftar..."
+                                                        ? "Registering..."
                                                         : existingRegistration
-                                                        ? "Sudah Terdaftar"
-                                                        : "Daftar BCC"}
+                                                        ? "Already Registered"
+                                                        : "Register for BCC"}
                                                 </button>
                                             )}
                                         </div>
@@ -1067,16 +1108,16 @@ export default function BCCRegistration({
                                     <h3 className="mb-4 text-base font-semibold text-gray-900 sm:text-lg">
                                         {currentStep === totalSteps &&
                                         stepValidationErrors.length > 0
-                                            ? "Data Belum Lengkap untuk Submit"
-                                            : "Data Belum Lengkap"}
+                                            ? "Incomplete Data for Submission"
+                                            : "Incomplete Data"}
                                     </h3>
 
                                     <div className="mb-6 text-left">
                                         <p className="mb-3 text-xs text-gray-600 sm:text-sm">
                                             {currentStep === totalSteps &&
                                             stepValidationErrors.length > 0
-                                                ? "Silakan lengkapi semua data yang diperlukan sebelum mengirim pendaftaran:"
-                                                : "Silakan lengkapi data berikut sebelum melanjutkan ke step berikutnya:"}
+                                                ? "Please complete all required data before submitting registration:"
+                                                : "Please complete the following data before proceeding to the next step:"}
                                         </p>
                                         <ul className="space-y-2">
                                             {stepValidationErrors.map(
@@ -1103,7 +1144,7 @@ export default function BCCRegistration({
                                             }
                                             className="px-4 py-2 rounded-lg sm:px-6 text-ibp-white bg-ibp-primary hover:bg-ibp-primary/90 focus:outline-none focus:ring-2 focus:ring-ibp-primary/50 focus:ring-offset-2"
                                         >
-                                            Tutup
+                                            Close
                                         </button>
                                     </div>
                                 </div>

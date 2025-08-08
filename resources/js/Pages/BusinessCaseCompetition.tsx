@@ -117,7 +117,7 @@ const BusinessCaseCompetition: React.FC = () => {
         {
             title: "Team of 3 Members",
             description:
-                "Each team consists of maximum 2 members with 1 team leader (1 leader + 2 members)",
+                "Each team consists of 2 members with 1 team leader (1 leader + 2 members)",
             icon: <Users className="w-6 h-6 text-blue-600" />,
         },
         {
@@ -221,7 +221,7 @@ const BusinessCaseCompetition: React.FC = () => {
     const specialAwards = [
         "🎯 Special Awards: Best Innovation, Most Sustainable Solution, Best Implementation",
         "💼 Business incubation opportunities through IBP Academy",
-        "🌟 Exclusive access to mentor and investor networks",
+        "🌟 Exclusive access to mentor",
     ];
 
     // Updated CTA buttons
@@ -339,7 +339,7 @@ const BusinessCaseCompetition: React.FC = () => {
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
                 }
 
-                
+
 
 
                 /* Custom scrollbar */
@@ -361,7 +361,7 @@ const BusinessCaseCompetition: React.FC = () => {
                     background: linear-gradient(to bottom, #F59E0B, #1E3A8A);
                 }
 
-                
+
             `}</style>
         </>
     );
