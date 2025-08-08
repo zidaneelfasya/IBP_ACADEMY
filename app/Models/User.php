@@ -23,7 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'role', 
+        'role',
 
     ];
 
@@ -46,4 +46,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function teamRegistration()
+    {
+        return $this->hasOne(TeamRegistration::class);
+    }
 }
