@@ -15,8 +15,6 @@ interface TeamRegistration {
     id: number;
     registration_number: string;
     tim_name: string;
-    asal_universitas: string;
-    prodi_fakultas: string;
     leader_name: string;
     leader_email: string;
     leader_phone: string;
@@ -98,10 +96,11 @@ export default function RegistrationExistsModal({
 
                 <div className="mb-6 text-center">
                     <h3 className="mb-2 text-2xl font-bold text-gray-900">
-                        You Are Already Registered!
+                        You're Already Registered!
                     </h3>
                     <p className="text-gray-600">
-                        You have been registered for{" "}
+                        You have already registered for{" "}
+
                         <span className="font-semibold text-ibp-primary">
                             {getCompetitionName()}
                         </span>
@@ -136,14 +135,6 @@ export default function RegistrationExistsModal({
                                 </p>
                             </div>
 
-                            <div>
-                                <label className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                                    University
-                                </label>
-                                <p className="text-sm text-gray-900">
-                                    {registration.asal_universitas}
-                                </p>
-                            </div>
                         </div>
 
                         <div className="space-y-3">
@@ -188,13 +179,6 @@ export default function RegistrationExistsModal({
 
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-3 sm:flex-row">
-                    <Link
-                        href={route("competition.success", registration.id)}
-                        className="flex-1 px-4 py-3 font-semibold text-center text-white transition-colors duration-200 rounded-lg bg-ibp-primary hover:bg-ibp-primary/90"
-                    >
-                        View Registration Details
-                    </Link>
-
                     <button
                         onClick={onClose}
                         className="flex-1 px-4 py-3 font-semibold text-gray-800 transition-colors duration-200 bg-gray-200 rounded-lg hover:bg-gray-300"
@@ -206,9 +190,9 @@ export default function RegistrationExistsModal({
                 {/* Help Text */}
                 <div className="p-3 mt-4 rounded-lg bg-blue-50">
                     <p className="text-sm text-blue-800">
-                        <strong>Note:</strong> If there are any data changes or
-                        issues with your registration, please contact the
-                        committee through the available contact person.
+                        <strong>Note:</strong> If you need to update your
+                        registration details or have any issues, please contact
+                        the committee through the available contact person.
                     </p>
                 </div>
             </div>

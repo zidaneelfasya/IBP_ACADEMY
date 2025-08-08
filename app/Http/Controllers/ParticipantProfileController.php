@@ -48,38 +48,46 @@ public function show()
     }
 
 
-    private function formatTeamData(TeamRegistration $team): array
-    {
-        return [
-            'id' => $team->id,
-            'tim_name' => $team->tim_name,
-            'registration_number' => $team->registration_number,
-            'asal_universitas' => $team->asal_universitas,
-            'prodi_fakultas' => $team->prodi_fakultas,
-            'competition_category' => $team->competitionCategory?->name,
-            'leader_name' => $team->leader_name,
-            'leader_nim' => $team->leader_nim,
-            'leader_email' => $team->leader_email,
-            'leader_phone' => $team->leader_phone,
-            'member1_name' => $team->member1_name,
-            'member1_nim' => $team->member1_nim,
-            'member1_email' => $team->member1_email,
-            'member1_phone' => $team->member1_phone,
-            'member2_name' => $team->member2_name,
-            'member2_nim' => $team->member2_nim,
-            'member2_email' => $team->member2_email,
-            'member2_phone' => $team->member2_phone,
-            'member3_name' => $team->member3_name,
-            'member3_nim' => $team->member3_nim,
-            'member3_email' => $team->member3_email,
-            'member3_phone' => $team->member3_phone,
-            'link_berkas' => $team->link_berkas,
-            'status' => $team->status,
-            'admin_notes' => $team->admin_notes,
-           'registered_at' => $team->registered_at ? Carbon::parse($team->registered_at)->format('Y-m-d H:i') : null,
-            'reviewed_at' => $team->reviewed_at ? Carbon::parse($team->reviewed_at)->format('Y-m-d H:i') : null,
-        ];
-    }
+   private function formatTeamData(TeamRegistration $team): array
+{
+    return [
+        'id' => $team->id,
+        'tim_name' => $team->tim_name,
+        'registration_number' => $team->registration_number,
+        'asal_universitas' => $team->asal_universitas,
+        'prodi_fakultas' => $team->prodi_fakultas,
+        'competition_category' => $team->competitionCategory?->name,
+        'leader_name' => $team->leader_name,
+        'leader_nim' => $team->leader_nim,
+        'leader_email' => $team->leader_email,
+        'leader_phone' => $team->leader_phone,
+        'leader_univ' => $team->leader_univ,
+        'leader_fakultas' => $team->leader_fakultas,
+        'member1_name' => $team->member1_name,
+        'member1_nim' => $team->member1_nim,
+        'member1_email' => $team->member1_email,
+        'member1_phone' => $team->member1_phone,
+        'member1_univ' => $team->member1_univ,
+        'member1_fakultas' => $team->member1_fakultas,
+        'member2_name' => $team->member2_name,
+        'member2_nim' => $team->member2_nim,
+        'member2_email' => $team->member2_email,
+        'member2_phone' => $team->member2_phone,
+        'member2_univ' => $team->member2_univ,
+        'member2_fakultas' => $team->member2_fakultas,
+        'member3_name' => $team->member3_name,
+        'member3_nim' => $team->member3_nim,
+        'member3_email' => $team->member3_email,
+        'member3_phone' => $team->member3_phone,
+        'member3_univ' => $team->member3_univ,
+        'member3_fakultas' => $team->member3_fakultas,
+        'link_berkas' => $team->link_berkas,
+        'status' => $team->status,
+        'admin_notes' => $team->admin_notes,
+        'registered_at' => $team->registered_at ? Carbon::parse($team->registered_at)->format('Y-m-d H:i') : null,
+        'reviewed_at' => $team->reviewed_at ? Carbon::parse($team->reviewed_at)->format('Y-m-d H:i') : null,
+    ];
+}
 
    private function getStagesWithProgress(TeamRegistration $team): array
 {

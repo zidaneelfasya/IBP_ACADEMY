@@ -25,7 +25,7 @@ interface Props {
 
 export default function RegistrationSuccess({ category, registration }: Props) {
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("id-ID", {
+        return new Date(dateString).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
             month: "long",
@@ -38,7 +38,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
     return (
         <>
             <Head
-                title={`Pendaftaran Berhasil - ${category.name} - IBP Academy`}
+                title={`Registration Success - ${category.name} - IBP Academy`}
             />
             <div className="min-h-screen py-4 sm:py-8 bg-gradient-to-br from-green-50 via-ibp-white to-green-50">
                 <div className="container px-4 mx-auto sm:px-6 lg:px-8">
@@ -55,7 +55,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                 {/* Success Content */}
                                 <div className="relative text-center">
                                     {/* Success Icon */}
-                                    <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-white rounded-full sm:w-24 sm:h-24">
+                                    <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 sm:w-24 sm:h-24 bg-white rounded-full">
                                         <svg
                                             className="w-12 h-12 sm:w-16 sm:h-16 text-ibp-secondary"
                                             fill="none"
@@ -73,12 +73,12 @@ export default function RegistrationSuccess({ category, registration }: Props) {
 
                                     {/* Title */}
                                     <h1 className="mb-4 text-3xl font-bold text-white sm:text-4xl">
-                                        Pendaftaran Berhasil!
+                                        Registration Successful!
                                     </h1>
 
                                     <p className="mb-2 text-lg text-green-100 sm:text-xl">
-                                        Selamat! Tim Anda telah berhasil
-                                        terdaftar untuk
+                                        Congratulations! Your team has been
+                                        successfully registered for
                                     </p>
                                     <p className="text-xl font-semibold sm:text-2xl text-ibp-accent">
                                         {category.full_name || category.name}
@@ -91,28 +91,27 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                 {/* Registration Details */}
                                 <div className="mb-8">
                                     <h2 className="mb-6 text-2xl font-semibold text-ibp-primary">
-                                        Detail Pendaftaran
+                                        Registration Details
                                     </h2>
 
                                     <div className="grid gap-6 md:grid-cols-2">
                                         <div className="p-4 border rounded-lg bg-ibp-neutral/10 border-ibp-neutral">
                                             <h3 className="mb-3 text-lg font-medium text-ibp-primary">
-                                                Informasi Tim
+                                                Team Information
                                             </h3>
                                             <div className="space-y-2 text-sm">
                                                 <div>
                                                     <span className="font-medium text-ibp-black">
-                                                        ID Pendaftaran:
+                                                        Registration ID:
                                                     </span>
                                                     <span className="ml-2 font-mono text-ibp-secondary">
                                                         #
-                                                        {registration.registration_number
-                                                            .toString()}
+                                                        {registration.registration_number.toString()}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span className="font-medium text-ibp-black">
-                                                        Nama Tim:
+                                                        Team Name:
                                                     </span>
                                                     <span className="ml-2 text-ibp-black">
                                                         {registration.tim_name}
@@ -120,17 +119,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 </div>
                                                 <div>
                                                     <span className="font-medium text-ibp-black">
-                                                        Universitas:
-                                                    </span>
-                                                    <span className="ml-2 text-ibp-black">
-                                                        {
-                                                            registration.asal_universitas
-                                                        }
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span className="font-medium text-ibp-black">
-                                                        Ketua Tim:
+                                                        Team Leader:
                                                     </span>
                                                     <span className="ml-2 text-ibp-black">
                                                         {
@@ -143,12 +132,12 @@ export default function RegistrationSuccess({ category, registration }: Props) {
 
                                         <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
                                             <h3 className="mb-3 text-lg font-medium text-blue-800">
-                                                Waktu Pendaftaran
+                                                Registration Time
                                             </h3>
                                             <div className="space-y-2 text-sm">
                                                 <div>
                                                     <span className="font-medium text-blue-700">
-                                                        Tanggal & Waktu:
+                                                        Date & Time:
                                                     </span>
                                                     <span className="ml-2 text-blue-800">
                                                         {formatDate(
@@ -158,7 +147,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 </div>
                                                 <div>
                                                     <span className="font-medium text-blue-700">
-                                                        Email Konfirmasi:
+                                                        Confirmation Email:
                                                     </span>
                                                     <span className="ml-2 text-blue-800">
                                                         {
@@ -174,7 +163,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                 {/* Next Steps */}
                                 <div className="mb-8">
                                     <h2 className="mb-4 text-2xl font-semibold text-ibp-primary">
-                                        Langkah Selanjutnya
+                                        Next Steps
                                     </h2>
 
                                     <div className="p-6 border-l-4 rounded-lg bg-ibp-accent/10 border-ibp-accent">
@@ -187,13 +176,13 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 </div>
                                                 <div>
                                                     <h4 className="font-semibold text-ibp-primary">
-                                                        Konfirmasi Email
+                                                        Check Your Dashboard
                                                     </h4>
                                                     <p className="text-sm text-ibp-black/70">
-                                                        Cek email Anda untuk
-                                                        konfirmasi pendaftaran
-                                                        dan informasi lebih
-                                                        lanjut.
+                                                        Your registration status
+                                                        will be updated on your
+                                                        dashboard once approved
+                                                        by the admin team.
                                                     </p>
                                                 </div>
                                             </div>
@@ -206,13 +195,13 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 </div>
                                                 <div>
                                                     <h4 className="font-semibold text-ibp-primary">
-                                                        Pantau Pengumuman
+                                                        Follow Announcements
                                                     </h4>
                                                     <p className="text-sm text-ibp-black/70">
-                                                        Ikuti media sosial IBP
-                                                        Academy untuk update
-                                                        terbaru mengenai
-                                                        kompetisi.
+                                                        Follow IBP Academy's
+                                                        social media for the
+                                                        latest competition
+                                                        updates.
                                                     </p>
                                                 </div>
                                             </div>
@@ -225,13 +214,12 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 </div>
                                                 <div>
                                                     <h4 className="font-semibold text-ibp-primary">
-                                                        Persiapan Kompetisi
+                                                        Competition Preparation
                                                     </h4>
                                                     <p className="text-sm text-ibp-black/70">
-                                                        Mulai persiapkan
-                                                        proposal dan materi
-                                                        presentasi untuk
-                                                        kompetisi.
+                                                        Start preparing your
+                                                        presentation materials
+                                                        for the competition.
                                                     </p>
                                                 </div>
                                             </div>
@@ -242,13 +230,13 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                 {/* Contact Information */}
                                 <div className="mb-8">
                                     <h2 className="mb-4 text-2xl font-semibold text-ibp-primary">
-                                        Informasi Kontak
+                                        Contact Information
                                     </h2>
 
                                     <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
                                         <p className="mb-2 text-sm text-gray-700">
-                                            Jika ada pertanyaan atau kendala,
-                                            silakan hubungi tim panitia:
+                                            If you have any questions or issues,
+                                            please contact our team:
                                         </p>
                                         <div className="space-y-1 text-sm">
                                             <div>
@@ -266,7 +254,6 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 <span className="ml-2">
                                                     +62 813-3338-4548
                                                 </span>
-                                                
                                             </div>
                                         </div>
                                     </div>
@@ -275,8 +262,28 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                 {/* Action Buttons */}
                                 <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                                     <Link
-                                        href="/"
+                                        href="/user/dashboard"
                                         className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium transition-all duration-200 border border-transparent rounded-lg shadow-sm text-ibp-white bg-ibp-primary hover:bg-ibp-primary/90 focus:outline-none focus:ring-2 focus:ring-ibp-primary focus:ring-offset-2"
+                                    >
+                                        <svg
+                                            className="w-4 h-4 mr-2"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                            />
+                                        </svg>
+                                        Go to Dashboard
+                                    </Link>
+
+                                    <Link
+                                        href="/"
+                                        className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium transition-all duration-200 border border-transparent rounded-lg shadow-sm text-ibp-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                     >
                                         <svg
                                             className="w-4 h-4 mr-2"
@@ -291,7 +298,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                                             />
                                         </svg>
-                                        Kembali ke Beranda
+                                        Back to Home
                                     </Link>
 
                                     <button
@@ -311,7 +318,7 @@ export default function RegistrationSuccess({ category, registration }: Props) {
                                                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                                             />
                                         </svg>
-                                        Cetak Bukti Pendaftaran
+                                        Print Registration Proof
                                     </button>
                                 </div>
                             </div>

@@ -19,32 +19,30 @@ return new class extends Migration
 
             // Team Information
             $table->string('tim_name', 100);
-            $table->string('asal_universitas', 200);
-            $table->string('prodi_fakultas', 200);
 
             // Leader Information
             $table->string('leader_name', 100);
             $table->string('leader_nim', 20);
             $table->string('leader_email', 100);
             $table->string('leader_phone', 15);
+            $table->string('leader_univ', 200);
+            $table->string('leader_fakultas', 200); // Added leader faculty/department
 
             // Member 1 Information
             $table->string('member1_name', 100);
             $table->string('member1_nim', 20);
             $table->string('member1_email', 100);
             $table->string('member1_phone', 15);
+            $table->string('member1_univ', 200);
+            $table->string('member1_fakultas', 200); // Added member1 faculty/department
 
             // Member 2 Information
             $table->string('member2_name', 100);
             $table->string('member2_nim', 20);
             $table->string('member2_email', 100);
             $table->string('member2_phone', 15);
-
-            // Member 3 Information
-            $table->string('member3_name', 100);
-            $table->string('member3_nim', 20);
-            $table->string('member3_email', 100);
-            $table->string('member3_phone', 15);
+            $table->string('member2_univ', 200);
+            $table->string('member2_fakultas', 200); // Added member2 faculty/department
 
             // Documents
             $table->string('link_berkas', 500);
@@ -75,8 +73,6 @@ return new class extends Migration
             $table->unique(['member1_email', 'competition_category_id']);
             $table->unique(['member2_nim', 'competition_category_id']);
             $table->unique(['member2_email', 'competition_category_id']);
-            $table->unique(['member3_nim', 'competition_category_id']);
-            $table->unique(['member3_email', 'competition_category_id']);
         });
     }
 
