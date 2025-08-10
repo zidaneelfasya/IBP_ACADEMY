@@ -963,6 +963,17 @@ export default function BCCRegistration({
                                     • Combine multiple files into a single
                                     folder if needed
                                 </li>
+                                <li>
+                                    • For Twibbon Caption, please visit:{" "}
+                                    <a
+                                        href="https://drive.google.com/drive/folders/1wWSodQS0hQNavsq-s4RO3slQS-kA_E0u?usp=drive_link"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 underline hover:text-blue-800 transition-colors"
+                                    >
+                                        View Caption
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
