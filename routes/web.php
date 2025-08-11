@@ -85,7 +85,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::put('/teams/{team}/reject', [TeamRegistrationController::class, 'updateStatusReject'])
             ->name('team.update-status-reject');
         Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
-        
+
         Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])-> name('progress.approve');
         Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
 
@@ -195,7 +195,7 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->name('dashboard.user');
     Route::get('/dashboard', [DashboardUserController::class, 'index'])
         ->name('dashboard.user.dashboard');
-    Route::get('/tugas', fn() => Inertia::render('User/Maintenance'))->name('dashboard.user.tugas');
+    Route::get('/assignments', fn() => Inertia::render('User/Maintenance'))->name('dashboard.user.tugas');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
     Route::get('/course', fn() => Inertia::render('User/Course'))->name('dashboard.user.course');

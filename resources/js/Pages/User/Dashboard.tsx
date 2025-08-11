@@ -22,6 +22,15 @@ interface CompetitionStage {
     is_urgent: boolean;
     status?: string;
 }
+interface Assignment {
+    id: number;
+    competition_stage_id: number;
+    title: string;
+    description: string;
+    instructions: string;
+    deadline: string;
+    is_active: boolean;
+}
 
 interface ParticipantProgress {
     id: number;
@@ -63,7 +72,25 @@ interface DashboardProps {
             bcc: string;
         }
     >;
+    assignments: Assignment[];
 }
+const calculateTimeRemaining = (deadline: string) => {
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    const difference = deadlineDate.getTime() - now.getTime();
+
+    if (difference <= 0) {
+        return { expired: true };
+    }
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+        (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+
+    return { days, hours, minutes, expired: false };
+};
 
 export default function Dashboard({
     stages,
@@ -71,6 +98,7 @@ export default function Dashboard({
     team,
     urgentSubmissions,
     whatsapp_groups,
+    assignments = [], // Tambahkan ini
 }: DashboardProps) {
     const [dismissedRejections, setDismissedRejections] = useState<number[]>(
         []
@@ -102,6 +130,22 @@ export default function Dashboard({
         100,
         Math.max(0, (approvedStages.length / stages.length) * 100)
     );
+
+    // Get current assignment
+    const currentAssignment = assignments.find(
+        (assignment) =>
+            assignment.competition_stage_id === team.current_stage_id &&
+            assignment.is_active
+    );
+
+    // Check if assignment is urgent (within 3 days)
+    const isAssignmentUrgent = () => {
+        if (!currentAssignment) return false;
+        const timeRemaining = calculateTimeRemaining(
+            currentAssignment.deadline
+        );
+        return !timeRemaining.expired && (timeRemaining.days || 0) <= 3;
+    };
 
     // Status icon component with rejection state
     const StatusIcon = ({
@@ -201,7 +245,41 @@ export default function Dashboard({
                             )
                     )}
 
-                    {/* Approval Notification Banners - Single version */}
+                    {/* Assignment Deadline Alert */}
+                    {currentAssignment && isAssignmentUrgent() && (
+                        <div className="mb-6 bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                            <div className="flex items-start">
+                                <Bell className="h-5 w-5 text-orange-500 mr-3 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-orange-800">
+                                        Assignment Deadline Approaching!
+                                    </h3>
+                                    <p className="text-orange-700 mt-1">
+                                        {currentAssignment.title} - Due in{" "}
+                                        {
+                                            calculateTimeRemaining(
+                                                currentAssignment.deadline
+                                            ).days
+                                        }{" "}
+                                        days,{" "}
+                                        {
+                                            calculateTimeRemaining(
+                                                currentAssignment.deadline
+                                            ).hours
+                                        }{" "}
+                                        hours,{" "}
+                                        {
+                                            calculateTimeRemaining(
+                                                currentAssignment.deadline
+                                            ).minutes
+                                        }{" "}
+                                        minutes
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Approval Notification Banners */}
                     {Object.entries(team.approved_stages || {}).map(
                         ([stageId, stageInfo]) =>
@@ -277,6 +355,7 @@ export default function Dashboard({
                                 </div>
                             )
                     )}
+
                     {/* Header Section */}
                     <header className="mb-8">
                         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -450,25 +529,8 @@ export default function Dashboard({
                             </div>
                         </div>
 
-                        {/* Requirements Card */}
-                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2 relative">
-                            {/* Overlay */}
-                            <div className="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-10 p-4">
-                                <div className="text-center">
-                                    <XCircle className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                                    <h3 className="text-lg font-medium text-gray-700 mb-1">
-                                        Feature Coming Soon
-                                    </h3>
-                                    <p className="text-gray-500 text-sm mb-4">
-                                        Submission Requirements feature is
-                                        currently not available.
-                                    </p>
-                                    <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
-
+                        {/* Requirements Card - Updated */}
+                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
                             <div className="p-5">
                                 <div className="flex items-center mb-4">
                                     <div className="bg-green-100 p-2 rounded-lg mr-3">
@@ -479,12 +541,107 @@ export default function Dashboard({
                                     </h2>
                                 </div>
 
-                                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 text-center">
-                                    <p className="text-gray-500">
-                                        Requirements will be available when the
-                                        submission period begins.
-                                    </p>
-                                </div>
+                                {currentAssignment ? (
+                                    <div>
+                                        <div className="mb-4">
+                                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                {currentAssignment.title}
+                                            </h3>
+                                            <p className="text-gray-600 mb-2">
+                                                {currentAssignment.description}
+                                            </p>
+                                            <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                                                <h4 className="font-medium text-gray-900 mb-1">
+                                                    Instructions:
+                                                </h4>
+                                                <p className="text-sm text-gray-600 whitespace-pre-line">
+                                                    {
+                                                        currentAssignment.instructions
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">
+                                                        Deadline:
+                                                    </p>
+                                                    <p className="text-sm text-gray-600">
+                                                        {new Date(
+                                                            currentAssignment.deadline
+                                                        ).toLocaleDateString(
+                                                            "en-US",
+                                                            {
+                                                                weekday: "long",
+                                                                year: "numeric",
+                                                                month: "long",
+                                                                day: "numeric",
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                            }
+                                                        )}
+                                                    </p>
+                                                    <p className="text-sm font-medium text-orange-600 mt-1">
+                                                        {(() => {
+                                                            const time =
+                                                                calculateTimeRemaining(
+                                                                    currentAssignment.deadline
+                                                                );
+                                                            return time.expired
+                                                                ? "Assignment has expired"
+                                                                : `${time.days}d ${time.hours}h ${time.minutes}m remaining`;
+                                                        })()}
+                                                    </p>
+                                                </div>
+                                                <a
+                                                    href="/user/assignments"
+                                                    className="
+        inline-flex items-center justify-center
+        gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
+        text-sm font-semibold leading-none
+        text-white
+        bg-gradient-to-r from-blue-600 to-indigo-600
+        rounded-xl shadow-md
+        hover:from-blue-700 hover:to-indigo-700
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+        transition-all duration-200 ease-in-out
+        transform hover:-translate-y-0.5 hover:shadow-lg
+        active:scale-95
+        w-full max-w-[240px] sm:w-auto
+    "
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-4 w-4 sm:h-5 sm:w-5"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M9 5l7 7-7 7"
+                                                        />
+                                                    </svg>
+                                                    <span className="hidden xs:inline">
+                                                        Go to Assignment
+                                                    </span>
+                                                    <span className="xs:hidden">
+                                                        Assignment
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 text-center">
+                                        <ClipboardList className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                        <p className="text-gray-500">
+                                            Submission requirements are not yet
+                                            available for this stage.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
