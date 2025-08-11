@@ -144,7 +144,7 @@ class AssignmentController extends Controller
             })->count(),
         ];
 
-        return Inertia::render('Admin/Assignments/Show', [
+        return Inertia::render('Admin/Assignment/Show', [
             'assignment' => $assignment,
             'submissionStats' => $submissionStats
         ]);
@@ -157,7 +157,7 @@ class AssignmentController extends Controller
     {
         $stages = CompetitionStage::orderBy('order')->get();
 
-        return Inertia::render('Admin/Assignments/Edit', [
+        return Inertia::render('admin/Assignment/Edit', [
             'assignment' => $assignment,
             'stages' => $stages
         ]);
