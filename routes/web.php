@@ -1,24 +1,27 @@
 <?php
 
-use App\Http\Controllers\AllParticipantController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\FinalParticipantController;
-use App\Http\Controllers\PreliminaryParticipantController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SemifinalParticipantController;
-use App\Http\Controllers\TeamRegistrationController;
-use App\Http\Controllers\BPCRegistrationController;
-use App\Http\Controllers\BCCRegistrationController;
-use App\Http\Controllers\CompetitionController;
-use App\Http\Controllers\SimpleBPCController;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use App\Http\Controllers\Admin\ParticipantProgressController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SimpleBPCController;
+use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\DashboardUserController;
+use App\Http\Controllers\AllParticipantController;
+use App\Http\Controllers\BCCRegistrationController;
+use App\Http\Controllers\BPCRegistrationController;
+use App\Http\Controllers\FinalParticipantController;
+use App\Http\Controllers\TeamRegistrationController;
 use App\Http\Controllers\ParticipantProfileController;
+use App\Http\Controllers\SemifinalParticipantController;
+use App\Http\Controllers\PreliminaryParticipantController;
+use App\Http\Controllers\Admin\ParticipantProgressController;
+use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
+use App\Http\Controllers\Admin\AssignmentSubmissionController;
+use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -211,6 +214,55 @@ Route::fallback(function () {
     ]);
 });
 
+
+//route assignment
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Assignment Management - Individual CRUD Routes
+    Route::get('assignments', [AdminAssignmentController::class, 'index'])
+        ->name('assignments.index');
+    Route::get('assignments/create', [AdminAssignmentController::class, 'create'])
+        ->name('assignments.create');
+    Route::post('assignments', [AdminAssignmentController::class, 'store'])
+        ->name('assignments.store');
+    Route::get('assignments/{assignment}', [AdminAssignmentController::class, 'show'])
+        ->name('assignments.show');
+    Route::get('assignments/{assignment}/edit', [AdminAssignmentController::class, 'edit'])
+        ->name('assignments.edit');
+    Route::put('assignments/{assignment}', [AdminAssignmentController::class, 'update'])
+        ->name('assignments.update');
+    Route::delete('assignments/{assignment}', [AdminAssignmentController::class, 'destroy'])
+        ->name('assignments.destroy');
+    Route::patch('assignments/{assignment}/toggle-status', [AdminAssignmentController::class, 'toggleStatus'])
+        ->name('assignments.toggle-status');
+    Route::get('assignments-by-stage', [AdminAssignmentController::class, 'getByStage'])
+        ->name('assignments.by-stage');
+
+    // Assignment Submissions
+    Route::prefix('assignments/{assignment}')->name('assignments.')->group(function () {
+        Route::get('submissions', [AssignmentSubmissionController::class, 'index'])
+            ->name('submissions.index');
+        Route::get('submissions/{submission}', [AssignmentSubmissionController::class, 'show'])
+            ->name('submissions.show');
+        Route::patch('submissions/{submission}/grade', [AssignmentSubmissionController::class, 'grade'])
+            ->name('submissions.grade');
+        Route::post('submissions/bulk-grade', [AssignmentSubmissionController::class, 'bulkGrade'])
+            ->name('submissions.bulk-grade');
+        Route::get('submissions/export', [AssignmentSubmissionController::class, 'export'])
+            ->name('submissions.export');
+    });
+});
+
+// Participant Routes for Assignments
+Route::middleware(['auth', 'verified'])->prefix('participant')->name('participant.')->group(function () {
+    Route::get('assignments', [ParticipantAssignmentController::class, 'index'])
+        ->name('assignments.index');
+    Route::get('assignments/{assignment}', [ParticipantAssignmentController::class, 'show'])
+        ->name('assignments.show');
+    Route::post('assignments/{assignment}/submit', [ParticipantAssignmentController::class, 'submit'])
+        ->name('assignments.submit');
+    Route::get('assignments/{assignment}/submission', [ParticipantAssignmentController::class, 'submission'])
+        ->name('assignments.submission');
+});
 
 
 
