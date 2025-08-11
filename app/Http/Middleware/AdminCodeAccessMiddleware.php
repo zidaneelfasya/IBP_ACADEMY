@@ -23,7 +23,7 @@ class AdminCodeAccessMiddleware
 
             // Kirim email kode
             Mail::raw("Kode akses untuk halaman register admin: {$code}", function ($message) {
-                $message->to('elfasyazidan99@gmail.com')
+                $message->to('industrialbusinessproject@gmail.com')
                         ->subject('Kode Akses Registrasi Admin');
             });
         }
