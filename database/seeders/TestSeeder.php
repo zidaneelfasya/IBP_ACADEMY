@@ -20,7 +20,7 @@ class TestSeeder extends Seeder
 
           CompetitionStage::insert([
             [
-                'name' => 'Registrasi Awal',
+                'name' => 'Registration',
                 'order' => 1,
                 'start_date' => Carbon::create(2025, 8, 8, 0, 0, 0),
                 'end_date' => Carbon::create(2025, 8, 21, 23, 59, 59),

@@ -19,6 +19,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'user' => \App\Http\Middleware\UserMiddleware::class,
         'admin.code.access' => \App\Http\Middleware\AdminCodeAccessMiddleware::class,
+        'no-registration' => \App\Http\Middleware\CheckTeamRegistration::class,
     ];
     protected $middleware = [
 

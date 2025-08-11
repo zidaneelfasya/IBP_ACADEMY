@@ -2,46 +2,57 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class TeamRegistration extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'user_id',
         'competition_category_id',
         'registration_number',
         'tim_name',
-        'asal_universitas',
-        'prodi_fakultas',
         'leader_name',
         'leader_nim',
         'leader_email',
         'leader_phone',
+        'leader_univ',
+        'leader_fakultas',
         'member1_name',
         'member1_nim',
         'member1_email',
         'member1_phone',
+        'member1_univ',
+        'member1_fakultas',
         'member2_name',
         'member2_nim',
         'member2_email',
         'member2_phone',
-        'member3_name',
-        'member3_nim',
-        'member3_email',
-        'member3_phone',
+        'member2_univ',
+        'member2_fakultas',
         'link_berkas',
         'status',
         'admin_notes',
         'reviewed_by',
         'reviewed_at',
         'registered_at',
-        'cancelled_at',
+        'cancelled_at'
     ];
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->uuid = Str::uuid();
+        });
+    }
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

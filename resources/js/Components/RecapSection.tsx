@@ -7,6 +7,7 @@ import {
     Award,
     Target,
     Lightbulb,
+    Link,
 } from "lucide-react";
 
 const RecapSection = () => {
@@ -212,12 +213,15 @@ const RecapSection = () => {
                                         make a positive impact on society.
                                     </p>
                                     <div className="text-center">
-                                        <button className="relative px-6 py-2 text-sm font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg sm:px-8 sm:py-3 sm:text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg">
+                                        <a
+                                            href="/business-plan-competition"
+                                            className="relative px-6 py-2 text-sm font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg sm:px-8 sm:py-3 sm:text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg inline-block"
+                                        >
                                             <span className="relative z-10">
                                                 More Information
                                             </span>
                                             <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:opacity-20" />
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -239,12 +243,15 @@ const RecapSection = () => {
                                         analytical approach.
                                     </p>
                                     <div className="text-center">
-                                        <button className="relative px-6 py-2 text-sm font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg sm:px-8 sm:py-3 sm:text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg">
+                                        <a
+                                            href="/business-case-competition"
+                                            className="relative px-6 py-2 text-sm font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg sm:px-8 sm:py-3 sm:text-base group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105 lg:text-lg inline-block"
+                                        >
                                             <span className="relative z-10">
                                                 More Information
                                             </span>
                                             <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:opacity-20" />
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

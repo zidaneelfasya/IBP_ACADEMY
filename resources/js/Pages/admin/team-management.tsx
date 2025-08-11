@@ -36,6 +36,16 @@ import {
     DialogTitle,
 } from "@/Components/ui/dialog";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
+import {
     Select,
     SelectContent,
     SelectItem,
@@ -58,7 +68,7 @@ import {
     Trophy,
 } from "lucide-react";
 import { router, Link } from "@inertiajs/react";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 
 interface TeamRegistration {
     id: number;
@@ -124,16 +134,26 @@ interface TeamManagementProps {
 
 const getLatestStatus = (team: TeamRegistration) => {
     if (!team.progress || team.progress.length === 0) {
-        return { status: 'not_started', stage: 'Not Started' };
+        return { status: "not_started", stage: "Not Started" };
     }
-    
-    const sortedProgress = [...team.progress].sort((a, b) => b.stage.order - a.stage.order);
+
+    const sortedProgress = [...team.progress].sort(
+        (a, b) => b.stage.order - a.stage.order
+    );
     const latestProgress = sortedProgress[0];
-    
+
     return {
         status: latestProgress.status,
-        stage: latestProgress.stage.name
+        stage: latestProgress.stage.name,
     };
+};
+const isTeamApproved = (team: TeamRegistration): boolean => {
+    if (!team.progress || team.progress.length === 0) return false;
+
+    const latestProgress = [...team.progress].sort(
+        (a, b) => b.stage.order - a.stage.order
+    )[0];
+    return latestProgress.status === "approved";
 };
 
 const getStatusBadge = (
@@ -179,7 +199,14 @@ export default function TeamManagement({
     stats,
     categories,
 }: TeamManagementProps) {
-    const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(null);
+    const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(
+        null
+    );
+    const [confirmAction, setConfirmAction] = useState<{
+        type: "approve" | "reject" | null;
+        teamId: number | null;
+        teamName: string | null;
+    }>({ type: null, teamId: null, teamName: null });
     const [filters, setFilters] = useState({
         search: initialFilters.search || "",
         progress_status: initialFilters.progress_status || "all",
@@ -200,8 +227,42 @@ export default function TeamManagement({
         );
     };
 
+    const isTeamApproved = (team: TeamRegistration): boolean => {
+        if (!team.progress || team.progress.length === 0) return false;
+
+        const latestProgress = [...team.progress].sort(
+            (a, b) => b.stage.order - a.stage.order
+        )[0];
+        return latestProgress.status === "approved";
+    };
+
     const handleViewTeam = (team: TeamRegistration) => {
         setSelectedTeam(team);
+    };
+
+    const confirmStatusChange = (
+        teamId: number,
+        action: "approve" | "reject",
+        teamName: string
+    ) => {
+        setConfirmAction({ type: action, teamId, teamName });
+    };
+
+    const executeStatusChange = async () => {
+        if (!confirmAction.teamId || !confirmAction.type) return;
+
+        try {
+            if (confirmAction.type === "approve") {
+                await handleStatusChange(confirmAction.teamId, "approved");
+            } else {
+                await handleStatusChangeReject(
+                    confirmAction.teamId,
+                    "rejected"
+                );
+            }
+        } finally {
+            setConfirmAction({ type: null, teamId: null, teamName: null });
+        }
     };
 
     const handleStatusChange = async (teamId: number, newStatus: string) => {
@@ -213,7 +274,7 @@ export default function TeamManagement({
                     onSuccess: () => {
                         toast.success(`Status tim berhasil diubah`);
                         setSelectedTeam(null);
-                        router.reload({ only: ['teams'] });
+                        router.reload({ only: ["teams"] });
                     },
                     onError: (errors) => {
                         toast.error("Gagal mengubah status tim");
@@ -227,7 +288,10 @@ export default function TeamManagement({
         }
     };
 
-        const handleStatusChangeReject = async (teamId: number, newStatus: string) => {
+    const handleStatusChangeReject = async (
+        teamId: number,
+        newStatus: string
+    ) => {
         try {
             await router.put(
                 route("team.update-status-reject", teamId),
@@ -236,7 +300,7 @@ export default function TeamManagement({
                     onSuccess: () => {
                         toast.success(`Status tim berhasil diubah`);
                         setSelectedTeam(null);
-                        router.reload({ only: ['teams'] });
+                        router.reload({ only: ["teams"] });
                     },
                     onError: (errors) => {
                         toast.error("Gagal mengubah status tim");
@@ -273,13 +337,15 @@ export default function TeamManagement({
                             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9"
                         >
                             <Download className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Export Data</span>
+                            <span className="hidden sm:inline">
+                                Export Data
+                            </span>
                             <span className="sm:hidden">Export</span>
                         </a>
                     </div>
                 </div>
-
                 {/* Stats Cards */}
+                
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {[
                         {
@@ -290,30 +356,54 @@ export default function TeamManagement({
                         },
                         {
                             title: "Approved",
-                            value: stats.approved,
+                            value: initialTeams.data.filter(isTeamApproved)
+                                .length,
                             icon: null,
                             description: "Tim disetujui",
                             variant: "default",
                             color: "text-green-600",
                         },
                         {
-                            title: "Pending",
-                            value: stats.pending,
+                            title: "Pending Review",
+                            value: initialTeams.data.filter((team) => {
+                                if (
+                                    !team.progress ||
+                                    team.progress.length === 0
+                                )
+                                    return false;
+                                const latest = [...team.progress].sort(
+                                    (a, b) => b.stage.order - a.stage.order
+                                )[0];
+                                return latest.status === "submitted";
+                            }).length,
                             icon: null,
                             description: "Menunggu review",
                             variant: "secondary",
                             color: "text-yellow-600",
                         },
                         {
-                            title: "Not Started",
-                            value: stats.not_started,
+                            title: "In Progress",
+                            value: initialTeams.data.filter((team) => {
+                                if (
+                                    !team.progress ||
+                                    team.progress.length === 0
+                                )
+                                    return true;
+                                const latest = [...team.progress].sort(
+                                    (a, b) => b.stage.order - a.stage.order
+                                )[0];
+                                return latest.status === "in_progress";
+                            }).length,
                             icon: null,
-                            description: "Belum memulai",
+                            description: "Sedang berjalan",
                             variant: "outline",
-                            color: "text-gray-600",
+                            color: "text-blue-600",
                         },
                     ].map((stat, index) => (
-                        <Card key={index} className="hover:shadow-md transition-shadow">
+                        <Card
+                            key={index}
+                            className="hover:shadow-md transition-shadow"
+                        >
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">
                                     {stat.title}
@@ -322,13 +412,19 @@ export default function TeamManagement({
                                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                                 ) : (
                                     <Badge
-                                        variant={stat.variant as BadgeProps["variant"]}
+                                        variant={
+                                            stat.variant as BadgeProps["variant"]
+                                        }
                                         className="h-4 w-4 p-0"
                                     />
                                 )}
                             </CardHeader>
                             <CardContent>
-                                <div className={`text-xl font-bold sm:text-2xl ${stat.color || ""}`}>
+                                <div
+                                    className={`text-xl font-bold sm:text-2xl ${
+                                        stat.color || ""
+                                    }`}
+                                >
                                     {stat.value}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
@@ -338,7 +434,6 @@ export default function TeamManagement({
                         </Card>
                     ))}
                 </div>
-
                 {/* Filters */}
                 <Card className="shadow-sm">
                     <CardHeader className="p-4 sm:p-6">
@@ -346,7 +441,8 @@ export default function TeamManagement({
                             Filter & Search
                         </CardTitle>
                         <CardDescription className="text-sm">
-                            Cari dan filter data tim berdasarkan kriteria tertentu
+                            Cari dan filter data tim berdasarkan kriteria
+                            tertentu
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="p-4 sm:p-6">
@@ -357,40 +453,66 @@ export default function TeamManagement({
                                     <Input
                                         placeholder="Cari nama leader, NIM, atau email..."
                                         value={filters.search}
-                                        onChange={(e) => handleFilterChange("search", e.target.value)}
+                                        onChange={(e) =>
+                                            handleFilterChange(
+                                                "search",
+                                                e.target.value
+                                            )
+                                        }
                                         className="pl-10 text-sm sm:text-base"
                                     />
                                 </div>
                             </div>
                             <Select
                                 value={filters.progress_status}
-                                onValueChange={(value) => handleFilterChange("progress_status", value)}
+                                onValueChange={(value) =>
+                                    handleFilterChange("progress_status", value)
+                                }
                             >
                                 <SelectTrigger className="w-full sm:w-[180px]">
                                     <Filter className="mr-2 h-4 w-4" />
                                     <SelectValue placeholder="Status Progress" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Semua Status</SelectItem>
-                                    <SelectItem value="not_started">Not Started</SelectItem>
-                                    <SelectItem value="submitted">Pending Review</SelectItem>
-                                    <SelectItem value="approved">Approved</SelectItem>
-                                    <SelectItem value="rejected">Rejected</SelectItem>
-                                    <SelectItem value="in_progress">In Progress</SelectItem>
+                                    <SelectItem value="all">
+                                        Semua Status
+                                    </SelectItem>
+                                    <SelectItem value="not_started">
+                                        Not Started
+                                    </SelectItem>
+                                    <SelectItem value="submitted">
+                                        Pending Review
+                                    </SelectItem>
+                                    <SelectItem value="approved">
+                                        Approved
+                                    </SelectItem>
+                                    <SelectItem value="rejected">
+                                        Rejected
+                                    </SelectItem>
+                                    <SelectItem value="in_progress">
+                                        In Progress
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                             <Select
                                 value={filters.category}
-                                onValueChange={(value) => handleFilterChange("category", value)}
+                                onValueChange={(value) =>
+                                    handleFilterChange("category", value)
+                                }
                             >
                                 <SelectTrigger className="w-full sm:w-[180px]">
                                     <Trophy className="mr-2 h-4 w-4" />
                                     <SelectValue placeholder="Kategori Lomba" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Semua Kategori</SelectItem>
+                                    <SelectItem value="all">
+                                        Semua Kategori
+                                    </SelectItem>
                                     {categories.map((category) => (
-                                        <SelectItem key={category} value={category}>
+                                        <SelectItem
+                                            key={category}
+                                            value={category}
+                                        >
                                             {category}
                                         </SelectItem>
                                     ))}
@@ -399,7 +521,6 @@ export default function TeamManagement({
                         </div>
                     </CardContent>
                 </Card>
-
                 {/* Teams Table */}
                 <Card>
                     <CardHeader className="p-4 sm:p-6">
@@ -440,12 +561,17 @@ export default function TeamManagement({
                                 </TableHeader>
                                 <TableBody>
                                     {initialTeams.data.map((team) => {
-                                        const latestStatus = getLatestStatus(team);
-                                        const statusBadge = getStatusBadge(latestStatus.status);
-                                        const memberCount = getMemberCount(team);
-                                        const currentStage = team.progress?.length > 0 
-                                            ? team.progress[0].stage.name 
-                                            : 'Not Started';
+                                        const latestStatus =
+                                            getLatestStatus(team);
+                                        const statusBadge = getStatusBadge(
+                                            latestStatus.status
+                                        );
+                                        const memberCount =
+                                            getMemberCount(team);
+                                        const currentStage =
+                                            team.progress?.length > 0
+                                                ? team.progress[0].stage.name
+                                                : "Not Started";
 
                                         return (
                                             <TableRow key={team.id}>
@@ -455,10 +581,13 @@ export default function TeamManagement({
                                                             {team.tim_name}
                                                         </div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {team.leader_name} • {team.leader_nim}
+                                                            {team.leader_name} •{" "}
+                                                            {team.leader_nim}
                                                         </div>
                                                         <div className="text-xs text-muted-foreground">
-                                                            {team.asal_universitas}
+                                                            {
+                                                                team.asal_universitas
+                                                            }
                                                         </div>
                                                     </div>
                                                 </TableCell>
@@ -466,35 +595,53 @@ export default function TeamManagement({
                                                     <div className="flex items-center gap-2">
                                                         <Users className="h-4 w-4 text-muted-foreground" />
                                                         <span className="text-sm">
-                                                            {memberCount} members
+                                                            {memberCount}{" "}
+                                                            members
                                                         </span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
-                                                    <Badge variant="outline" className="text-xs">
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-xs"
+                                                    >
                                                         <Trophy className="mr-1 h-3 w-3" />
-                                                        {team.competition_category?.name || 'Unknown'}
+                                                        {team
+                                                            .competition_category
+                                                            ?.name || "Unknown"}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
-                                                    <Badge variant="outline" className="text-xs">
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-xs"
+                                                    >
                                                         {latestStatus.stage}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
-                                                    <Badge variant={statusBadge.variant}>
+                                                    <Badge
+                                                        variant={
+                                                            statusBadge.variant
+                                                        }
+                                                    >
                                                         {statusBadge.label}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                         <Calendar className="h-3 w-3" />
-                                                        {formatDate(team.registered_at || team.created_at)}
+                                                        {formatDate(
+                                                            team.registered_at ||
+                                                                team.created_at
+                                                        )}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
+                                                        <DropdownMenuTrigger
+                                                            asChild
+                                                        >
                                                             <Button
                                                                 variant="ghost"
                                                                 className="h-8 w-8 p-0"
@@ -503,21 +650,44 @@ export default function TeamManagement({
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-40">
-                                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                            <DropdownMenuItem onClick={() => handleViewTeam(team)}>
+                                                        <DropdownMenuContent
+                                                            align="end"
+                                                            className="w-40"
+                                                        >
+                                                            <DropdownMenuLabel>
+                                                                Actions
+                                                            </DropdownMenuLabel>
+                                                            <DropdownMenuItem
+                                                                onClick={() =>
+                                                                    handleViewTeam(
+                                                                        team
+                                                                    )
+                                                                }
+                                                            >
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 View
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
-                                                                onClick={() => handleStatusChange(team.id, "approved")}
+                                                                onClick={() =>
+                                                                    confirmStatusChange(
+                                                                        team.id,
+                                                                        "approve",
+                                                                        team.tim_name
+                                                                    )
+                                                                }
                                                                 className="text-green-600"
                                                             >
                                                                 Approve
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
-                                                                onClick={() => handleStatusChangeReject(team.id, "rejected")}
+                                                                onClick={() =>
+                                                                    confirmStatusChange(
+                                                                        team.id,
+                                                                        "reject",
+                                                                        team.tim_name
+                                                                    )
+                                                                }
                                                                 className="text-red-600"
                                                             >
                                                                 Reject
@@ -525,7 +695,11 @@ export default function TeamManagement({
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
                                                                 className="text-red-600"
-                                                                onClick={() => handleDeleteTeam(team.id)}
+                                                                onClick={() =>
+                                                                    handleDeleteTeam(
+                                                                        team.id
+                                                                    )
+                                                                }
                                                             >
                                                                 <Trash2 className="mr-2 h-4 w-4" />
                                                                 Delete
@@ -544,27 +718,55 @@ export default function TeamManagement({
                         {initialTeams.links.length > 3 && (
                             <div className="flex flex-col items-center gap-3 mt-4 px-4 py-3 sm:flex-row sm:justify-between">
                                 <div className="text-sm text-muted-foreground">
-                                    Menampilkan {initialTeams.data.length} dari {stats.total} tim
+                                    Menampilkan {initialTeams.data.length} dari{" "}
+                                    {stats.total} tim
                                 </div>
                                 <div className="flex gap-1">
                                     {initialTeams.links.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={link.active ? "default" : "outline"}
+                                            variant={
+                                                link.active
+                                                    ? "default"
+                                                    : "outline"
+                                            }
                                             size="sm"
                                             disabled={!link.url}
-                                            onClick={() => router.get(link.url || "", {}, { preserveState: true })}
+                                            onClick={() =>
+                                                router.get(
+                                                    link.url || "",
+                                                    {},
+                                                    { preserveState: true }
+                                                )
+                                            }
                                             className={`
-                                                ${!link.url ? "opacity-50 cursor-not-allowed" : ""}
-                                                ${index !== 0 && index !== initialTeams.links.length - 1 ? "hidden sm:inline-flex" : ""}
+                                                ${
+                                                    !link.url
+                                                        ? "opacity-50 cursor-not-allowed"
+                                                        : ""
+                                                }
+                                                ${
+                                                    index !== 0 &&
+                                                    index !==
+                                                        initialTeams.links
+                                                            .length -
+                                                            1
+                                                        ? "hidden sm:inline-flex"
+                                                        : ""
+                                                }
                                             `}
                                         >
                                             {index === 0 ? (
                                                 <ChevronLeft className="h-4 w-4" />
-                                            ) : index === initialTeams.links.length - 1 ? (
+                                            ) : index ===
+                                              initialTeams.links.length - 1 ? (
                                                 <ChevronRight className="h-4 w-4" />
                                             ) : (
-                                                <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                <span
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: link.label,
+                                                    }}
+                                                />
                                             )}
                                         </Button>
                                     ))}
@@ -573,16 +775,19 @@ export default function TeamManagement({
                         )}
                     </CardContent>
                 </Card>
-
                 {/* Team Detail Dialog */}
-                <Dialog open={!!selectedTeam} onOpenChange={() => setSelectedTeam(null)}>
+                <Dialog
+                    open={!!selectedTeam}
+                    onOpenChange={() => setSelectedTeam(null)}
+                >
                     <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-full sm:max-w-2xl md:max-w-4xl">
                         <DialogHeader>
                             <DialogTitle className="text-lg sm:text-xl">
                                 Detail Tim - {selectedTeam?.tim_name}
                             </DialogTitle>
                             <DialogDescription className="text-sm">
-                                Informasi lengkap tentang tim dan progress mereka
+                                Informasi lengkap tentang tim dan progress
+                                mereka
                             </DialogDescription>
                         </DialogHeader>
 
@@ -599,7 +804,9 @@ export default function TeamManagement({
                                                 Nomor Registrasi
                                             </label>
                                             <p className="text-sm sm:text-base">
-                                                {selectedTeam.registration_number}
+                                                {
+                                                    selectedTeam.registration_number
+                                                }
                                             </p>
                                         </div>
                                         <div>
@@ -607,7 +814,9 @@ export default function TeamManagement({
                                                 Kategori Lomba
                                             </label>
                                             <p className="text-sm sm:text-base">
-                                                {selectedTeam.competition_category?.name || 'Unknown'}
+                                                {selectedTeam
+                                                    .competition_category
+                                                    ?.name || "Unknown"}
                                             </p>
                                         </div>
                                         <div>
@@ -741,37 +950,71 @@ export default function TeamManagement({
                                         Progress Lomba
                                     </h3>
                                     <div className="space-y-4">
-                                        {selectedTeam.progress && selectedTeam.progress.length > 0 ? (
+                                        {selectedTeam.progress &&
+                                        selectedTeam.progress.length > 0 ? (
                                             [...selectedTeam.progress]
-                                                .sort((a, b) => a.stage.order - b.stage.order)
+                                                .sort(
+                                                    (a, b) =>
+                                                        a.stage.order -
+                                                        b.stage.order
+                                                )
                                                 .map((progress) => (
-                                                    <div key={progress.id} className="flex gap-4">
+                                                    <div
+                                                        key={progress.id}
+                                                        className="flex gap-4"
+                                                    >
                                                         <div className="flex flex-col items-center">
-                                                            <div className={`h-4 w-4 rounded-full ${
-                                                                progress.status === 'approved' ? 'bg-green-500' :
-                                                                progress.status === 'submitted' ? 'bg-yellow-500' :
-                                                                progress.status === 'rejected' ? 'bg-red-500' :
-                                                                'bg-gray-300'
-                                                            }`} />
+                                                            <div
+                                                                className={`h-4 w-4 rounded-full ${
+                                                                    progress.status ===
+                                                                    "approved"
+                                                                        ? "bg-green-500"
+                                                                        : progress.status ===
+                                                                          "submitted"
+                                                                        ? "bg-yellow-500"
+                                                                        : progress.status ===
+                                                                          "rejected"
+                                                                        ? "bg-red-500"
+                                                                        : "bg-gray-300"
+                                                                }`}
+                                                            />
                                                             <div className="w-px h-full bg-gray-200" />
                                                         </div>
                                                         <div className="flex-1 pb-4">
                                                             <div className="flex justify-between">
                                                                 <h4 className="font-medium">
-                                                                    {progress.stage.name}
+                                                                    {
+                                                                        progress
+                                                                            .stage
+                                                                            .name
+                                                                    }
                                                                 </h4>
-                                                                <Badge variant={
-                                                                    progress.status === 'approved' ? 'default' :
-                                                                    progress.status === 'submitted' ? 'secondary' :
-                                                                    progress.status === 'rejected' ? 'destructive' :
-                                                                    'outline'
-                                                                }>
-                                                                    {progress.status}
+                                                                <Badge
+                                                                    variant={
+                                                                        progress.status ===
+                                                                        "approved"
+                                                                            ? "default"
+                                                                            : progress.status ===
+                                                                              "submitted"
+                                                                            ? "secondary"
+                                                                            : progress.status ===
+                                                                              "rejected"
+                                                                            ? "destructive"
+                                                                            : "outline"
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        progress.status
+                                                                    }
                                                                 </Badge>
                                                             </div>
                                                             {progress.approved_at && (
                                                                 <p className="text-sm text-muted-foreground mt-1">
-                                                                    Disetujui pada: {formatDate(progress.approved_at)}
+                                                                    Disetujui
+                                                                    pada:{" "}
+                                                                    {formatDate(
+                                                                        progress.approved_at
+                                                                    )}
                                                                 </p>
                                                             )}
                                                         </div>
@@ -788,14 +1031,26 @@ export default function TeamManagement({
                                 {/* Status Actions */}
                                 <div className="flex flex-col gap-2 pt-4 border-t sm:flex-row">
                                     <Button
-                                        onClick={() => handleStatusChange(selectedTeam.id, "approved")}
+                                        onClick={() =>
+                                            confirmStatusChange(
+                                                selectedTeam.id,
+                                                "approve",
+                                                selectedTeam.tim_name
+                                            )
+                                        }
                                         className="bg-green-600 hover:bg-green-700"
                                         size="sm"
                                     >
                                         Approve Team
                                     </Button>
                                     <Button
-                                        onClick={() => handleStatusChange(selectedTeam.id, "rejected")}
+                                        onClick={() =>
+                                            confirmStatusChange(
+                                                selectedTeam.id,
+                                                "reject",
+                                                selectedTeam.tim_name
+                                            )
+                                        }
                                         variant="destructive"
                                         size="sm"
                                     >
@@ -814,6 +1069,56 @@ export default function TeamManagement({
                         )}
                     </DialogContent>
                 </Dialog>
+                {/* Confirmation Dialog */}
+                <AlertDialog
+                    open={!!confirmAction.type}
+                    onOpenChange={() =>
+                        setConfirmAction({
+                            type: null,
+                            teamId: null,
+                            teamName: null,
+                        })
+                    }
+                >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Konfirmasi{" "}
+                                {confirmAction.type === "approve"
+                                    ? "Persetujuan"
+                                    : "Penolakan"}
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Apakah Anda yakin ingin{" "}
+                                {confirmAction.type === "approve"
+                                    ? "menyetujui"
+                                    : "menolak"}{" "}
+                                tim "{confirmAction.teamName}"? Tindakan ini
+                                akan mengubah status tim menjadi{" "}
+                                {confirmAction.type === "approve"
+                                    ? "approved"
+                                    : "rejected"}
+                                .
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={executeStatusChange}
+                                className={
+                                    confirmAction.type === "approve"
+                                        ? "bg-green-600 hover:bg-green-700"
+                                        : "bg-red-600 hover:bg-red-700"
+                                }
+                            >
+                                Ya,{" "}
+                                {confirmAction.type === "approve"
+                                    ? "Setujui"
+                                    : "Tolak"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </AdminLayout>
     );

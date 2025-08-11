@@ -171,7 +171,7 @@ Route::middleware('auth')->group(function () {
 
 
 
-Route::middleware(['auth', 'verified', 'user'])->group(function () {
+Route::middleware(['auth', 'verified', 'user', 'no-registration'])->group(function () {
     // Team Registration Routes
     Route::prefix('competition/bpc')->name('competition.bpc.')->group(function () {
         Route::get('/register', [BPCRegistrationController::class, 'create'])->name('register.create');
@@ -184,16 +184,10 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
         Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
     });
 
-
-    Route::get('/competition/success/{registration}', [CompetitionController::class, 'success'])->name('competition.success');
-
-    // Common Team Registration Routes (for user's own registrations)
-    // Route::prefix('my-registrations')->name('competition.register.')->group(function () {
-    //     Route::get('/success/{id}', [TeamRegistrationController::class, 'success'])->name('success');
-    //     Route::get('/', [TeamRegistrationController::class, 'show'])->name('show');
-    //     Route::put('/{id}', [TeamRegistrationController::class, 'update'])->name('update');
-    //     Route::delete('/{id}', [TeamRegistrationController::class, 'destroy'])->name('destroy');
+    Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
+        ->name('competition.success');
 });
+
 
 
 Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function () {

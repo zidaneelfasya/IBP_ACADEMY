@@ -38,6 +38,9 @@ interface TeamMember {
     nim: string;
     email: string;
     phone: string;
+    univ: string;
+    fakultas: string;
+    isLeader?: boolean;
 }
 
 interface Stage {
@@ -63,18 +66,26 @@ interface TeamData {
     leader_nim: string;
     leader_email: string;
     leader_phone: string;
+    leader_univ: string;
+    leader_fakultas: string;
     member1_name: string;
     member1_nim: string;
     member1_email: string;
     member1_phone: string;
+    member1_univ: string;
+    member1_fakultas: string;
     member2_name: string;
     member2_nim: string;
     member2_email: string;
     member2_phone: string;
+    member2_univ: string;
+    member2_fakultas: string;
     member3_name: string;
     member3_nim: string;
     member3_email: string;
     member3_phone: string;
+    member3_univ: string;
+    member3_fakultas: string;
     link_berkas: string;
     status: string;
     admin_notes: string;
@@ -230,22 +241,37 @@ export default function ParticipantProfile() {
 
    const teamMembers: TeamMember[] = [
        {
+           name: team!.leader_name,
+           nim: team!.leader_nim,
+           email: team!.leader_email,
+           phone: team!.leader_phone,
+           univ: team!.leader_univ,
+           fakultas: team!.leader_fakultas,
+           isLeader: true,
+       },
+       {
            name: team!.member1_name,
            nim: team!.member1_nim,
            email: team!.member1_email,
            phone: team!.member1_phone,
+           univ: team!.member1_univ,
+           fakultas: team!.member1_fakultas,
        },
        {
            name: team!.member2_name,
            nim: team!.member2_nim,
            email: team!.member2_email,
            phone: team!.member2_phone,
+           univ: team!.member2_univ,
+           fakultas: team!.member2_fakultas,
        },
        {
            name: team!.member3_name,
            nim: team!.member3_nim,
            email: team!.member3_email,
            phone: team!.member3_phone,
+           univ: team!.member3_univ,
+           fakultas: team!.member3_fakultas,
        },
    ].filter((member) => member.name);
 
@@ -303,7 +329,7 @@ export default function ParticipantProfile() {
                     <Card className="text-center">
                         <CardContent className="p-4">
                             <div className="text-2xl font-bold text-purple-600">
-                                {teamMembers.length + 1}
+                                {teamMembers.length }
                             </div>
                             <div className="text-sm text-gray-600">
                                 Team Members
@@ -326,14 +352,6 @@ export default function ParticipantProfile() {
                     <CardContent className="space-y-6">
                         {/* Team Details */}
                         <div className="grid md:grid-cols-2 gap-4 text-sm">
-                            <div className="flex items-center gap-2">
-                                <Building className="h-4 w-4 text-gray-500" />
-                                <span>{team.asal_universitas}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <BookOpen className="h-4 w-4 text-gray-500" />
-                                <span>{team.prodi_fakultas}</span>
-                            </div>
                             <div className="flex items-center gap-2">
                                 <GraduationCap className="h-4 w-4 text-gray-500" />
                                 <span>{team.competition_category}</span>
@@ -360,91 +378,141 @@ export default function ParticipantProfile() {
                         </div>
 
                         {/* Team Leader */}
-                        <div>
-                            <h3 className="font-medium mb-3 flex items-center gap-2">
-                                <Crown className="h-4 w-4 text-amber-500" />
-                                Team Leader
-                            </h3>
-                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                <Avatar>
-                                    <AvatarFallback className="bg-blue-100 text-blue-700">
-                                        {team.leader_name
-                                            .split(" ")
-                                            .map((n) => n[0])
-                                            .join("")}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                    <div className="font-medium">
-                                        {team.leader_name}
-                                    </div>
-                                    <div className="text-sm text-gray-600">
-                                        NIM: {team.leader_nim}
-                                    </div>
-                                    <div className="text-sm text-gray-600 flex items-center gap-1">
-                                        <Mail className="h-3 w-3" />
-                                        {team.leader_email}
-                                    </div>
-                                    <div className="text-sm text-gray-600 flex items-center gap-1">
-                                        <Phone className="h-3 w-3" />
-                                        {team.leader_phone}
-                                    </div>
-                                </div>
-                                <Badge className="bg-amber-100 text-amber-800">
-                                    Leader
-                                </Badge>
-                            </div>
-                        </div>
-
-                        {/* Team Members */}
-                        {teamMembers.length > 0 && (
+                        <div className="space-y-4">
+                            {/* Team Leader */}
                             <div>
-                                <h3 className="font-medium mb-3 flex items-center gap-2">
-                                    <Users className="h-4 w-4 text-blue-500" />
-                                    Team Members
+                                <h3 className="font-medium mb-3 flex items-center gap-2 text-gray-800">
+                                    <Crown className="h-4 w-4 text-amber-500" />
+                                    Team Leader
                                 </h3>
-                                <div className="space-y-2">
-                                    {teamMembers.map((member, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                                        >
-                                            <Avatar className="h-8 w-8">
-                                                <AvatarFallback className="text-xs bg-gray-200 text-gray-700">
-                                                    {member.name
-                                                        .split(" ")
-                                                        .map((n) => n[0])
-                                                        .join("")}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="flex-1">
-                                                <div className="font-medium text-sm">
-                                                    {member.name}
-                                                </div>
-                                                <div className="text-xs text-gray-600">
-                                                    NIM: {member.nim}
-                                                </div>
-                                                <div className="text-xs text-gray-600 flex items-center gap-1">
-                                                    <Mail className="h-3 w-3" />
-                                                    {member.email}
-                                                </div>
-                                                <div className="text-xs text-gray-600 flex items-center gap-1">
-                                                    <Phone className="h-3 w-3" />
-                                                    {member.phone}
-                                                </div>
-                                            </div>
-                                            <Badge
-                                                variant="outline"
-                                                className="text-xs"
-                                            >
-                                                <User className="h-3 w-3 mr-1" />
-                                                Member {index + 1}
-                                            </Badge>
+                                <div className="flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                                    <Avatar className="h-12 w-12">
+                                        <AvatarFallback className="bg-blue-100 text-blue-700 font-medium">
+                                            {team.leader_name
+                                                .split(" ")
+                                                .map((n) => n[0])
+                                                .join("")}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        <div>
+                                            <p className="font-medium text-gray-900">
+                                                {team.leader_name}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                NIM: {team.leader_nim}
+                                            </p>
                                         </div>
-                                    ))}
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-gray-600 flex items-center gap-2">
+                                                <Building className="h-4 w-4 text-gray-400" />
+                                                {team.leader_univ}
+                                            </p>
+                                            <p className="text-sm text-gray-600 flex items-center gap-2">
+                                                <GraduationCap className="h-4 w-4 text-gray-400" />
+                                                {team.leader_fakultas}
+                                            </p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-gray-600 flex items-center gap-2">
+                                                <Mail className="h-4 w-4 text-gray-400" />
+                                                {team.leader_email}
+                                            </p>
+                                            <p className="text-sm text-gray-600 flex items-center gap-2">
+                                                <Phone className="h-4 w-4 text-gray-400" />
+                                                {team.leader_phone}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Badge className="bg-amber-100 text-amber-800 h-fit">
+                                        Leader
+                                    </Badge>
                                 </div>
                             </div>
-                        )}
+
+                            {/* Team Members */}
+                            {teamMembers.filter((m) => !m.isLeader).length >
+                                0 && (
+                                <div>
+                                    <h3 className="font-medium mb-3 flex items-center gap-2 text-gray-800">
+                                        <Users className="h-4 w-4 text-blue-500" />
+                                        Team Members (
+                                        {
+                                            teamMembers.filter(
+                                                (m) => !m.isLeader
+                                            ).length
+                                        }
+                                        )
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {teamMembers
+                                            .filter((m) => !m.isLeader)
+                                            .map((member, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-start gap-3 p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
+                                                >
+                                                    <Avatar className="h-10 w-10">
+                                                        <AvatarFallback className="text-xs bg-gray-100 text-gray-700 font-medium">
+                                                            {member.name
+                                                                .split(" ")
+                                                                .map(
+                                                                    (n) => n[0]
+                                                                )
+                                                                .join("")}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex-1 space-y-1">
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <p className="font-medium text-sm text-gray-900">
+                                                                    {
+                                                                        member.name
+                                                                    }
+                                                                </p>
+                                                                <p className="text-xs text-gray-600">
+                                                                    NIM:{" "}
+                                                                    {member.nim}
+                                                                </p>
+                                                            </div>
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="text-xs"
+                                                            >
+                                                                <User className="h-3 w-3 mr-1" />
+                                                                Member{" "}
+                                                                {index + 1}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-xs text-gray-600 flex items-center gap-2">
+                                                                <Building className="h-3 w-3 text-gray-400" />
+                                                                {member.univ}
+                                                            </p>
+                                                            <p className="text-xs text-gray-600 flex items-center gap-2">
+                                                                <GraduationCap className="h-3 w-3 text-gray-400" />
+                                                                {
+                                                                    member.fakultas
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-xs text-gray-600 flex items-center gap-2">
+                                                                <Mail className="h-3 w-3 text-gray-400" />
+                                                                {member.email}
+                                                            </p>
+                                                            <p className="text-xs text-gray-600 flex items-center gap-2">
+                                                                <Phone className="h-3 w-3 text-gray-400" />
+                                                                {member.phone}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
                         {/* Documents */}
                         {team.link_berkas && (

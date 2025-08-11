@@ -25,11 +25,12 @@ interface TeamRegistration {
     id: number;
     registration_number: string;
     tim_name: string;
-    asal_universitas: string;
-    prodi_fakultas: string;
     leader_name: string;
+    leader_nim: string;
     leader_email: string;
     leader_phone: string;
+    leader_univ: string;
+    leader_fakultas: string;
     status: string;
     created_at: string;
 }
@@ -39,6 +40,8 @@ interface Member {
     nim: string;
     email: string;
     phone: string;
+    univ: string;
+    fakultas: string;
 }
 
 interface Props {
@@ -51,12 +54,12 @@ interface Props {
 
 interface FormData {
     tim_name: string;
-    asal_universitas: string;
-    prodi_fakultas: string;
     leader_name: string;
     leader_nim: string;
     leader_email: string;
     leader_phone: string;
+    leader_univ: string;
+    leader_fakultas: string;
     member1: Member;
     member2: Member;
     link_berkas: string;
@@ -76,7 +79,6 @@ export default function BCCRegistration({
     const [validatedSteps, setValidatedSteps] = useState<number[]>([]);
     const totalSteps = 4;
 
-    // Show existing registration modal if user already registered
     useEffect(() => {
         if (existingRegistration) {
             setShowExistingModal(true);
@@ -85,23 +87,27 @@ export default function BCCRegistration({
 
     const { data, setData, post, processing, errors } = useForm<FormData>({
         tim_name: "",
-        asal_universitas: "",
-        prodi_fakultas: "",
         leader_name: auth.user?.name || "",
         leader_nim: "",
         leader_email: auth.user?.email || "",
         leader_phone: "",
+        leader_univ: "",
+        leader_fakultas: "",
         member1: {
             name: "",
             nim: "",
             email: "",
             phone: "",
+            univ: "",
+            fakultas: "",
         },
         member2: {
             name: "",
             nim: "",
             email: "",
             phone: "",
+            univ: "",
+            fakultas: "",
         },
         link_berkas: "",
     });
@@ -109,13 +115,11 @@ export default function BCCRegistration({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Check if user already has existing registration
         if (existingRegistration) {
             setShowExistingModal(true);
             return;
         }
 
-        // Validasi final semua step sebelum submit
         let allErrors: string[] = [];
         for (let step = 1; step <= totalSteps; step++) {
             const stepErrors = validateStep(step);
@@ -131,166 +135,17 @@ export default function BCCRegistration({
         post(route("competition.bcc.register.store"));
     };
 
-    // Handle member input change
-    const handleMemberChange = (
-        member: 'member1' | 'member2',
-        field: keyof Member,
-        value: string
-    ) => {
-        setData(member, {
-            ...data[member],
-            [field]: value
-        });
-    };
-
-    // Validasi per step
-    const validateStep = (step: number): string[] => {
-        const errors: string[] = [];
-
-        switch (step) {
-            case 1: // Informasi Tim
-                if (!data.tim_name.trim()) {
-                    errors.push("Nama tim harus diisi");
-                } else if (data.tim_name.length < 3) {
-                    errors.push("Nama tim minimal 3 karakter");
-                }
-
-                if (!data.asal_universitas.trim()) {
-                    errors.push("Asal universitas harus diisi");
-                } else if (data.asal_universitas.length < 5) {
-                    errors.push("Asal universitas minimal 5 karakter");
-                }
-
-                if (!data.prodi_fakultas.trim()) {
-                    errors.push("Program studi/fakultas harus diisi");
-                } else if (data.prodi_fakultas.length < 3) {
-                    errors.push("Program studi/fakultas minimal 3 karakter");
-                }
-                break;
-
-            case 2: // Ketua Tim
-                if (!data.leader_name.trim()) {
-                    errors.push("Nama ketua tim harus diisi");
-                } else if (data.leader_name.length < 3) {
-                    errors.push("Nama ketua tim minimal 3 karakter");
-                }
-
-                if (!data.leader_nim.trim()) {
-                    errors.push("NIM ketua tim harus diisi");
-                } else if (data.leader_nim.length < 5) {
-                    errors.push("NIM ketua tim minimal 5 karakter");
-                }
-
-                if (!data.leader_email.trim()) {
-                    errors.push("Email ketua tim harus diisi");
-                } else if (
-                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.leader_email)
-                ) {
-                    errors.push("Format email ketua tim tidak valid");
-                }
-
-                if (!data.leader_phone.trim()) {
-                    errors.push("Nomor telepon ketua tim harus diisi");
-                } else if (data.leader_phone.length < 10) {
-                    errors.push("Nomor telepon ketua tim minimal 10 digit");
-                }
-                break;
-
-            case 3: // Anggota Tim
-                // Validasi anggota 1
-                if (!data.member1.name.trim()) {
-                    errors.push("Nama anggota 1 harus diisi");
-                } else if (data.member1.name.length < 3) {
-                    errors.push("Nama anggota 1 minimal 3 karakter");
-                }
-
-                if (!data.member1.nim.trim()) {
-                    errors.push("NIM anggota 1 harus diisi");
-                } else if (data.member1.nim.length < 5) {
-                    errors.push("NIM anggota 1 minimal 5 karakter");
-                } else if (data.member1.nim === data.leader_nim) {
-                    errors.push("NIM anggota 1 tidak boleh sama dengan NIM ketua");
-                }
-
-                if (!data.member1.email.trim()) {
-                    errors.push("Email anggota 1 harus diisi");
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member1.email)) {
-                    errors.push("Format email anggota 1 tidak valid");
-                } else if (data.member1.email === data.leader_email) {
-                    errors.push("Email anggota 1 tidak boleh sama dengan email ketua");
-                }
-
-                if (!data.member1.phone.trim()) {
-                    errors.push("Nomor telepon anggota 1 harus diisi");
-                } else if (data.member1.phone.length < 10) {
-                    errors.push("Nomor telepon anggota 1 minimal 10 digit");
-                } else if (data.member1.phone === data.leader_phone) {
-                    errors.push("Nomor telepon anggota 1 tidak boleh sama dengan ketua");
-                }
-
-                // Validasi anggota 2
-                if (!data.member2.name.trim()) {
-                    errors.push("Nama anggota 2 harus diisi");
-                } else if (data.member2.name.length < 3) {
-                    errors.push("Nama anggota 2 minimal 3 karakter");
-                }
-
-                if (!data.member2.nim.trim()) {
-                    errors.push("NIM anggota 2 harus diisi");
-                } else if (data.member2.nim.length < 5) {
-                    errors.push("NIM anggota 2 minimal 5 karakter");
-                } else if (data.member2.nim === data.leader_nim) {
-                    errors.push("NIM anggota 2 tidak boleh sama dengan NIM ketua");
-                } else if (data.member2.nim === data.member1.nim) {
-                    errors.push("NIM anggota 2 tidak boleh sama dengan NIM anggota 1");
-                }
-
-                if (!data.member2.email.trim()) {
-                    errors.push("Email anggota 2 harus diisi");
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member2.email)) {
-                    errors.push("Format email anggota 2 tidak valid");
-                } else if (data.member2.email === data.leader_email) {
-                    errors.push("Email anggota 2 tidak boleh sama dengan email ketua");
-                } else if (data.member2.email === data.member1.email) {
-                    errors.push("Email anggota 2 tidak boleh sama dengan email anggota 1");
-                }
-
-                if (!data.member2.phone.trim()) {
-                    errors.push("Nomor telepon anggota 2 harus diisi");
-                } else if (data.member2.phone.length < 10) {
-                    errors.push("Nomor telepon anggota 2 minimal 10 digit");
-                } else if (data.member2.phone === data.leader_phone) {
-                    errors.push("Nomor telepon anggota 2 tidak boleh sama dengan ketua");
-                } else if (data.member2.phone === data.member1.phone) {
-                    errors.push("Nomor telepon anggota 2 tidak boleh sama dengan nomor telepon anggota 1");
-                }
-                break;
-
-            case 4: // Dokumen
-                if (!data.link_berkas.trim()) {
-                    errors.push("Link berkas persyaratan harus diisi");
-                } else if (!/^https?:\/\/.+/.test(data.link_berkas)) {
-                    errors.push(
-                        "Format URL link berkas tidak valid (harus dimulai dengan http:// atau https://)"
-                    );
-                }
-                break;
-        }
-
-        return errors;
-    };
-
     const nextStep = () => {
-        // Validasi step saat ini sebelum lanjut
-        const validationErrors = validateStep(currentStep);
+        // Validate current step before proceeding
+        const stepErrors = validateStep(currentStep);
 
-        if (validationErrors.length > 0) {
-            setStepValidationErrors(validationErrors);
+        if (stepErrors.length > 0) {
+            setStepValidationErrors(stepErrors);
             setShowErrorModal(true);
             return;
         }
 
-        // Tandai step sebagai tervalidasi
+        // Mark current step as validated
         if (!validatedSteps.includes(currentStep)) {
             setValidatedSteps([...validatedSteps, currentStep]);
         }
@@ -299,14 +154,204 @@ export default function BCCRegistration({
             setCurrentStep(currentStep + 1);
         }
     };
-
     const prevStep = () => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1);
         }
     };
 
-     const renderStep = () => {
+    const handleMemberChange = (
+        member: "member1" | "member2",
+        field: keyof Member,
+        value: string
+    ) => {
+        setData(member, {
+            ...data[member],
+            [field]: value,
+        });
+    };
+
+    const validateStep = (step: number): string[] => {
+        const errors: string[] = [];
+
+        switch (step) {
+            case 1: // Team Information
+                if (!data.tim_name.trim()) {
+                    errors.push("Team name must be filled");
+                } else if (data.tim_name.length < 3) {
+                    errors.push("Team name must be at least 3 characters");
+                }
+                break;
+
+            case 2: // Team Leader
+                if (!data.leader_name.trim()) {
+                    errors.push("Leader name must be filled");
+                } else if (data.leader_name.length < 3) {
+                    errors.push("Leader name must be at least 3 characters");
+                }
+
+                if (!data.leader_nim.trim()) {
+                    errors.push("Leader NIM must be filled");
+                } else if (data.leader_nim.length < 5) {
+                    errors.push("Leader NIM must be at least 5 characters");
+                }
+
+                if (!data.leader_email.trim()) {
+                    errors.push("Leader email must be filled");
+                } else if (
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.leader_email)
+                ) {
+                    errors.push("Invalid leader email format");
+                }
+
+                if (!data.leader_phone.trim()) {
+                    errors.push("Leader phone number must be filled");
+                } else if (data.leader_phone.length < 10) {
+                    errors.push(
+                        "Leader phone number must be at least 10 digits"
+                    );
+                }
+
+                if (!data.leader_univ.trim()) {
+                    errors.push("Leader university must be filled");
+                } else if (data.leader_univ.length < 5) {
+                    errors.push(
+                        "Leader university must be at least 5 characters"
+                    );
+                }
+
+                if (!data.leader_fakultas.trim()) {
+                    errors.push("Leader faculty must be filled");
+                } else if (data.leader_fakultas.length < 3) {
+                    errors.push("Leader faculty must be at least 3 characters");
+                }
+                break;
+
+            case 3: // Team Members
+                // Member 1 validation
+                if (!data.member1.name.trim()) {
+                    errors.push("Member 1 name must be filled");
+                } else if (data.member1.name.length < 3) {
+                    errors.push("Member 1 name must be at least 3 characters");
+                }
+
+                if (!data.member1.nim.trim()) {
+                    errors.push("Member 1 NIM must be filled");
+                } else if (data.member1.nim.length < 5) {
+                    errors.push("Member 1 NIM must be at least 5 characters");
+                } else if (data.member1.nim === data.leader_nim) {
+                    errors.push("Member 1 NIM cannot be same as leader");
+                }
+
+                if (!data.member1.email.trim()) {
+                    errors.push("Member 1 email must be filled");
+                } else if (
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member1.email)
+                ) {
+                    errors.push("Invalid member 1 email format");
+                } else if (data.member1.email === data.leader_email) {
+                    errors.push("Member 1 email cannot be same as leader");
+                }
+
+                if (!data.member1.phone.trim()) {
+                    errors.push("Member 1 phone number must be filled");
+                } else if (data.member1.phone.length < 10) {
+                    errors.push(
+                        "Member 1 phone number must be at least 10 digits"
+                    );
+                } else if (data.member1.phone === data.leader_phone) {
+                    errors.push("Member 1 phone cannot be same as leader");
+                }
+
+                if (!data.member1.univ.trim()) {
+                    errors.push("Member 1 university must be filled");
+                } else if (data.member1.univ.length < 5) {
+                    errors.push(
+                        "Member 1 university must be at least 5 characters"
+                    );
+                }
+
+                if (!data.member1.fakultas.trim()) {
+                    errors.push("Member 1 faculty must be filled");
+                } else if (data.member1.fakultas.length < 3) {
+                    errors.push(
+                        "Member 1 faculty must be at least 3 characters"
+                    );
+                }
+
+                // Member 2 validation
+                if (!data.member2.name.trim()) {
+                    errors.push("Member 2 name must be filled");
+                } else if (data.member2.name.length < 3) {
+                    errors.push("Member 2 name must be at least 3 characters");
+                }
+
+                if (!data.member2.nim.trim()) {
+                    errors.push("Member 2 NIM must be filled");
+                } else if (data.member2.nim.length < 5) {
+                    errors.push("Member 2 NIM must be at least 5 characters");
+                } else if (data.member2.nim === data.leader_nim) {
+                    errors.push("Member 2 NIM cannot be same as leader");
+                } else if (data.member2.nim === data.member1.nim) {
+                    errors.push("Member 2 NIM cannot be same as member 1");
+                }
+
+                if (!data.member2.email.trim()) {
+                    errors.push("Member 2 email must be filled");
+                } else if (
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member2.email)
+                ) {
+                    errors.push("Invalid member 2 email format");
+                } else if (data.member2.email === data.leader_email) {
+                    errors.push("Member 2 email cannot be same as leader");
+                } else if (data.member2.email === data.member1.email) {
+                    errors.push("Member 2 email cannot be same as member 1");
+                }
+
+                if (!data.member2.phone.trim()) {
+                    errors.push("Member 2 phone number must be filled");
+                } else if (data.member2.phone.length < 10) {
+                    errors.push(
+                        "Member 2 phone number must be at least 10 digits"
+                    );
+                } else if (data.member2.phone === data.leader_phone) {
+                    errors.push("Member 2 phone cannot be same as leader");
+                } else if (data.member2.phone === data.member1.phone) {
+                    errors.push("Member 2 phone cannot be same as member 1");
+                }
+
+                if (!data.member2.univ.trim()) {
+                    errors.push("Member 2 university must be filled");
+                } else if (data.member2.univ.length < 5) {
+                    errors.push(
+                        "Member 2 university must be at least 5 characters"
+                    );
+                }
+
+                if (!data.member2.fakultas.trim()) {
+                    errors.push("Member 2 faculty must be filled");
+                } else if (data.member2.fakultas.length < 3) {
+                    errors.push(
+                        "Member 2 faculty must be at least 3 characters"
+                    );
+                }
+                break;
+
+            case 4: // Documents
+                if (!data.link_berkas.trim()) {
+                    errors.push("Document link must be filled");
+                } else if (!/^https?:\/\/.+/.test(data.link_berkas)) {
+                    errors.push(
+                        "Invalid document URL format (must start with http:// or https://)"
+                    );
+                }
+                break;
+        }
+
+        return errors;
+    };
+
+    const renderStep = () => {
         switch (currentStep) {
             case 1:
                 return (
@@ -316,7 +361,10 @@ export default function BCCRegistration({
                         </h2>
 
                         <div className="mb-4">
-                            <InputLabel htmlFor="tim_name" value="Team Name *" />
+                            <InputLabel
+                                htmlFor="tim_name"
+                                value="Team Name *"
+                            />
                             <TextInput
                                 id="tim_name"
                                 name="tim_name"
@@ -330,50 +378,6 @@ export default function BCCRegistration({
                             />
                             <InputError
                                 message={errors.tim_name}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="asal_universitas"
-                                value="University *"
-                            />
-                            <TextInput
-                                id="asal_universitas"
-                                name="asal_universitas"
-                                value={data.asal_universitas}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("asal_universitas", e.target.value)
-                                }
-                                placeholder="Example: University of Indonesia"
-                                required
-                            />
-                            <InputError
-                                message={errors.asal_universitas}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <InputLabel
-                                htmlFor="prodi_fakultas"
-                                value="Study Program / Faculty *"
-                            />
-                            <TextInput
-                                id="prodi_fakultas"
-                                name="prodi_fakultas"
-                                value={data.prodi_fakultas}
-                                className="block w-full mt-1"
-                                onChange={(e) =>
-                                    setData("prodi_fakultas", e.target.value)
-                                }
-                                placeholder="Example: Computer Science / FACULTY OF COMPUTER SCIENCE"
-                                required
-                            />
-                            <InputError
-                                message={errors.prodi_fakultas}
                                 className="mt-2"
                             />
                         </div>
@@ -410,7 +414,10 @@ export default function BCCRegistration({
                         </div>
 
                         <div className="mb-4">
-                            <InputLabel htmlFor="leader_nim" value="Student ID *" />
+                            <InputLabel
+                                htmlFor="leader_nim"
+                                value="Student ID *"
+                            />
                             <TextInput
                                 id="leader_nim"
                                 name="leader_nim"
@@ -473,6 +480,50 @@ export default function BCCRegistration({
                                 className="mt-2"
                             />
                         </div>
+
+                        <div className="mb-4">
+                            <InputLabel
+                                htmlFor="leader_univ"
+                                value="University *"
+                            />
+                            <TextInput
+                                id="leader_univ"
+                                name="leader_univ"
+                                value={data.leader_univ}
+                                className="block w-full mt-1"
+                                onChange={(e) =>
+                                    setData("leader_univ", e.target.value)
+                                }
+                                placeholder="Leader's university"
+                                required
+                            />
+                            <InputError
+                                message={(errors as any).leader_univ}
+                                className="mt-2"
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <InputLabel
+                                htmlFor="leader_fakultas"
+                                value="Faculty *"
+                            />
+                            <TextInput
+                                id="leader_fakultas"
+                                name="leader_fakultas"
+                                value={data.leader_fakultas}
+                                className="block w-full mt-1"
+                                onChange={(e) =>
+                                    setData("leader_fakultas", e.target.value)
+                                }
+                                placeholder="Leader's faculty"
+                                required
+                            />
+                            <InputError
+                                message={(errors as any).leader_fakultas}
+                                className="mt-2"
+                            />
+                        </div>
                     </div>
                 );
 
@@ -504,13 +555,17 @@ export default function BCCRegistration({
                                     value={data.member1.name}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member1', 'name', e.target.value)
+                                        handleMemberChange(
+                                            "member1",
+                                            "name",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Member's full name"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member1.name']}
+                                    message={(errors as any)["member1.name"]}
                                     className="mt-2"
                                 />
                             </div>
@@ -526,13 +581,17 @@ export default function BCCRegistration({
                                     value={data.member1.nim}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member1', 'nim', e.target.value)
+                                        handleMemberChange(
+                                            "member1",
+                                            "nim",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Student identification number"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member1.nim']}
+                                    message={(errors as any)["member1.nim"]}
                                     className="mt-2"
                                 />
                             </div>
@@ -549,13 +608,17 @@ export default function BCCRegistration({
                                     value={data.member1.email}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member1', 'email', e.target.value)
+                                        handleMemberChange(
+                                            "member1",
+                                            "email",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="email@example.com"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member1.email']}
+                                    message={(errors as any)["member1.email"]}
                                     className="mt-2"
                                 />
                             </div>
@@ -572,13 +635,71 @@ export default function BCCRegistration({
                                     value={data.member1.phone}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member1', 'phone', e.target.value)
+                                        handleMemberChange(
+                                            "member1",
+                                            "phone",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="08xxxxxxxxxx"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member1.phone']}
+                                    message={(errors as any)["member1.phone"]}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <InputLabel
+                                    htmlFor="member1_univ"
+                                    value="University *"
+                                />
+                                <TextInput
+                                    id="member1_univ"
+                                    name="member1_univ"
+                                    value={data.member1.univ}
+                                    className="block w-full mt-1"
+                                    onChange={(e) =>
+                                        handleMemberChange(
+                                            "member1",
+                                            "univ",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Member's university"
+                                    required
+                                />
+                                <InputError
+                                    message={(errors as any)["member1.univ"]}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <InputLabel
+                                    htmlFor="member1_fakultas"
+                                    value="Faculty *"
+                                />
+                                <TextInput
+                                    id="member1_fakultas"
+                                    name="member1_fakultas"
+                                    value={data.member1.fakultas}
+                                    className="block w-full mt-1"
+                                    onChange={(e) =>
+                                        handleMemberChange(
+                                            "member1",
+                                            "fakultas",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Member's faculty"
+                                    required
+                                />
+                                <InputError
+                                    message={
+                                        (errors as any)["member1.fakultas"]
+                                    }
                                     className="mt-2"
                                 />
                             </div>
@@ -601,13 +722,17 @@ export default function BCCRegistration({
                                     value={data.member2.name}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member2', 'name', e.target.value)
+                                        handleMemberChange(
+                                            "member2",
+                                            "name",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Member's full name"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member2.name']}
+                                    message={(errors as any)["member2.name"]}
                                     className="mt-2"
                                 />
                             </div>
@@ -623,13 +748,17 @@ export default function BCCRegistration({
                                     value={data.member2.nim}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member2', 'nim', e.target.value)
+                                        handleMemberChange(
+                                            "member2",
+                                            "nim",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Student identification number"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member2.nim']}
+                                    message={(errors as any)["member2.nim"]}
                                     className="mt-2"
                                 />
                             </div>
@@ -646,13 +775,17 @@ export default function BCCRegistration({
                                     value={data.member2.email}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member2', 'email', e.target.value)
+                                        handleMemberChange(
+                                            "member2",
+                                            "email",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="email@example.com"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member2.email']}
+                                    message={(errors as any)["member2.email"]}
                                     className="mt-2"
                                 />
                             </div>
@@ -669,13 +802,71 @@ export default function BCCRegistration({
                                     value={data.member2.phone}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        handleMemberChange('member2', 'phone', e.target.value)
+                                        handleMemberChange(
+                                            "member2",
+                                            "phone",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="08xxxxxxxxxx"
                                     required
                                 />
                                 <InputError
-                                    message={(errors as any)['member2.phone']}
+                                    message={(errors as any)["member2.phone"]}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <InputLabel
+                                    htmlFor="member2_univ"
+                                    value="University *"
+                                />
+                                <TextInput
+                                    id="member2_univ"
+                                    name="member2_univ"
+                                    value={data.member2.univ}
+                                    className="block w-full mt-1"
+                                    onChange={(e) =>
+                                        handleMemberChange(
+                                            "member2",
+                                            "univ",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Member's university"
+                                    required
+                                />
+                                <InputError
+                                    message={(errors as any)["member2.univ"]}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <InputLabel
+                                    htmlFor="member2_fakultas"
+                                    value="Faculty *"
+                                />
+                                <TextInput
+                                    id="member2_fakultas"
+                                    name="member2_fakultas"
+                                    value={data.member2.fakultas}
+                                    className="block w-full mt-1"
+                                    onChange={(e) =>
+                                        handleMemberChange(
+                                            "member2",
+                                            "fakultas",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Member's faculty"
+                                    required
+                                />
+                                <InputError
+                                    message={
+                                        (errors as any)["member2.fakultas"]
+                                    }
                                     className="mt-2"
                                 />
                             </div>
@@ -684,13 +875,12 @@ export default function BCCRegistration({
                 );
 
             case 4:
-                 return (
+                return (
                     <div>
                         <h2 className="mb-4 text-xl font-semibold text-ibp-secondary">
                             Requirements Documents
                         </h2>
 
-                        {/* Add Twibbon Download section here */}
                         <div className="mb-6 p-4 border rounded-lg bg-blue-50 border-blue-200">
                             <h3 className="mb-3 font-medium text-blue-800">
                                 Download Twibbon
@@ -743,38 +933,57 @@ export default function BCCRegistration({
                                 className="mt-2"
                             />
                         </div>
-
                         <div className="p-4 mt-4 border rounded-lg border-ibp-neutral bg-ibp-neutral/30">
                             <h3 className="mb-2 font-semibold text-blue-900">
                                 Document Upload Instructions:
                             </h3>
                             <ul className="space-y-1 text-sm text-black/70">
                                 <li>
-                                    • Upload documents to Google Drive or other
-                                    cloud platforms
+                                    • Student ID Card (KTM): PDF format only
                                 </li>
                                 <li>
-                                    • Ensure the link is accessible by the
-                                    organizing committee
+                                    • Formal photo: JPG, PNG, or JPEG formats
                                 </li>
                                 <li>
-                                    • Documents must be in PDF or ZIP format
+                                    • Twibbon screenshot: JPG, PNG, or JPEG
+                                    formats
                                 </li>
                                 <li>
-                                    • Include all required documents in one
-                                    folder
+                                    • Instagram follow screenshot: JPG, PNG, or
+                                    JPEG formats
+                                </li>
+                                <li>
+                                    • Upload documents to Google Drive
+                                </li>
+                                <li>
+                                    • Ensure the link is accessible to the
+                                    committee
+                                </li>
+                                <li>
+                                    • Combine multiple files into a single
+                                    folder if needed
+                                </li>
+                                <li>
+                                    • For Twibbon Caption, please visit:{" "}
+                                    <a
+                                        href="https://drive.google.com/drive/folders/1wWSodQS0hQNavsq-s4RO3slQS-kA_E0u?usp=drive_link"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 underline hover:text-blue-800 transition-colors"
+                                    >
+                                        View Caption
+                                    </a>
                                 </li>
                             </ul>
                         </div>
+
                     </div>
                 );
-
 
             default:
                 return null;
         }
     };
-
     return (
         <>
             <Head title={`${category.name} Registration - IBP Academy`} />
@@ -960,8 +1169,8 @@ export default function BCCRegistration({
                                                                 existingRegistration.tim_name
                                                             }
                                                         </strong>{" "}
-                                                        is already registered with
-                                                        registration number{" "}
+                                                        is already registered
+                                                        with registration number{" "}
                                                         <strong>
                                                             {
                                                                 existingRegistration.registration_number
