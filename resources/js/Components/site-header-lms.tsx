@@ -51,7 +51,7 @@ const navItems: NavItem[] = [
     },
     {
         title: "Assignments",
-        url: "/user/tugas",
+        url: "/user/assignments",
         icon: ClipboardList,
     },
 ];
