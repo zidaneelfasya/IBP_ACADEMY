@@ -53,6 +53,12 @@ class TeamRegistration extends Model
     /**
      * Get the user that owns the team registration
      */
+
+    public function assignmentSubmissions()
+    {
+        return $this->hasMany(AssignmentSubmission::class);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
