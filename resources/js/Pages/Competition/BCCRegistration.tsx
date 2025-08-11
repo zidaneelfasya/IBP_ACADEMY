@@ -890,7 +890,7 @@ export default function BCCRegistration({
                                 on your social media.
                             </p>
                             <a
-                                href="https://drive.google.com/uc?export=download&id=1GHgaGfsRltlVH9qyLcUuxaNHPvgjhx-R"
+                                href="https://drive.google.com/drive/folders/1wWSodQS0hQNavsq-s4RO3slQS-kA_E0u?usp=drive_link"
                                 download="Twibbon_BCC_IBP_Academy_2025.jpg"
                                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                             >
@@ -933,6 +933,7 @@ export default function BCCRegistration({
                                 className="mt-2"
                             />
                         </div>
+
                         <div className="p-4 mt-4 border rounded-lg border-ibp-neutral bg-ibp-neutral/30">
                             <h3 className="mb-2 font-semibold text-blue-900">
                                 Document Upload Instructions:
@@ -952,9 +953,7 @@ export default function BCCRegistration({
                                     • Instagram follow screenshot: JPG, PNG, or
                                     JPEG formats
                                 </li>
-                                <li>
-                                    • Upload documents to Google Drive
-                                </li>
+                                <li>• Upload documents to Google Drive</li>
                                 <li>
                                     • Ensure the link is accessible to the
                                     committee
@@ -963,9 +962,19 @@ export default function BCCRegistration({
                                     • Combine multiple files into a single
                                     folder if needed
                                 </li>
+                                 <li>
+                                    • For Twibbon Caption, please visit:{" "}
+                                    <a
+                                        href="https://drive.google.com/drive/folders/1JCV9lxHaA6OAP1pl8pUy7oR5WMM-8Bo2?usp=drive_link"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 underline hover:text-blue-800 transition-colors"
+                                    >
+                                        View Caption
+                                    </a>
+                                </li>
                             </ul>
                         </div>
-
                     </div>
                 );
 
@@ -978,9 +987,29 @@ export default function BCCRegistration({
             <Head title={`${category.name} Registration - IBP Academy`} />
             <div className="min-h-screen py-4 sm:py-8 bg-gradient-to-br from-neutral-200 to-white">
                 <div className="container px-4 mx-auto sm:px-6 lg:px-8">
+                    {/* Floating Back Button - Mobile Only */}
+                    <button
+                        onClick={() => window.history.back()}
+                        className="fixed z-50 flex items-center justify-center w-12 h-12 text-white transition-all duration-200 rounded-full shadow-lg md:hidden top-6 left-4 bg-gradient-to-r from-blue-900 to-blue-600 hover:shadow-xl hover:scale-105"
+                    >
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    </button>
+
                     <div className="flex items-start max-w-6xl gap-4 mx-auto">
-                        {/* Back Button - Left side */}
-                        <div className="flex-shrink-0 pt-2">
+                        {/* Back Button - Desktop Only */}
+                        <div className="flex-shrink-0 pt-2 hidden md:block">
                             <button
                                 onClick={() => window.history.back()}
                                 className="flex items-center px-4 py-2 text-sm font-medium transition-all duration-200 bg-white rounded-lg shadow-md text-ibp-primary hover:shadow-lg hover:bg-ibp-neutral/10"
@@ -1003,7 +1032,7 @@ export default function BCCRegistration({
                         </div>
 
                         {/* Form Card */}
-                        <div className="flex-1 max-w-4xl">
+                        <div className="flex-1 max-w-4xl ">
                             <div className="overflow-hidden bg-white rounded-lg shadow-xl">
                                 {/* Header */}
                                 <div className="relative px-4 py-6 overflow-hidden text-white sm:px-6 sm:py-8 bg-gradient-to-br from-blue-900 via-blue-700 to-blue-900">
@@ -1044,7 +1073,7 @@ export default function BCCRegistration({
                                                         clipRule="evenodd"
                                                     />
                                                 </svg>
-                                                IBP Academy Competition 2024
+                                                IBP Academy Competition 2025
                                             </div>
                                         </div>
                                     </div>{" "}

@@ -10,4 +10,16 @@ export default defineConfig({
         }),
         react(),
     ],
+    optimizeDeps: {
+    include: [
+      '@radix-ui/react-switch',
+      // Add other Radix UI components you're using
+    ],
+    exclude: ['js-big-decimal']
+  },
+  server: {
+    hmr: {
+      overlay: false
+    }
+  }
 });
