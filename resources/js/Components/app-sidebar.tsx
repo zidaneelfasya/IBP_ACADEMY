@@ -58,7 +58,7 @@ const data = {
         // },
         {
             title: "Tugas",
-            url: "/admin/dashboard/tugas",
+            url: "/admin/assignments",
             icon: FolderIcon,
         },
         // {
