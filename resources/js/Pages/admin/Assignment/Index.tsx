@@ -3,14 +3,6 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/Components/ui/table";
-import {
     Card,
     CardContent,
     CardDescription,
@@ -49,7 +41,6 @@ import {
     Plus,
     Calendar,
     Clock,
-    Users,
     FileText,
     Filter,
     ChevronLeft,
@@ -157,13 +148,21 @@ export default function Assignment({
     });
 
     const handleFilterChange = (key: string, value: string) => {
-        setFilters((prev) => ({ ...prev, [key]: value }));
+        const newFilters = { ...filters, [key]: value };
+        
+        // Clear empty values to clean URL
+        const cleanFilters: any = {};
+        Object.entries(newFilters).forEach(([k, v]) => {
+            if (v && v !== "all" && v !== "") {
+                cleanFilters[k] = v;
+            }
+        });
+
+        setFilters(newFilters);
+        
         router.get(
             route("admin.assignments.index"),
-            {
-                ...filters,
-                [key]: value,
-            },
+            cleanFilters,
             {
                 preserveState: true,
                 replace: true,
@@ -177,17 +176,17 @@ export default function Assignment({
 
     const handleToggleStatus = async (assignmentId: number) => {
         try {
-            await router.patch(
+            router.patch(
                 route("admin.assignments.toggle-status", assignmentId),
                 {},
                 {
                     onSuccess: () => {
                         toast.success("Status tugas berhasil diubah");
-                        router.reload({ only: ['assignments'] });
                     },
                     onError: () => {
                         toast.error("Gagal mengubah status tugas");
                     },
+                    preserveScroll: true,
                 }
             );
         } catch (error) {
@@ -199,7 +198,7 @@ export default function Assignment({
     const handleDeleteAssignment = async (assignmentId: number) => {
         if (confirm("Apakah Anda yakin ingin menghapus tugas ini?")) {
             try {
-                await router.delete(route("admin.assignments.destroy", assignmentId), {
+                router.delete(route("admin.assignments.destroy", assignmentId), {
                     onSuccess: () => {
                         toast.success("Tugas berhasil dihapus");
                     },
