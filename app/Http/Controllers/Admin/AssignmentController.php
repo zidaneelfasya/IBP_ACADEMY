@@ -22,15 +22,17 @@ class AssignmentController extends Controller
             ->orderBy('created_at', 'desc');
 
         // Filter by stage
-        if ($request->stage_id) {
+        if ($request->stage_id && $request->stage_id !== 'all') {
             $query->where('competition_stage_id', $request->stage_id);
         }
 
         // Filter by status
-        if ($request->status === 'active') {
-            $query->where('is_active', true);
-        } elseif ($request->status === 'inactive') {
-            $query->where('is_active', false);
+        if ($request->status && $request->status !== 'all') {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_active', false);
+            }
         }
 
         // Search
@@ -64,8 +66,12 @@ class AssignmentController extends Controller
         return Inertia::render('admin/Assignment/Index', [
             'assignments' => $assignments,
             'stages' => $stages,
-            'filters' => $request->only(['stage_id', 'status', 'search']),
-            'stats' => $stats // Add this line
+            'filters' => [
+                'stage_id' => $request->stage_id ?? 'all',
+                'status' => $request->status ?? 'all',
+                'search' => $request->search ?? '',
+            ],
+            'stats' => $stats
         ]);
     }
 
