@@ -84,6 +84,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             ->name('team.update-status');
         Route::put('/teams/{team}/reject', [TeamRegistrationController::class, 'updateStatusReject'])
             ->name('team.update-status-reject');
+        Route::delete('/teams/{team}', [TeamRegistrationController::class, 'destroy'])
+            ->name('team.destroy');
         Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
         
         Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])-> name('progress.approve');
