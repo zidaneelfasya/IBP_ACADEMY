@@ -890,7 +890,7 @@ export default function BCCRegistration({
                                 on your social media.
                             </p>
                             <a
-                                href="https://drive.google.com/drive/folders/1wWSodQS0hQNavsq-s4RO3slQS-kA_E0u?usp=drive_link"
+                                href="https://drive.google.com/uc?export=download&id=1SrKwNzLZuPtwj0kcgsRoryw9WuLpKxTS"
                                 download="Twibbon_BCC_IBP_Academy_2025.jpg"
                                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                             >
