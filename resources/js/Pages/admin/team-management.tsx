@@ -77,7 +77,7 @@ interface TeamRegistration {
     competition_category: {
         id: number;
         name: string;
-    };
+    } | null;
     leader_name: string;
     leader_nim: string;
     leader_email: string;
@@ -585,9 +585,7 @@ export default function TeamManagement({
                                                             {team.leader_nim}
                                                         </div>
                                                         <div className="text-xs text-muted-foreground">
-                                                            {
-                                                                team.asal_universitas
-                                                            }
+                                                            {team.asal_universitas || "No university specified"}
                                                         </div>
                                                     </div>
                                                 </TableCell>
@@ -606,9 +604,7 @@ export default function TeamManagement({
                                                         className="text-xs"
                                                     >
                                                         <Trophy className="mr-1 h-3 w-3" />
-                                                        {team
-                                                            .competition_category
-                                                            ?.name || "Unknown"}
+                                                        {team.competition_category?.name || "Unknown"}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
@@ -814,9 +810,7 @@ export default function TeamManagement({
                                                 Kategori Lomba
                                             </label>
                                             <p className="text-sm sm:text-base">
-                                                {selectedTeam
-                                                    .competition_category
-                                                    ?.name || "Unknown"}
+                                                {selectedTeam.competition_category?.name || "Unknown"}
                                             </p>
                                         </div>
                                         <div>
@@ -824,7 +818,7 @@ export default function TeamManagement({
                                                 Asal Universitas
                                             </label>
                                             <p className="text-sm sm:text-base">
-                                                {selectedTeam.asal_universitas}
+                                                {selectedTeam.asal_universitas || "Not specified"}
                                             </p>
                                         </div>
                                         <div>
@@ -832,7 +826,7 @@ export default function TeamManagement({
                                                 Prodi/Fakultas
                                             </label>
                                             <p className="text-sm sm:text-base">
-                                                {selectedTeam.prodi_fakultas}
+                                                {selectedTeam.prodi_fakultas || "Not specified"}
                                             </p>
                                         </div>
                                     </div>

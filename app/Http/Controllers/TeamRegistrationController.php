@@ -242,4 +242,14 @@ class TeamRegistrationController extends Controller
 
         return redirect()->back()->with('success', 'Status tim dan progress berhasil diperbarui.');
     }
+
+    public function destroy(TeamRegistration $team)
+    {
+        try {
+            $team->delete();
+            return redirect()->back()->with('success', 'Tim berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus tim: ' . $e->getMessage());
+        }
+    }
 }

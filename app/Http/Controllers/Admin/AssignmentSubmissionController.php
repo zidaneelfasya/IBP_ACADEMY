@@ -35,7 +35,7 @@ class AssignmentSubmissionController extends Controller
 
         $submissions = $query->paginate(15)->withQueryString();
 
-        return Inertia::render('Admin/Assignments/Submissions/Index', [
+        return Inertia::render('admin/Assignment/Submissions/Index', [
             'assignment' => $assignment->load('competitionStage'),
             'submissions' => $submissions,
             'filters' => $request->only(['status', 'search'])
@@ -49,7 +49,7 @@ class AssignmentSubmissionController extends Controller
     {
         $submission->load(['team', 'grader', 'assignment.competitionStage']);
 
-        return Inertia::render('Admin/Assignments/Submissions/Show', [
+        return Inertia::render('admin/Assignment/Submissions/Show', [
             'submission' => $submission
         ]);
     }
