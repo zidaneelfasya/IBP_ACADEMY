@@ -17,7 +17,7 @@ class AssignmentSeeder extends Seeder
     public function run(): void
     {
         $faker = Faker::create('id_ID');
-        
+
         // Get admin users who can create assignments
         $admins = User::where('role', 'admin')->get();
         if ($admins->isEmpty()) {
@@ -45,7 +45,7 @@ class AssignmentSeeder extends Seeder
                     ],
                 ]
             ],
-            
+
             // Preliminary Round Assignments
             [
                 'stage_name' => 'Preliminary Round',
@@ -64,7 +64,7 @@ class AssignmentSeeder extends Seeder
                     ],
                 ]
             ],
-            
+
             // Semifinal Round Assignments
             [
                 'stage_name' => 'Semifinal Round',
@@ -89,7 +89,7 @@ class AssignmentSeeder extends Seeder
                     ],
                 ]
             ],
-            
+
             // Final Round Assignments
             [
                 'stage_name' => 'Final Round',
@@ -118,7 +118,7 @@ class AssignmentSeeder extends Seeder
 
         foreach ($assignments as $stageData) {
             $stage = $stages->firstWhere('name', $stageData['stage_name']);
-            
+
             if (!$stage) {
                 $this->command->warn("Stage '{$stageData['stage_name']}' not found, skipping...");
                 continue;
@@ -126,11 +126,11 @@ class AssignmentSeeder extends Seeder
 
             foreach ($stageData['assignments'] as $assignmentData) {
                 // Calculate deadline based on stage start date
-                $deadline = $stage->start_date 
+                $deadline = $stage->start_date
                     ? Carbon::parse($stage->start_date)->addDays($assignmentData['deadline_days_from_start'])
                     : Carbon::now()->addDays($assignmentData['deadline_days_from_start']);
 
-                Assignment::create([
+                $assignment = Assignment::create([
                     'competition_stage_id' => $stage->id,
                     'title' => $assignmentData['title'],
                     'description' => $assignmentData['description'],
@@ -140,7 +140,7 @@ class AssignmentSeeder extends Seeder
                     'created_by' => $admins->random()->id,
                 ]);
 
-                $this->command->info("Created assignment: {$assignmentData['title']} for stage: {$stage->name}");
+                $this->command->info("Created assignment: {$assignmentData['title']} (UUID: {$assignment->uuid}) for stage: {$stage->name}");
             }
         }
 
