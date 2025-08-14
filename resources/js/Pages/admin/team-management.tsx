@@ -193,6 +193,13 @@ const formatDate = (dateString: string): string => {
     });
 };
 
+// Utility function to truncate text with ellipsis
+const truncateText = (text: string, maxLength: number = 25): string => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+};
+
 export default function TeamManagement({
     teams: initialTeams,
     filters: initialFilters,
@@ -817,16 +824,16 @@ export default function TeamManagement({
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Asal Universitas
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.asal_universitas || "Not specified"}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.asal_universitas || "Not specified"}>
+                                                {truncateText(selectedTeam.asal_universitas || "Not specified", 30)}
                                             </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Prodi/Fakultas
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.prodi_fakultas || "Not specified"}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.prodi_fakultas || "Not specified"}>
+                                                {truncateText(selectedTeam.prodi_fakultas || "Not specified", 30)}
                                             </p>
                                         </div>
                                     </div>
@@ -842,8 +849,8 @@ export default function TeamManagement({
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Nama
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.leader_name}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.leader_name}>
+                                                {truncateText(selectedTeam.leader_name, 25)}
                                             </p>
                                         </div>
                                         <div>
@@ -858,16 +865,16 @@ export default function TeamManagement({
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Email
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.leader_email}
+                                            <p className="text-sm sm:text-base break-all" title={selectedTeam.leader_email}>
+                                                {truncateText(selectedTeam.leader_email, 20)}
                                             </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 No. HP
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.leader_phone}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.leader_phone}>
+                                                {truncateText(selectedTeam.leader_phone, 15)}
                                             </p>
                                         </div>
                                     </div>
@@ -904,8 +911,8 @@ export default function TeamManagement({
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             Anggota {num}
                                                         </label>
-                                                        <p className="text-sm sm:text-base">
-                                                            {memberName}
+                                                        <p className="text-sm sm:text-base" title={memberName}>
+                                                            {truncateText(memberName, 25)}
                                                         </p>
                                                     </div>
                                                     <div>
@@ -920,16 +927,16 @@ export default function TeamManagement({
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             Email
                                                         </label>
-                                                        <p className="text-sm sm:text-base">
-                                                            {memberEmail}
+                                                        <p className="text-sm sm:text-base break-all" title={memberEmail || "Tidak tersedia"}>
+                                                            {memberEmail ? truncateText(memberEmail, 20) : "Tidak tersedia"}
                                                         </p>
                                                     </div>
                                                     <div>
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             No. HP
                                                         </label>
-                                                        <p className="text-sm sm:text-base">
-                                                            {memberPhone}
+                                                        <p className="text-sm sm:text-base" title={memberPhone || "Tidak tersedia"}>
+                                                            {memberPhone ? truncateText(memberPhone, 15) : "Tidak tersedia"}
                                                         </p>
                                                     </div>
                                                 </div>
