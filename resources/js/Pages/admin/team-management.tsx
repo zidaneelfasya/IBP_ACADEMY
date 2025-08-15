@@ -52,6 +52,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
+
 import {
     Search,
     MoreHorizontal,
@@ -66,6 +67,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Trophy,
+    ChevronDown,
 } from "lucide-react";
 import { router, Link } from "@inertiajs/react";
 import { toast } from "sonner";
@@ -339,16 +341,55 @@ export default function TeamManagement({
                     </div>
 
                     <div className="flex justify-end">
-                        <a
-                            href={route("export.team-registrations")}
-                            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9"
-                        >
-                            <Download className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">
-                                Export Data
-                            </span>
-                            <span className="sm:hidden">Export</span>
-                        </a>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button 
+                                    variant="outline" 
+                                    className="h-9"
+                                >
+                                    <Download className="mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">
+                                        Export Data
+                                    </span>
+                                    <span className="sm:hidden">Export</span>
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel>
+                                    Pilih Jenis Export
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <a
+                                        href={route("export.team-registrations")}
+                                        className="flex items-center cursor-pointer"
+                                    >
+                                        <FileText className="mr-2 h-4 w-4" />
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">Export Full</span>
+                                            <span className="text-xs text-muted-foreground">
+                                                Semua data lengkap
+                                            </span>
+                                        </div>
+                                    </a>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <a
+                                        href={route("export.team-registrations-simple")}
+                                        className="flex items-center cursor-pointer"
+                                    >
+                                        <Users className="mr-2 h-4 w-4" />
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">Export Simple</span>
+                                            <span className="text-xs text-muted-foreground">
+                                                Data ringkas tim
+                                            </span>
+                                        </div>
+                                    </a>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
                 {/* Stats Cards */}
