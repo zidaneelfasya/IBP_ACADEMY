@@ -76,6 +76,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
             ->name('export.team-registrations');
+        Route::get('/export/team-registrations-simple', [ExportController::class, 'exportTeamRegistrationsSimple'])
+            ->name('export.team-registrations-simple');
         Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');
         Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.preliminary.index');
         Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.preliminary.semifinal.index');
