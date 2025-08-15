@@ -243,6 +243,39 @@ class TeamRegistrationController extends Controller
         return redirect()->back()->with('success', 'Status tim dan progress berhasil diperbarui.');
     }
 
+    public function update(TeamRegistration $team, Request $request)
+    {
+        $validated = $request->validate([
+            'tim_name' => 'required|string|max:255',
+            'leader_name' => 'required|string|max:255',
+            'leader_nim' => 'required|string|max:20',
+            'leader_email' => 'required|email|max:255',
+            'leader_phone' => 'required|string|max:20',
+            'leader_univ' => 'required|string|max:255',
+            'leader_fakultas' => 'required|string|max:255',
+            'member1_name' => 'nullable|string|max:255',
+            'member1_nim' => 'nullable|string|max:20',
+            'member1_email' => 'nullable|email|max:255',
+            'member1_phone' => 'nullable|string|max:20',
+            'member1_univ' => 'nullable|string|max:255',
+            'member1_fakultas' => 'nullable|string|max:255',
+            'member2_name' => 'nullable|string|max:255',
+            'member2_nim' => 'nullable|string|max:20',
+            'member2_email' => 'nullable|email|max:255',
+            'member2_phone' => 'nullable|string|max:20',
+            'member2_univ' => 'nullable|string|max:255',
+            'member2_fakultas' => 'nullable|string|max:255',
+            'link_berkas' => 'required|url',
+        ]);
+
+        try {
+            $team->update($validated);
+            return redirect()->back()->with('success', 'Data tim berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memperbarui data tim: ' . $e->getMessage());
+        }
+    }
+
     public function destroy(TeamRegistration $team)
     {
         try {
