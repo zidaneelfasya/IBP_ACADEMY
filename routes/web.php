@@ -84,6 +84,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('/final', [FinalParticipantController::class, 'index'])->name('team.preliminary.final.index');
         Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
             ->name('team.update-status');
+        Route::put('/teams/{team}', [TeamRegistrationController::class, 'update'])
+            ->name('team.update');
         Route::put('/teams/{team}/reject', [TeamRegistrationController::class, 'updateStatusReject'])
             ->name('team.update-status-reject');
         Route::delete('/teams/{team}', [TeamRegistrationController::class, 'destroy'])
