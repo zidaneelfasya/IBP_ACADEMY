@@ -47,7 +47,7 @@ class BPCRegistrationController extends Controller
     {
         Log::info('BPC Registration attempt', ['user_id' => Auth::id()]);
 
-        $category = CompetitionCategory::where('name', 'BCC')->firstOrFail();
+        $category = CompetitionCategory::where('name', 'BPC')->firstOrFail();
          $bccCategory = CompetitionCategory::where('name', 'BCC')->firstOrFail();
         $bpcCategory = CompetitionCategory::where('name', 'BPC')->firstOrFail();
 
