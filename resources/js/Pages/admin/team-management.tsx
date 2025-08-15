@@ -68,6 +68,7 @@ import {
     ChevronRight,
     Trophy,
     ChevronDown,
+    ExternalLink,
 } from "lucide-react";
 import { router, Link } from "@inertiajs/react";
 import { toast } from "sonner";
@@ -600,6 +601,9 @@ export default function TeamManagement({
                                             Status
                                         </TableHead>
                                         <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Berkas
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
                                             Registered
                                         </TableHead>
                                         <TableHead className="text-right whitespace-nowrap px-3 py-3 sm:px-6">
@@ -671,6 +675,27 @@ export default function TeamManagement({
                                                     >
                                                         {statusBadge.label}
                                                     </Badge>
+                                                </TableCell>
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
+                                                    {team.link_berkas ? (
+                                                        <a
+                                                            href={team.link_berkas}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                                                            title={team.link_berkas}
+                                                        >
+                                                            <FileText className="h-3 w-3" />
+                                                            <span>
+                                                                {truncateText(team.link_berkas, 20)}
+                                                            </span>
+                                                            <ExternalLink className="h-3 w-3" />
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-xs text-muted-foreground">
+                                                            No file
+                                                        </span>
+                                                    )}
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -877,6 +902,48 @@ export default function TeamManagement({
                                                 {truncateText(selectedTeam.prodi_fakultas || "Not specified", 30)}
                                             </p>
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Berkas Pendaftaran */}
+                                <div>
+                                    <h3 className="text-base font-semibold mb-2 sm:text-lg">
+                                        Berkas Pendaftaran
+                                    </h3>
+                                    <div className="p-3 bg-muted/50 rounded-lg">
+                                        {selectedTeam.link_berkas ? (
+                                            <div className="space-y-2">
+                                                <div>
+                                                    <label className="text-sm font-medium text-muted-foreground">
+                                                        Link Berkas
+                                                    </label>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <a
+                                                            href={selectedTeam.link_berkas}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-md transition-colors text-sm"
+                                                        >
+                                                            <FileText className="h-4 w-4" />
+                                                            <span className="break-all">
+                                                                {selectedTeam.link_berkas}
+                                                            </span>
+                                                            <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Klik link di atas untuk membuka dan mereview berkas pendaftaran tim
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-4">
+                                                <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                                <p className="text-sm text-muted-foreground">
+                                                    Tidak ada berkas yang di-upload
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
