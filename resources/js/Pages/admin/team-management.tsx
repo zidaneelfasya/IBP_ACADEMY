@@ -223,10 +223,11 @@ export default function TeamManagement({
     const [editFormData, setEditFormData] = useState<Partial<TeamRegistration>>({});
     const [isFormChanged, setIsFormChanged] = useState(false);
     const [confirmAction, setConfirmAction] = useState<{
-        type: "approve" | "reject" | null;
+        type: "approve" | "reject" | "delete" | "edit" | null;
         teamId: number | null;
         teamName: string | null;
-    }>({ type: null, teamId: null, teamName: null });
+        team?: TeamRegistration | null;
+    }>({ type: null, teamId: null, teamName: null, team: null });
     const [filters, setFilters] = useState({
         search: initialFilters.search || "",
         progress_status: initialFilters.progress_status || "all",
@@ -330,20 +331,33 @@ export default function TeamManagement({
         setConfirmAction({ type: action, teamId, teamName });
     };
 
+    const confirmDelete = (teamId: number, teamName: string) => {
+        setConfirmAction({ type: "delete", teamId, teamName });
+    };
+
+    const confirmUpdate = () => {
+        if (!editTeam) return;
+        setConfirmAction({ type: "edit", teamId: editTeam.id, teamName: editTeam.tim_name, team: editTeam });
+    };
+
     const executeStatusChange = async () => {
         if (!confirmAction.teamId || !confirmAction.type) return;
 
         try {
             if (confirmAction.type === "approve") {
                 await handleStatusChange(confirmAction.teamId, "approved");
-            } else {
+            } else if (confirmAction.type === "reject") {
                 await handleStatusChangeReject(
                     confirmAction.teamId,
                     "rejected"
                 );
+            } else if (confirmAction.type === "delete") {
+                await handleDeleteTeam(confirmAction.teamId);
+            } else if (confirmAction.type === "edit") {
+                await handleUpdateTeam();
             }
         } finally {
-            setConfirmAction({ type: null, teamId: null, teamName: null });
+            setConfirmAction({ type: null, teamId: null, teamName: null, team: null });
         }
     };
 
@@ -395,8 +409,22 @@ export default function TeamManagement({
             toast.error("Terjadi kesalahan saat mengubah status");
         }
     };
-    const handleDeleteTeam = (teamId: number) => {
-        router.delete(route("team.destroy", teamId));
+    const handleDeleteTeam = async (teamId: number) => {
+        try {
+            await router.delete(route("team.destroy", teamId), {
+                onSuccess: () => {
+                    toast.success("Tim berhasil dihapus");
+                    router.reload({ only: ["teams"] });
+                },
+                onError: (errors) => {
+                    toast.error("Gagal menghapus tim");
+                    console.error(errors);
+                },
+            });
+        } catch (error) {
+            console.error("Error deleting team:", error);
+            toast.error("Terjadi kesalahan saat menghapus tim");
+        }
     };
 
     return (
@@ -847,8 +875,9 @@ export default function TeamManagement({
                                                             <DropdownMenuItem
                                                                 className="text-red-600"
                                                                 onClick={() =>
-                                                                    handleDeleteTeam(
-                                                                        team.id
+                                                                    confirmDelete(
+                                                                        team.id,
+                                                                        team.tim_name
                                                                     )
                                                                 }
                                                             >
@@ -1535,7 +1564,7 @@ export default function TeamManagement({
                                         Batal
                                     </Button>
                                     <Button
-                                        onClick={handleUpdateTeam}
+                                        onClick={confirmUpdate}
                                         disabled={!isFormChanged}
                                         size="sm"
                                         className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
@@ -1556,6 +1585,7 @@ export default function TeamManagement({
                             type: null,
                             teamId: null,
                             teamName: null,
+                            team: null,
                         })
                     }
                 >
@@ -1565,19 +1595,25 @@ export default function TeamManagement({
                                 Konfirmasi{" "}
                                 {confirmAction.type === "approve"
                                     ? "Persetujuan"
-                                    : "Penolakan"}
+                                    : confirmAction.type === "reject"
+                                    ? "Penolakan"
+                                    : confirmAction.type === "delete"
+                                    ? "Penghapusan"
+                                    : "Simpan Perubahan"}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                Apakah Anda yakin ingin{" "}
-                                {confirmAction.type === "approve"
-                                    ? "menyetujui"
-                                    : "menolak"}{" "}
-                                tim "{confirmAction.teamName}"? Tindakan ini
-                                akan mengubah status tim menjadi{" "}
-                                {confirmAction.type === "approve"
-                                    ? "approved"
-                                    : "rejected"}
-                                .
+                                {confirmAction.type === "approve" && (
+                                    <>Apakah Anda yakin ingin menyetujui tim "{confirmAction.teamName}"? Tindakan ini akan mengubah status tim menjadi approved.</>
+                                )}
+                                {confirmAction.type === "reject" && (
+                                    <>Apakah Anda yakin ingin menolak tim "{confirmAction.teamName}"? Tindakan ini akan mengubah status tim menjadi rejected.</>
+                                )}
+                                {confirmAction.type === "delete" && (
+                                    <>Apakah Anda yakin ingin menghapus tim "{confirmAction.teamName}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data tim secara permanen.</>
+                                )}
+                                {confirmAction.type === "edit" && (
+                                    <>Apakah Anda yakin ingin menyimpan perubahan data tim "{confirmAction.teamName}"? Semua perubahan yang telah dibuat akan disimpan secara permanen.</>
+                                )}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -1587,13 +1623,21 @@ export default function TeamManagement({
                                 className={
                                     confirmAction.type === "approve"
                                         ? "bg-green-600 hover:bg-green-700"
-                                        : "bg-red-600 hover:bg-red-700"
+                                        : confirmAction.type === "reject"
+                                        ? "bg-red-600 hover:bg-red-700"
+                                        : confirmAction.type === "delete"
+                                        ? "bg-red-600 hover:bg-red-700"
+                                        : "bg-blue-600 hover:bg-blue-700"
                                 }
                             >
                                 Ya,{" "}
                                 {confirmAction.type === "approve"
                                     ? "Setujui"
-                                    : "Tolak"}
+                                    : confirmAction.type === "reject"
+                                    ? "Tolak"
+                                    : confirmAction.type === "delete"
+                                    ? "Hapus"
+                                    : "Simpan"}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
