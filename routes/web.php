@@ -66,7 +66,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
-        Route::get('/admin', function () {
+    Route::get('/admin', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
     Route::prefix('/admin/dashboard')->group(function () {
@@ -92,11 +92,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             ->name('team.destroy');
         Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
 
-        Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])-> name('progress.approve');
+        Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])->name('progress.approve');
         Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
-
-
-
     });
 });
 
@@ -145,7 +142,6 @@ Route::get('/business-case-competition', function (Request $request) {
     }
 
     return Inertia::render('BusinessCaseCompetition', $data);
-
 })->name('business-case-competition');
 Route::middleware('admin.code.access')->group(function () {
     Route::get('/register/admin', function () {
@@ -201,7 +197,11 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->name('dashboard.user');
     Route::get('/dashboard', [DashboardUserController::class, 'index'])
         ->name('dashboard.user.dashboard');
-    Route::get('/assignments', fn() => Inertia::render('User/Maintenance'))->name('dashboard.user.tugas');
+    Route::get('/assignments', [\App\Http\Controllers\User\AssignmentController::class, 'index'])
+        ->name('dashboard.user.tugas');
+    Route::get('/assignments/{uuid}', [\App\Http\Controllers\User\AssignmentController::class, 'show'])
+        ->name('dashboard.user.assignment.show')
+        ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
     Route::get('/course', fn() => Inertia::render('User/Course'))->name('dashboard.user.course');
@@ -263,10 +263,6 @@ Route::middleware(['auth', 'verified'])->prefix('participant')->name('participan
     Route::get('assignments/{assignment}/submission', [ParticipantAssignmentController::class, 'submission'])
         ->name('assignments.submission');
 });
-
-
-
-
 
 
 
