@@ -186,9 +186,14 @@ Route::middleware(['auth', 'verified', 'user', 'no-registration'])->group(functi
         Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
     });
 
-    Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
+    // Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
+    //     ->name('competition.success');
+});
+Route::middleware(['auth', 'verified', 'user'])->group(function () {
+ Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
         ->name('competition.success');
 });
+   
 
 
 
@@ -252,17 +257,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 });
 
-// Participant Routes for Assignments
-Route::middleware(['auth', 'verified'])->prefix('participant')->name('participant.')->group(function () {
-    Route::get('assignments', [ParticipantAssignmentController::class, 'index'])
-        ->name('assignments.index');
-    Route::get('assignments/{assignment}', [ParticipantAssignmentController::class, 'show'])
-        ->name('assignments.show');
-    Route::post('assignments/{assignment}/submit', [ParticipantAssignmentController::class, 'submit'])
-        ->name('assignments.submit');
-    Route::get('assignments/{assignment}/submission', [ParticipantAssignmentController::class, 'submission'])
-        ->name('assignments.submission');
-});
+// // Participant Routes for Assignments
+// Route::middleware(['auth', 'verified'])->prefix('participant')->name('participant.')->group(function () {
+//     Route::get('assignments', [ParticipantAssignmentController::class, 'index'])
+//         ->name('assignments.index');
+//     Route::get('assignments/{assignment}', [ParticipantAssignmentController::class, 'show'])
+//         ->name('assignments.show');
+//     Route::post('assignments/{assignment}/submit', [ParticipantAssignmentController::class, 'submit'])
+//         ->name('assignments.submit');
+//     Route::get('assignments/{assignment}/submission', [ParticipantAssignmentController::class, 'submission'])
+//         ->name('assignments.submission');
+// });
 
 
 
