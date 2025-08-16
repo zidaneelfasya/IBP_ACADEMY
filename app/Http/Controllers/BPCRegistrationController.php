@@ -47,7 +47,7 @@ class BPCRegistrationController extends Controller
     {
         Log::info('BPC Registration attempt', ['user_id' => Auth::id()]);
 
-        $category = CompetitionCategory::where('name', 'BCC')->firstOrFail();
+        $category = CompetitionCategory::where('name', 'BPC')->firstOrFail();
          $bccCategory = CompetitionCategory::where('name', 'BCC')->firstOrFail();
         $bpcCategory = CompetitionCategory::where('name', 'BPC')->firstOrFail();
 
@@ -274,14 +274,35 @@ class BPCRegistrationController extends Controller
      */
     private function generateRegistrationNumber($categoryId)
     {
-        $year = date('Y');
-        $month = date('m');
+        return DB::transaction(function () use ($categoryId) {
+            $year = date('Y');
+            $month = date('m');
+            $prefix = 'BPC'.$year.$month;
 
-        $count = TeamRegistration::where('competition_category_id', $categoryId)
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
-            ->count() + 1;
+            // Dapatkan nomor terakhir dengan LOCK
+            $lastRegistration = TeamRegistration::where('registration_number', 'like', $prefix.'%')
+                ->lockForUpdate()
+                ->orderBy('created_at', 'desc')
+                ->first();
 
-        return sprintf('BPC%s%s%04d', $year, $month, $count);
+            if ($lastRegistration) {
+                // Extract sequence number
+                $lastNumber = (int) substr($lastRegistration->registration_number, strlen($prefix));
+                $nextNumber = $lastNumber + 1;
+            } else {
+                $nextNumber = 1;
+            }
+
+            $registrationNumber = $prefix.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+            // Double check uniqueness
+            $exists = TeamRegistration::where('registration_number', $registrationNumber)->exists();
+            if ($exists) {
+                // Fallback mechanism
+                $registrationNumber = $prefix.str_pad($nextNumber + 1, 4, '0', STR_PAD_LEFT);
+            }
+
+            return $registrationNumber;
+        });
     }
 }

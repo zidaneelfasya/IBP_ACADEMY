@@ -25,9 +25,97 @@ import { motion } from "framer-motion";
 import { Head } from "@inertiajs/react";
 import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 
-const businessPlanTimeline = [
+// Date parsing and status logic functions
+const parseDate = (dateString: string) => {
+    if (dateString === "TBA") return null;
+
+    // Handle range dates like "August 8 - 21, 2025"
+    if (dateString.includes(" - ")) {
+        const parts = dateString.split(" - ");
+        const startPart = parts[0]; // "August 8"
+        const endPart = parts[1]; // "21, 2025"
+
+        // Extract month and year from the full string
+        const yearMatch = dateString.match(/\d{4}/);
+        const year = yearMatch ? yearMatch[0] : "2025";
+
+        // Get month from start part
+        const monthMatch = startPart.match(/[A-Za-z]+/);
+        const month = monthMatch ? monthMatch[0] : "August";
+
+        // Get start day
+        const startDayMatch = startPart.match(/\d+/);
+        const startDay = startDayMatch ? startDayMatch[0] : "1";
+
+        // Get end day
+        const endDayMatch = endPart.match(/\d+/);
+        const endDay = endDayMatch ? endDayMatch[0] : "1";
+
+        // Convert month name to number
+        const monthNumber = new Date(`${month} 1, 2000`).getMonth() + 1;
+        const monthStr = monthNumber.toString().padStart(2, "0");
+
+        return {
+            start: `${year}-${monthStr}-${startDay.padStart(2, "0")}`,
+            end: `${year}-${monthStr}-${endDay.padStart(2, "0")}`,
+        };
+    }
+
+    // Handle single dates like "August 24, 2025"
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        const formattedDate = `${year}-${month}-${day}`;
+
+        return {
+            start: formattedDate,
+            end: formattedDate,
+        };
+    }
+
+    return null;
+};
+
+const getEventStatus = (
+    dateString: string
+): "active" | "completed" | "upcoming" => {
+    const parsedDate = parseDate(dateString);
+    if (!parsedDate) return "upcoming"; // TBA events
+
+    const today = new Date();
+    const currentDate = `${today.getFullYear()}-${(today.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
+
+    const { start, end } = parsedDate;
+
+    // Check if current date is before start date
+    if (currentDate < start) {
+        return "upcoming";
+    }
+
+    // Check if current date is after end date
+    if (currentDate > end) {
+        return "completed";
+    }
+
+    // Current date is between start and end (inclusive)
+    return "active";
+};
+
+// Update timeline data to use computed status
+const computeTimelineStatus = (timeline: any[]) => {
+    return timeline.map((event) => ({
+        ...event,
+        status: getEventStatus(event.date),
+    }));
+};
+
+const businessPlanTimelineBase = [
     {
         id: 1,
         title: "Registration",
@@ -35,7 +123,6 @@ const businessPlanTimeline = [
         description: "Registration period for Business Plan Competition",
         type: "registration",
         icon: Users,
-        status: "active",
     },
     {
         id: 2,
@@ -44,7 +131,6 @@ const businessPlanTimeline = [
         description: "Technical meeting for preliminary round",
         type: "meeting",
         icon: FileText,
-        status: "upcoming",
     },
     {
         id: 3,
@@ -53,7 +139,6 @@ const businessPlanTimeline = [
         description: "Business Model Canvas submission period",
         type: "competition",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 4,
@@ -62,7 +147,6 @@ const businessPlanTimeline = [
         description: "Announcement of participants advancing to semifinals",
         type: "announcement",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 5,
@@ -71,7 +155,6 @@ const businessPlanTimeline = [
         description: "Re-registration period for semifinalists",
         type: "registration",
         icon: Users,
-        status: "upcoming",
     },
     {
         id: 6,
@@ -80,7 +163,6 @@ const businessPlanTimeline = [
         description: "Business proposal submission period",
         type: "competition",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 7,
@@ -89,7 +171,6 @@ const businessPlanTimeline = [
         description: "Announcement of participants advancing to finals",
         type: "announcement",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 8,
@@ -98,7 +179,6 @@ const businessPlanTimeline = [
         description: "Business plan poster submission",
         type: "competition",
         icon: FileText,
-        status: "upcoming",
     },
     {
         id: 9,
@@ -107,7 +187,6 @@ const businessPlanTimeline = [
         description: "Final business plan submission",
         type: "competition",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 10,
@@ -116,16 +195,14 @@ const businessPlanTimeline = [
         description: "Technical meeting for final round",
         type: "meeting",
         icon: FileText,
-        status: "upcoming",
     },
     {
         id: 11,
-        title: "Company Sessions",
+        title: "Mentoring Session",
         date: "TBA",
-        description: "Company Sessions for finalists",
+        description: "Mentoring sessions for finalists",
         type: "mentoring",
         icon: Users,
-        status: "upcoming",
     },
     {
         id: 12,
@@ -134,11 +211,10 @@ const businessPlanTimeline = [
         description: "International Business Plan final competition",
         type: "final",
         icon: Trophy,
-        status: "upcoming",
     },
 ];
 
-const businessCaseTimeline = [
+const businessCaseTimelineBase = [
     {
         id: 1,
         title: "Registration",
@@ -146,7 +222,6 @@ const businessCaseTimeline = [
         description: "Registration period for Business Case Competition",
         type: "registration",
         icon: Users,
-        status: "active",
     },
     {
         id: 2,
@@ -155,7 +230,6 @@ const businessCaseTimeline = [
         description: "Release of preliminary round case study",
         type: "competition",
         icon: FileText,
-        status: "upcoming",
     },
     {
         id: 3,
@@ -164,7 +238,6 @@ const businessCaseTimeline = [
         description: "Technical meeting for preliminary round",
         type: "meeting",
         icon: FileText,
-        status: "upcoming",
     },
     {
         id: 4,
@@ -173,7 +246,6 @@ const businessCaseTimeline = [
         description: "Submission period for preliminary round",
         type: "competition",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 5,
@@ -182,7 +254,6 @@ const businessCaseTimeline = [
         description: "Announcement of participants advancing to semifinals",
         type: "announcement",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 6,
@@ -191,7 +262,6 @@ const businessCaseTimeline = [
         description: "Re-registration period for semifinalists",
         type: "registration",
         icon: Users,
-        status: "upcoming",
     },
     {
         id: 7,
@@ -200,7 +270,6 @@ const businessCaseTimeline = [
         description: "Release of semifinal round case study",
         type: "competition",
         icon: FileText,
-        status: "upcoming",
     },
     {
         id: 8,
@@ -209,7 +278,6 @@ const businessCaseTimeline = [
         description: "Submission period for semifinal round",
         type: "competition",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 9,
@@ -218,7 +286,6 @@ const businessCaseTimeline = [
         description: "Announcement of participants advancing to finals",
         type: "announcement",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 10,
@@ -227,7 +294,6 @@ const businessCaseTimeline = [
         description: "Final case analysis submission",
         type: "competition",
         icon: Trophy,
-        status: "upcoming",
     },
     {
         id: 11,
@@ -236,16 +302,14 @@ const businessCaseTimeline = [
         description: "Technical meeting for final round",
         type: "meeting",
         icon: FileText,
-        status: "upcoming",
     },
     {
         id: 12,
-        title: "Mentoring Session",
+        title: "Company Sessions",
         date: "TBA",
-        description: "Mentoring sessions for finalists",
+        description: "Company Sessions for finalists",
         type: "mentoring",
         icon: Users,
-        status: "upcoming",
     },
     {
         id: 13,
@@ -254,7 +318,6 @@ const businessCaseTimeline = [
         description: "International Business Case final competition",
         type: "final",
         icon: Trophy,
-        status: "upcoming",
     },
 ];
 
@@ -362,7 +425,35 @@ const getStatusBadge = (status: string) => {
 export default function TimelinePage() {
     const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+    const [currentTime, setCurrentTime] = useState(new Date());
     const timelineRefs = useRef<{ [key: number]: HTMLElement | null }>({});
+
+    // Compute timeline status dynamically
+    const businessPlanTimeline = useMemo(() => {
+        const timeline = computeTimelineStatus(businessPlanTimelineBase);
+        console.log(
+            "Business Plan Timeline computed:",
+            timeline.map((t) => ({
+                title: t.title,
+                date: t.date,
+                status: t.status,
+            }))
+        );
+        return timeline;
+    }, [currentTime]);
+
+    const businessCaseTimeline = useMemo(() => {
+        const timeline = computeTimelineStatus(businessCaseTimelineBase);
+        console.log(
+            "Business Case Timeline computed:",
+            timeline.map((t) => ({
+                title: t.title,
+                date: t.date,
+                status: t.status,
+            }))
+        );
+        return timeline;
+    }, [currentTime]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -384,6 +475,15 @@ export default function TimelinePage() {
         });
 
         return () => observer.disconnect();
+    }, []);
+
+    // Real-time update for timeline status
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 60000); // Update every minute
+
+        return () => clearInterval(interval);
     }, []);
 
     const setTimelineRef = (id: number) => (el: HTMLElement | null) => {

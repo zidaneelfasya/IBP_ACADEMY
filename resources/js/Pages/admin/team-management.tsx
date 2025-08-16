@@ -52,6 +52,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
+
 import {
     Search,
     MoreHorizontal,
@@ -66,6 +67,9 @@ import {
     ChevronLeft,
     ChevronRight,
     Trophy,
+    ChevronDown,
+    ExternalLink,
+    Edit,
 } from "lucide-react";
 import { router, Link } from "@inertiajs/react";
 import { toast } from "sonner";
@@ -77,25 +81,31 @@ interface TeamRegistration {
     competition_category: {
         id: number;
         name: string;
-    };
+    } | null;
     leader_name: string;
     leader_nim: string;
     leader_email: string;
     leader_phone: string;
+    leader_univ: string;
+    leader_fakultas: string;
     member1_name: string | null;
     member1_nim: string | null;
     member1_email: string | null;
     member1_phone: string | null;
+    member1_univ: string | null;
+    member1_fakultas: string | null;
     member2_name: string | null;
     member2_nim: string | null;
     member2_email: string | null;
     member2_phone: string | null;
+    member2_univ: string | null;
+    member2_fakultas: string | null;
     member3_name: string | null;
     member3_nim: string | null;
     member3_email: string | null;
     member3_phone: string | null;
-    asal_universitas: string;
-    prodi_fakultas: string;
+    asal_universitas: string; // For backward compatibility
+    prodi_fakultas: string; // For backward compatibility
     link_berkas: string;
     status: string;
     registered_at: string;
@@ -193,6 +203,13 @@ const formatDate = (dateString: string): string => {
     });
 };
 
+// Utility function to truncate text with ellipsis
+const truncateText = (text: string, maxLength: number = 25): string => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+};
+
 export default function TeamManagement({
     teams: initialTeams,
     filters: initialFilters,
@@ -202,11 +219,15 @@ export default function TeamManagement({
     const [selectedTeam, setSelectedTeam] = useState<TeamRegistration | null>(
         null
     );
+    const [editTeam, setEditTeam] = useState<TeamRegistration | null>(null);
+    const [editFormData, setEditFormData] = useState<Partial<TeamRegistration>>({});
+    const [isFormChanged, setIsFormChanged] = useState(false);
     const [confirmAction, setConfirmAction] = useState<{
-        type: "approve" | "reject" | null;
+        type: "approve" | "reject" | "delete" | "edit" | null;
         teamId: number | null;
         teamName: string | null;
-    }>({ type: null, teamId: null, teamName: null });
+        team?: TeamRegistration | null;
+    }>({ type: null, teamId: null, teamName: null, team: null });
     const [filters, setFilters] = useState({
         search: initialFilters.search || "",
         progress_status: initialFilters.progress_status || "all",
@@ -240,6 +261,68 @@ export default function TeamManagement({
         setSelectedTeam(team);
     };
 
+    const handleEditTeam = (team: TeamRegistration) => {
+        setEditTeam(team);
+        setEditFormData({
+            tim_name: team.tim_name,
+            leader_name: team.leader_name,
+            leader_nim: team.leader_nim,
+            leader_email: team.leader_email,
+            leader_phone: team.leader_phone,
+            leader_univ: team.leader_univ,
+            leader_fakultas: team.leader_fakultas,
+            member1_name: team.member1_name || '',
+            member1_nim: team.member1_nim || '',
+            member1_email: team.member1_email || '',
+            member1_phone: team.member1_phone || '',
+            member1_univ: team.member1_univ || '',
+            member1_fakultas: team.member1_fakultas || '',
+            member2_name: team.member2_name || '',
+            member2_nim: team.member2_nim || '',
+            member2_email: team.member2_email || '',
+            member2_phone: team.member2_phone || '',
+            member2_univ: team.member2_univ || '',
+            member2_fakultas: team.member2_fakultas || '',
+            link_berkas: team.link_berkas,
+        });
+        setIsFormChanged(false);
+    };
+
+    const handleFormChange = (field: string, value: string) => {
+        setEditFormData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+        setIsFormChanged(true);
+    };
+
+    const handleUpdateTeam = async () => {
+        if (!editTeam || !isFormChanged) return;
+
+        try {
+            await router.put(
+                route("team.update", editTeam.id),
+                editFormData,
+                {
+                    onSuccess: () => {
+                        toast.success(`Data tim berhasil diupdate`);
+                        setEditTeam(null);
+                        setEditFormData({});
+                        setIsFormChanged(false);
+                        router.reload({ only: ["teams"] });
+                    },
+                    onError: (errors) => {
+                        toast.error("Gagal mengupdate data tim");
+                        console.error(errors);
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("Error updating team:", error);
+            toast.error("Terjadi kesalahan saat mengupdate data");
+        }
+    };
+
     const confirmStatusChange = (
         teamId: number,
         action: "approve" | "reject",
@@ -248,20 +331,33 @@ export default function TeamManagement({
         setConfirmAction({ type: action, teamId, teamName });
     };
 
+    const confirmDelete = (teamId: number, teamName: string) => {
+        setConfirmAction({ type: "delete", teamId, teamName });
+    };
+
+    const confirmUpdate = () => {
+        if (!editTeam) return;
+        setConfirmAction({ type: "edit", teamId: editTeam.id, teamName: editTeam.tim_name, team: editTeam });
+    };
+
     const executeStatusChange = async () => {
         if (!confirmAction.teamId || !confirmAction.type) return;
 
         try {
             if (confirmAction.type === "approve") {
                 await handleStatusChange(confirmAction.teamId, "approved");
-            } else {
+            } else if (confirmAction.type === "reject") {
                 await handleStatusChangeReject(
                     confirmAction.teamId,
                     "rejected"
                 );
+            } else if (confirmAction.type === "delete") {
+                await handleDeleteTeam(confirmAction.teamId);
+            } else if (confirmAction.type === "edit") {
+                await handleUpdateTeam();
             }
         } finally {
-            setConfirmAction({ type: null, teamId: null, teamName: null });
+            setConfirmAction({ type: null, teamId: null, teamName: null, team: null });
         }
     };
 
@@ -313,8 +409,22 @@ export default function TeamManagement({
             toast.error("Terjadi kesalahan saat mengubah status");
         }
     };
-    const handleDeleteTeam = (teamId: number) => {
-        router.delete(route("team.destroy", teamId));
+    const handleDeleteTeam = async (teamId: number) => {
+        try {
+            await router.delete(route("team.destroy", teamId), {
+                onSuccess: () => {
+                    toast.success("Tim berhasil dihapus");
+                    router.reload({ only: ["teams"] });
+                },
+                onError: (errors) => {
+                    toast.error("Gagal menghapus tim");
+                    console.error(errors);
+                },
+            });
+        } catch (error) {
+            console.error("Error deleting team:", error);
+            toast.error("Terjadi kesalahan saat menghapus tim");
+        }
     };
 
     return (
@@ -332,16 +442,55 @@ export default function TeamManagement({
                     </div>
 
                     <div className="flex justify-end">
-                        <a
-                            href={route("export.team-registrations")}
-                            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9"
-                        >
-                            <Download className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">
-                                Export Data
-                            </span>
-                            <span className="sm:hidden">Export</span>
-                        </a>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button 
+                                    variant="outline" 
+                                    className="h-9"
+                                >
+                                    <Download className="mr-2 h-4 w-4" />
+                                    <span className="hidden sm:inline">
+                                        Export Data
+                                    </span>
+                                    <span className="sm:hidden">Export</span>
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel>
+                                    Pilih Jenis Export
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                    <a
+                                        href={route("export.team-registrations")}
+                                        className="flex items-center cursor-pointer"
+                                    >
+                                        <FileText className="mr-2 h-4 w-4" />
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">Export Full</span>
+                                            <span className="text-xs text-muted-foreground">
+                                                Semua data lengkap
+                                            </span>
+                                        </div>
+                                    </a>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <a
+                                        href={route("export.team-registrations-simple")}
+                                        className="flex items-center cursor-pointer"
+                                    >
+                                        <Users className="mr-2 h-4 w-4" />
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">Export Simple</span>
+                                            <span className="text-xs text-muted-foreground">
+                                                Data ringkas tim
+                                            </span>
+                                        </div>
+                                    </a>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
                 {/* Stats Cards */}
@@ -552,6 +701,9 @@ export default function TeamManagement({
                                             Status
                                         </TableHead>
                                         <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
+                                            Berkas
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap px-3 py-3 sm:px-6">
                                             Registered
                                         </TableHead>
                                         <TableHead className="text-right whitespace-nowrap px-3 py-3 sm:px-6">
@@ -585,9 +737,7 @@ export default function TeamManagement({
                                                             {team.leader_nim}
                                                         </div>
                                                         <div className="text-xs text-muted-foreground">
-                                                            {
-                                                                team.asal_universitas
-                                                            }
+                                                            {team.asal_universitas || "No university specified"}
                                                         </div>
                                                     </div>
                                                 </TableCell>
@@ -606,9 +756,7 @@ export default function TeamManagement({
                                                         className="text-xs"
                                                     >
                                                         <Trophy className="mr-1 h-3 w-3" />
-                                                        {team
-                                                            .competition_category
-                                                            ?.name || "Unknown"}
+                                                        {team.competition_category?.name || "Unknown"}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
@@ -627,6 +775,27 @@ export default function TeamManagement({
                                                     >
                                                         {statusBadge.label}
                                                     </Badge>
+                                                </TableCell>
+                                                <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
+                                                    {team.link_berkas ? (
+                                                        <a
+                                                            href={team.link_berkas}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                                                            title={team.link_berkas}
+                                                        >
+                                                            <FileText className="h-3 w-3" />
+                                                            <span>
+                                                                {truncateText(team.link_berkas, 20)}
+                                                            </span>
+                                                            <ExternalLink className="h-3 w-3" />
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-xs text-muted-foreground">
+                                                            No file
+                                                        </span>
+                                                    )}
                                                 </TableCell>
                                                 <TableCell className="whitespace-nowrap px-3 py-4 sm:px-6">
                                                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -667,6 +836,16 @@ export default function TeamManagement({
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 View
                                                             </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() =>
+                                                                    handleEditTeam(
+                                                                        team
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Edit className="mr-2 h-4 w-4" />
+                                                                Edit
+                                                            </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
                                                                 onClick={() =>
@@ -696,8 +875,9 @@ export default function TeamManagement({
                                                             <DropdownMenuItem
                                                                 className="text-red-600"
                                                                 onClick={() =>
-                                                                    handleDeleteTeam(
-                                                                        team.id
+                                                                    confirmDelete(
+                                                                        team.id,
+                                                                        team.tim_name
                                                                     )
                                                                 }
                                                             >
@@ -814,27 +994,67 @@ export default function TeamManagement({
                                                 Kategori Lomba
                                             </label>
                                             <p className="text-sm sm:text-base">
-                                                {selectedTeam
-                                                    .competition_category
-                                                    ?.name || "Unknown"}
+                                                {selectedTeam.competition_category?.name || "Unknown"}
                                             </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Asal Universitas
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.asal_universitas}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.asal_universitas || "Not specified"}>
+                                                {truncateText(selectedTeam.asal_universitas || "Not specified", 30)}
                                             </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Prodi/Fakultas
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.prodi_fakultas}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.prodi_fakultas || "Not specified"}>
+                                                {truncateText(selectedTeam.prodi_fakultas || "Not specified", 30)}
                                             </p>
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Berkas Pendaftaran */}
+                                <div>
+                                    <h3 className="text-base font-semibold mb-2 sm:text-lg">
+                                        Berkas Pendaftaran
+                                    </h3>
+                                    <div className="p-3 bg-muted/50 rounded-lg">
+                                        {selectedTeam.link_berkas ? (
+                                            <div className="space-y-2">
+                                                <div>
+                                                    <label className="text-sm font-medium text-muted-foreground">
+                                                        Link Berkas
+                                                    </label>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <a
+                                                            href={selectedTeam.link_berkas}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-md transition-colors text-sm"
+                                                        >
+                                                            <FileText className="h-4 w-4" />
+                                                            <span className="break-all">
+                                                                {selectedTeam.link_berkas}
+                                                            </span>
+                                                            <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Klik link di atas untuk membuka dan mereview berkas pendaftaran tim
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-4">
+                                                <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                                <p className="text-sm text-muted-foreground">
+                                                    Tidak ada berkas yang di-upload
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -848,8 +1068,8 @@ export default function TeamManagement({
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Nama
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.leader_name}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.leader_name}>
+                                                {truncateText(selectedTeam.leader_name, 25)}
                                             </p>
                                         </div>
                                         <div>
@@ -864,16 +1084,16 @@ export default function TeamManagement({
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 Email
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.leader_email}
+                                            <p className="text-sm sm:text-base break-all" title={selectedTeam.leader_email}>
+                                                {truncateText(selectedTeam.leader_email, 20)}
                                             </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
                                                 No. HP
                                             </label>
-                                            <p className="text-sm sm:text-base">
-                                                {selectedTeam.leader_phone}
+                                            <p className="text-sm sm:text-base" title={selectedTeam.leader_phone}>
+                                                {truncateText(selectedTeam.leader_phone, 15)}
                                             </p>
                                         </div>
                                     </div>
@@ -910,8 +1130,8 @@ export default function TeamManagement({
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             Anggota {num}
                                                         </label>
-                                                        <p className="text-sm sm:text-base">
-                                                            {memberName}
+                                                        <p className="text-sm sm:text-base" title={memberName}>
+                                                            {truncateText(memberName, 25)}
                                                         </p>
                                                     </div>
                                                     <div>
@@ -926,16 +1146,16 @@ export default function TeamManagement({
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             Email
                                                         </label>
-                                                        <p className="text-sm sm:text-base">
-                                                            {memberEmail}
+                                                        <p className="text-sm sm:text-base break-all" title={memberEmail || "Tidak tersedia"}>
+                                                            {memberEmail ? truncateText(memberEmail, 20) : "Tidak tersedia"}
                                                         </p>
                                                     </div>
                                                     <div>
                                                         <label className="text-sm font-medium text-muted-foreground">
                                                             No. HP
                                                         </label>
-                                                        <p className="text-sm sm:text-base">
-                                                            {memberPhone}
+                                                        <p className="text-sm sm:text-base" title={memberPhone || "Tidak tersedia"}>
+                                                            {memberPhone ? truncateText(memberPhone, 15) : "Tidak tersedia"}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1069,6 +1289,294 @@ export default function TeamManagement({
                         )}
                     </DialogContent>
                 </Dialog>
+                
+                {/* Edit Team Dialog */}
+                <Dialog
+                    open={!!editTeam}
+                    onOpenChange={() => {
+                        setEditTeam(null);
+                        setEditFormData({});
+                        setIsFormChanged(false);
+                    }}
+                >
+                    <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-full sm:max-w-2xl md:max-w-4xl">
+                        <DialogHeader>
+                            <DialogTitle className="text-lg sm:text-xl">
+                                Edit Data Tim - {editTeam?.tim_name}
+                            </DialogTitle>
+                            <DialogDescription className="text-sm">
+                                Update informasi tim dan anggota
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        {editTeam && (
+                            <div className="space-y-6">
+                                {/* Team Info */}
+                                <div>
+                                    <h3 className="text-base font-semibold mb-3 sm:text-lg">
+                                        Informasi Tim
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Nama Tim
+                                            </label>
+                                            <Input
+                                                value={editFormData.tim_name || ''}
+                                                onChange={(e) => handleFormChange('tim_name', e.target.value)}
+                                                placeholder="Nama tim..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Link Berkas
+                                            </label>
+                                            <Input
+                                                value={editFormData.link_berkas || ''}
+                                                onChange={(e) => handleFormChange('link_berkas', e.target.value)}
+                                                placeholder="https://..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Asal Universitas
+                                            </label>
+                                            <Input
+                                                value={editFormData.leader_univ || ''}
+                                                onChange={(e) => handleFormChange('leader_univ', e.target.value)}
+                                                placeholder="Universitas..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Prodi/Fakultas
+                                            </label>
+                                            <Input
+                                                value={editFormData.leader_fakultas || ''}
+                                                onChange={(e) => handleFormChange('leader_fakultas', e.target.value)}
+                                                placeholder="Program Studi / Fakultas..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Team Leader */}
+                                <div>
+                                    <h3 className="text-base font-semibold mb-3 sm:text-lg">
+                                        Ketua Tim
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Nama Ketua
+                                            </label>
+                                            <Input
+                                                value={editFormData.leader_name || ''}
+                                                onChange={(e) => handleFormChange('leader_name', e.target.value)}
+                                                placeholder="Nama lengkap..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                NIM Ketua
+                                            </label>
+                                            <Input
+                                                value={editFormData.leader_nim || ''}
+                                                onChange={(e) => handleFormChange('leader_nim', e.target.value)}
+                                                placeholder="NIM..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Email Ketua
+                                            </label>
+                                            <Input
+                                                type="email"
+                                                value={editFormData.leader_email || ''}
+                                                onChange={(e) => handleFormChange('leader_email', e.target.value)}
+                                                placeholder="email@example.com"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                No. HP Ketua
+                                            </label>
+                                            <Input
+                                                value={editFormData.leader_phone || ''}
+                                                onChange={(e) => handleFormChange('leader_phone', e.target.value)}
+                                                placeholder="08xx-xxxx-xxxx"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Member 1 */}
+                                <div>
+                                    <h3 className="text-base font-semibold mb-3 sm:text-lg">
+                                        Anggota 1
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Nama Anggota 1
+                                            </label>
+                                            <Input
+                                                value={editFormData.member1_name || ''}
+                                                onChange={(e) => handleFormChange('member1_name', e.target.value)}
+                                                placeholder="Nama lengkap..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                NIM Anggota 1
+                                            </label>
+                                            <Input
+                                                value={editFormData.member1_nim || ''}
+                                                onChange={(e) => handleFormChange('member1_nim', e.target.value)}
+                                                placeholder="NIM..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Email Anggota 1
+                                            </label>
+                                            <Input
+                                                type="email"
+                                                value={editFormData.member1_email || ''}
+                                                onChange={(e) => handleFormChange('member1_email', e.target.value)}
+                                                placeholder="email@example.com"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                No. HP Anggota 1
+                                            </label>
+                                            <Input
+                                                value={editFormData.member1_phone || ''}
+                                                onChange={(e) => handleFormChange('member1_phone', e.target.value)}
+                                                placeholder="08xx-xxxx-xxxx"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Universitas Anggota 1
+                                            </label>
+                                            <Input
+                                                value={editFormData.member1_univ || ''}
+                                                onChange={(e) => handleFormChange('member1_univ', e.target.value)}
+                                                placeholder="Universitas..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Prodi/Fakultas Anggota 1
+                                            </label>
+                                            <Input
+                                                value={editFormData.member1_fakultas || ''}
+                                                onChange={(e) => handleFormChange('member1_fakultas', e.target.value)}
+                                                placeholder="Program Studi / Fakultas..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Member 2 */}
+                                <div>
+                                    <h3 className="text-base font-semibold mb-3 sm:text-lg">
+                                        Anggota 2
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Nama Anggota 2
+                                            </label>
+                                            <Input
+                                                value={editFormData.member2_name || ''}
+                                                onChange={(e) => handleFormChange('member2_name', e.target.value)}
+                                                placeholder="Nama lengkap..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                NIM Anggota 2
+                                            </label>
+                                            <Input
+                                                value={editFormData.member2_nim || ''}
+                                                onChange={(e) => handleFormChange('member2_nim', e.target.value)}
+                                                placeholder="NIM..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Email Anggota 2
+                                            </label>
+                                            <Input
+                                                type="email"
+                                                value={editFormData.member2_email || ''}
+                                                onChange={(e) => handleFormChange('member2_email', e.target.value)}
+                                                placeholder="email@example.com"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                No. HP Anggota 2
+                                            </label>
+                                            <Input
+                                                value={editFormData.member2_phone || ''}
+                                                onChange={(e) => handleFormChange('member2_phone', e.target.value)}
+                                                placeholder="08xx-xxxx-xxxx"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Universitas Anggota 2
+                                            </label>
+                                            <Input
+                                                value={editFormData.member2_univ || ''}
+                                                onChange={(e) => handleFormChange('member2_univ', e.target.value)}
+                                                placeholder="Universitas..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium mb-1 block">
+                                                Prodi/Fakultas Anggota 2
+                                            </label>
+                                            <Input
+                                                value={editFormData.member2_fakultas || ''}
+                                                onChange={(e) => handleFormChange('member2_fakultas', e.target.value)}
+                                                placeholder="Program Studi / Fakultas..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-col gap-2 pt-4 border-t sm:flex-row sm:justify-end">
+                                    <Button
+                                        onClick={() => {
+                                            setEditTeam(null);
+                                            setEditFormData({});
+                                            setIsFormChanged(false);
+                                        }}
+                                        variant="outline"
+                                        size="sm"
+                                    >
+                                        Batal
+                                    </Button>
+                                    <Button
+                                        onClick={confirmUpdate}
+                                        disabled={!isFormChanged}
+                                        size="sm"
+                                        className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                                    >
+                                        {isFormChanged ? "Update Data" : "Tidak Ada Perubahan"}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
+                
                 {/* Confirmation Dialog */}
                 <AlertDialog
                     open={!!confirmAction.type}
@@ -1077,6 +1585,7 @@ export default function TeamManagement({
                             type: null,
                             teamId: null,
                             teamName: null,
+                            team: null,
                         })
                     }
                 >
@@ -1086,19 +1595,25 @@ export default function TeamManagement({
                                 Konfirmasi{" "}
                                 {confirmAction.type === "approve"
                                     ? "Persetujuan"
-                                    : "Penolakan"}
+                                    : confirmAction.type === "reject"
+                                    ? "Penolakan"
+                                    : confirmAction.type === "delete"
+                                    ? "Penghapusan"
+                                    : "Simpan Perubahan"}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                Apakah Anda yakin ingin{" "}
-                                {confirmAction.type === "approve"
-                                    ? "menyetujui"
-                                    : "menolak"}{" "}
-                                tim "{confirmAction.teamName}"? Tindakan ini
-                                akan mengubah status tim menjadi{" "}
-                                {confirmAction.type === "approve"
-                                    ? "approved"
-                                    : "rejected"}
-                                .
+                                {confirmAction.type === "approve" && (
+                                    <>Apakah Anda yakin ingin menyetujui tim "{confirmAction.teamName}"? Tindakan ini akan mengubah status tim menjadi approved.</>
+                                )}
+                                {confirmAction.type === "reject" && (
+                                    <>Apakah Anda yakin ingin menolak tim "{confirmAction.teamName}"? Tindakan ini akan mengubah status tim menjadi rejected.</>
+                                )}
+                                {confirmAction.type === "delete" && (
+                                    <>Apakah Anda yakin ingin menghapus tim "{confirmAction.teamName}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data tim secara permanen.</>
+                                )}
+                                {confirmAction.type === "edit" && (
+                                    <>Apakah Anda yakin ingin menyimpan perubahan data tim "{confirmAction.teamName}"? Semua perubahan yang telah dibuat akan disimpan secara permanen.</>
+                                )}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -1108,13 +1623,21 @@ export default function TeamManagement({
                                 className={
                                     confirmAction.type === "approve"
                                         ? "bg-green-600 hover:bg-green-700"
-                                        : "bg-red-600 hover:bg-red-700"
+                                        : confirmAction.type === "reject"
+                                        ? "bg-red-600 hover:bg-red-700"
+                                        : confirmAction.type === "delete"
+                                        ? "bg-red-600 hover:bg-red-700"
+                                        : "bg-blue-600 hover:bg-blue-700"
                                 }
                             >
                                 Ya,{" "}
                                 {confirmAction.type === "approve"
                                     ? "Setujui"
-                                    : "Tolak"}
+                                    : confirmAction.type === "reject"
+                                    ? "Tolak"
+                                    : confirmAction.type === "delete"
+                                    ? "Hapus"
+                                    : "Simpan"}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

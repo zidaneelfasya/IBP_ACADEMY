@@ -23,6 +23,7 @@ interface User {
     name: string;
     email: string;
     avatar?: string;
+    role?: string;
 }
 
 interface PagePropsWithAuth extends PageProps {
@@ -60,6 +61,34 @@ const Navbar = () => {
     }, [lastScrollY]);
 
     const { auth } = usePage<PagePropsWithAuth>().props;
+
+    const getDashboardUrl = () => {
+        if (!auth?.user) return '/login';
+        
+        // Determine dashboard URL based on user role
+        if (auth.user.role === 'admin') {
+            return '/admin';
+        } else if (auth.user.role === 'user') {
+            return '/user/dashboard';
+        }
+        
+        // Default fallback
+        return '/user/dashboard';
+    };
+
+    const getProfileUrl = () => {
+        if (!auth?.user) return '/login';
+        
+        // Determine profile URL based on user role
+        if (auth.user.role === 'admin') {
+            return '/profile'; // Admin profile
+        } else if (auth.user.role === 'user') {
+            return '/user/profile'; // User profile
+        }
+        
+        // Default fallback
+        return '/profile';
+    };
 
     const getInitials = (name: string) => {
         return name
@@ -424,7 +453,7 @@ const Navbar = () => {
                                                     className="absolute right-0 z-50 w-56 py-2 mt-2 bg-white border border-gray-200 shadow-xl rounded-2xl"
                                                 >
                                                     <Link
-                                                        href="/user/dashboard"
+                                                        href={getDashboardUrl()}
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">
@@ -433,7 +462,7 @@ const Navbar = () => {
                                                         Dashboard
                                                     </Link>
                                                     <Link
-                                                        href="/user/profile"
+                                                        href={getProfileUrl()}
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">
@@ -541,7 +570,7 @@ const Navbar = () => {
                                                         </div>
                                                     </div>
                                                     <Link
-                                                        href="/user/dashboard"
+                                                        href={getDashboardUrl()}
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">
@@ -550,7 +579,7 @@ const Navbar = () => {
                                                         Dashboard
                                                     </Link>
                                                     <Link
-                                                        href="/user/profile"
+                                                        href={getProfileUrl()}
                                                         className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
                                                         <motion.div className="w-4 h-4 mr-3 text-gray-500">

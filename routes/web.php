@@ -66,7 +66,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
-        Route::get('/admin', function () {
+    Route::get('/admin', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
     Route::prefix('/admin/dashboard')->group(function () {
@@ -76,21 +76,24 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
         Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
             ->name('export.team-registrations');
+        Route::get('/export/team-registrations-simple', [ExportController::class, 'exportTeamRegistrationsSimple'])
+            ->name('export.team-registrations-simple');
         Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');
         Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.preliminary.index');
         Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.preliminary.semifinal.index');
         Route::get('/final', [FinalParticipantController::class, 'index'])->name('team.preliminary.final.index');
         Route::put('/teams/{team}/status', [TeamRegistrationController::class, 'updateStatus'])
             ->name('team.update-status');
+        Route::put('/teams/{team}', [TeamRegistrationController::class, 'update'])
+            ->name('team.update');
         Route::put('/teams/{team}/reject', [TeamRegistrationController::class, 'updateStatusReject'])
             ->name('team.update-status-reject');
+        Route::delete('/teams/{team}', [TeamRegistrationController::class, 'destroy'])
+            ->name('team.destroy');
         Route::post('/admin/progress/{progress}/status', [TeamRegistrationController::class, 'updateStatus'])->name('progress.update-status');
 
-        Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])-> name('progress.approve');
+        Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])->name('progress.approve');
         Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
-
-
-
     });
 });
 
@@ -139,7 +142,6 @@ Route::get('/business-case-competition', function (Request $request) {
     }
 
     return Inertia::render('BusinessCaseCompetition', $data);
-
 })->name('business-case-competition');
 Route::middleware('admin.code.access')->group(function () {
     Route::get('/register/admin', function () {
@@ -184,9 +186,14 @@ Route::middleware(['auth', 'verified', 'user', 'no-registration'])->group(functi
         Route::post('/register', [BCCRegistrationController::class, 'store'])->name('register.store');
     });
 
-    Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
+    // Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
+    //     ->name('competition.success');
+});
+Route::middleware(['auth', 'verified', 'user'])->group(function () {
+ Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
         ->name('competition.success');
 });
+   
 
 
 
@@ -195,7 +202,11 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->name('dashboard.user');
     Route::get('/dashboard', [DashboardUserController::class, 'index'])
         ->name('dashboard.user.dashboard');
-    Route::get('/assignments', fn() => Inertia::render('User/Maintenance'))->name('dashboard.user.tugas');
+    Route::get('/assignments', [\App\Http\Controllers\User\AssignmentController::class, 'index'])
+        ->name('dashboard.user.tugas');
+    Route::get('/assignments/{uuid}', [\App\Http\Controllers\User\AssignmentController::class, 'show'])
+        ->name('dashboard.user.assignment.show')
+        ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
     Route::get('/course', fn() => Inertia::render('User/Course'))->name('dashboard.user.course');
@@ -246,21 +257,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 });
 
-// Participant Routes for Assignments
-Route::middleware(['auth', 'verified'])->prefix('participant')->name('participant.')->group(function () {
-    Route::get('assignments', [ParticipantAssignmentController::class, 'index'])
-        ->name('assignments.index');
-    Route::get('assignments/{assignment}', [ParticipantAssignmentController::class, 'show'])
-        ->name('assignments.show');
-    Route::post('assignments/{assignment}/submit', [ParticipantAssignmentController::class, 'submit'])
-        ->name('assignments.submit');
-    Route::get('assignments/{assignment}/submission', [ParticipantAssignmentController::class, 'submission'])
-        ->name('assignments.submission');
-});
-
-
-
-
+// // Participant Routes for Assignments
+// Route::middleware(['auth', 'verified'])->prefix('participant')->name('participant.')->group(function () {
+//     Route::get('assignments', [ParticipantAssignmentController::class, 'index'])
+//         ->name('assignments.index');
+//     Route::get('assignments/{assignment}', [ParticipantAssignmentController::class, 'show'])
+//         ->name('assignments.show');
+//     Route::post('assignments/{assignment}/submit', [ParticipantAssignmentController::class, 'submit'])
+//         ->name('assignments.submit');
+//     Route::get('assignments/{assignment}/submission', [ParticipantAssignmentController::class, 'submission'])
+//         ->name('assignments.submission');
+// });
 
 
 

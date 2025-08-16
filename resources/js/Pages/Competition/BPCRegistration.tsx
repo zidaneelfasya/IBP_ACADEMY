@@ -890,7 +890,7 @@ export default function BPCRegistration({
                                 on your social media.
                             </p>
                             <a
-                                href="https://drive.google.com/uc?export=download&id=1Ce2DKzzPgmE3k9uhs7kjr9Wa5uO2YmcZ"
+                                href="https://drive.google.com/uc?export=download&id=1a6E8WNbPqZTrHUbMRcYXXSj9SeG5GmRn"
                                 download="Twibbon_BPC_IBP_Academy_2025.jpg"
                                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                             >
