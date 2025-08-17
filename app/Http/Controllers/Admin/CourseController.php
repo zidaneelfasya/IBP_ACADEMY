@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+// use Illuminate\Support\Facades\Log;
 
 class CourseController extends Controller
 {
@@ -63,7 +64,7 @@ class CourseController extends Controller
     public function create()
     {
         $competitionCategories = CompetitionCategory::active()->get();
-        
+
         return Inertia::render('admin/Course/Create', [
             'competitionCategories' => $competitionCategories
         ]);
@@ -74,7 +75,7 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         $validated = $request->validate([
         'title' => 'required|string|max:255',
         'description' => 'required|string',
@@ -97,7 +98,7 @@ class CourseController extends Controller
             'files.*.max' => 'Ukuran file maksimal 10MB',
         ]);
 
-        \Log::debug('Validated data:', $validated);
+        // Log::debug('Validated data:', $validated);
 
     DB::beginTransaction();
 
@@ -114,20 +115,20 @@ class CourseController extends Controller
             'read_count' => 0
         ]);
 
-        \Log::debug('Course created:', $course->toArray());
+        // Log::debug('Course created:', $course->toArray());
 
         // Handle cover image
         if ($request->hasFile('cover_image')) {
             $coverImagePath = $request->file('cover_image')->store('courses/covers', 'public');
             $course->update(['cover_image' => $coverImagePath]);
-            \Log::debug('Cover image stored at:', [$coverImagePath]);
+            // Log::debug('Cover image stored at:', [$coverImagePath]);
         }
 
         // Handle files
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
                 $filePath = $file->store('courses/' . $course->id . '/files', 'public');
-                
+
                 $courseFile = CourseFile::create([
                     'course_id' => $course->id,
                     'original_name' => $file->getClientOriginalName(),
@@ -137,8 +138,8 @@ class CourseController extends Controller
                     'mime_type' => $file->getMimeType(),
                     'file_size' => $file->getSize()
                 ]);
-                
-                \Log::debug('File stored:', $courseFile->toArray());
+
+                // Log::debug('File stored:', $courseFile->toArray());
             }
         }
 
@@ -149,9 +150,9 @@ class CourseController extends Controller
 
     } catch (\Exception $e) {
         DB::rollBack();
-        \Log::error('Error storing course: ' . $e->getMessage());
-        \Log::error($e->getTraceAsString());
-        
+        // Log::error('Error storing course: ' . $e->getMessage());
+        // Log::error($e->getTraceAsString());
+
         return back()->withErrors([
             'error' => 'Terjadi kesalahan saat menyimpan course: ' . $e->getMessage()
         ]);
@@ -178,7 +179,7 @@ class CourseController extends Controller
     {
         $course->load(['files', 'competitionCategory']);
         $competitionCategories = CompetitionCategory::active()->get();
-        
+
         return Inertia::render('admin/Course/Edit', [
             'course' => $course,
             'competitionCategories' => $competitionCategories
@@ -233,7 +234,7 @@ class CourseController extends Controller
                 if ($course->cover_image) {
                     Storage::disk('public')->delete($course->cover_image);
                 }
-                
+
                 $coverImagePath = $request->file('cover_image')->store('courses/covers', 'public');
                 $course->update(['cover_image' => $coverImagePath]);
             }
@@ -242,7 +243,7 @@ class CourseController extends Controller
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $filePath = $file->store('courses/' . $course->id . '/files', 'public');
-                    
+
                     CourseFile::create([
                         'course_id' => $course->id,
                         'original_name' => $file->getClientOriginalName(),
@@ -322,7 +323,7 @@ class CourseController extends Controller
     public function getUserCourses(Request $request)
     {
         $user = $request->user();
-        
+
         // Check if user is semifinal participant
         $isSemifinalParticipant = $this->checkSemifinalStatus($user);
 
@@ -376,7 +377,7 @@ class CourseController extends Controller
             })
             ->where('status', 'approved')
             ->exists();
-        
+
         return $hasReachedSemifinal;
     }
 

@@ -86,7 +86,7 @@ class Course extends Model
         if ($isSemifinalParticipant) {
             return $query; // Semifinal participants can see all courses
         }
-        
+
         return $query->where('is_semifinal', false); // General participants see only non-semifinal
     }
 }

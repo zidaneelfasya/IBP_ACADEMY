@@ -1,5 +1,7 @@
 <?php
 
+
+
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +24,8 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
+// user course controller
+use App\Http\Controllers\UserCourseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,7 +98,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
         Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])->name('progress.approve');
         Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
-        
+
         // Course Management Routes - Manual
         Route::get('courses', [\App\Http\Controllers\Admin\CourseController::class, 'index'])->name('courses.index');
         Route::get('courses/create', [\App\Http\Controllers\Admin\CourseController::class, 'create'])->name('courses.create');
@@ -105,6 +109,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::delete('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'destroy'])->name('courses.destroy');
         Route::delete('courses/{course}/files/{file}', [\App\Http\Controllers\Admin\CourseController::class, 'deleteFile'])
             ->name('courses.files.destroy');
+
+
     });
 });
 
@@ -220,8 +226,9 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
-    Route::get('/course', [\App\Http\Controllers\Admin\CourseController::class, 'getUserCourses'])
-        ->name('dashboard.user.course');
+    Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
+    // Route::get('/material/{course}', [UserCourseController::class, 'show'])->name('user.material.show');;
+
 });
 
 Route::fallback(function () {
