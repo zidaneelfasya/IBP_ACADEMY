@@ -13,6 +13,8 @@ import {
     Download,
     User,
     BookOpen,
+    Eye,
+    MessageCircle,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
@@ -326,8 +328,8 @@ export default function AssignmentDetail({
                                                             }
                                                             target="_blank"
                                                         >
-                                                            <Download className="w-4 h-4 mr-2" />
-                                                            Download Submission
+                                                            <Eye className="w-4 h-4" />
+                                                            View Submission
                                                         </a>
                                                     </Button>
                                                 </div>
@@ -467,13 +469,12 @@ export default function AssignmentDetail({
                                                     </DialogContent>
                                                 </Dialog>
                                             ) : (
-                                                <div className="p-4 mt-4 text-center bg-red-50 border border-red-200 rounded-lg">
+                                                <div className="p-4 mt-4 text-center border border-red-200 rounded-lg bg-red-50">
                                                     <AlertCircle className="w-6 h-6 mx-auto mb-2 text-red-500" />
                                                     <p className="text-sm font-medium text-red-800">
                                                         {assignment.is_overdue
                                                             ? "Deadline has passed - submissions no longer accepted"
-                                                            : "Assignment is closed for submissions"
-                                                        }
+                                                            : "Assignment is closed for submissions"}
                                                     </p>
                                                 </div>
                                             )}
@@ -614,14 +615,12 @@ export default function AssignmentDetail({
                                                     <h3 className="mb-2 text-lg font-semibold text-gray-900">
                                                         {assignment.is_overdue
                                                             ? "Deadline Has Passed"
-                                                            : "Assignment Closed"
-                                                        }
+                                                            : "Assignment Closed"}
                                                     </h3>
                                                     <p className="text-gray-600">
                                                         {assignment.is_overdue
                                                             ? "The submission deadline has passed and no new submissions are being accepted."
-                                                            : "This assignment is no longer accepting submissions."
-                                                        }
+                                                            : "This assignment is no longer accepting submissions."}
                                                     </p>
                                                 </div>
                                             )}
@@ -729,11 +728,20 @@ export default function AssignmentDetail({
                                         assignment, contact our support team.
                                     </p>
                                     <Button
+                                        asChild
                                         variant="outline"
                                         size="sm"
                                         className="w-full text-blue-700 border-blue-300 hover:bg-blue-100"
                                     >
-                                        Contact Support
+                                        <a
+                                            href="https://wa.me/6282167027236"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-center gap-2"
+                                        >
+                                            <MessageCircle className="w-4 h-4" />
+                                            Contact Support
+                                        </a>
                                     </Button>
                                 </CardContent>
                             </Card>
