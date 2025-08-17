@@ -190,10 +190,10 @@ Route::middleware(['auth', 'verified', 'user', 'no-registration'])->group(functi
     //     ->name('competition.success');
 });
 Route::middleware(['auth', 'verified', 'user'])->group(function () {
- Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
+    Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
         ->name('competition.success');
 });
-   
+
 
 
 
@@ -206,6 +206,9 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->name('dashboard.user.tugas');
     Route::get('/assignments/{uuid}', [\App\Http\Controllers\User\AssignmentController::class, 'show'])
         ->name('dashboard.user.assignment.show')
+        ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
+    Route::post('/assignments/{uuid}/submit', [\App\Http\Controllers\User\AssignmentController::class, 'submitAssignment'])
+        ->name('dashboard.user.assignment.submit')
         ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');

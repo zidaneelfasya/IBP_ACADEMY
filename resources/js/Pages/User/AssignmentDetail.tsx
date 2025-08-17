@@ -1,5 +1,5 @@
-import React from "react";
-import { Head } from "@inertiajs/react";
+import React, { useState } from "react";
+import { Head, router } from "@inertiajs/react";
 import { SiteHeaderLMS } from "@/Components/site-header-lms";
 import {
     Calendar,
@@ -23,6 +23,18 @@ import {
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/Components/ui/dialog";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Textarea } from "@/Components/ui/textarea";
 
 interface Assignment {
     uuid: string;
@@ -43,7 +55,8 @@ interface Submission {
     submitted_at: string;
     status: string;
     feedback?: string;
-    file_path?: string;
+    submission_link?: string;
+    notes?: string;
 }
 
 interface Team {
@@ -62,6 +75,59 @@ export default function AssignmentDetail({
     submission,
     team,
 }: AssignmentDetailProps) {
+    const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
+    const [submissionLink, setSubmissionLink] = useState(
+        submission?.submission_link || ""
+    );
+    const [submissionNotes, setSubmissionNotes] = useState(
+        submission?.notes || ""
+    );
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmission = async () => {
+        if (!submissionLink.trim()) {
+            alert("Please provide a submission link");
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const response = await fetch(
+                `/user/assignments/${assignment.uuid}/submit`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute("content") || "",
+                    },
+                    body: JSON.stringify({
+                        submission_link: submissionLink,
+                        notes: submissionNotes,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setIsSubmissionModalOpen(false);
+                router.visit("/user/assignments", {
+                    data: { success: data.message },
+                });
+            } else {
+                alert(data.error || "Failed to submit assignment");
+            }
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("An error occurred while submitting");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
     const getStatusBadge = (assignment: Assignment) => {
         if (assignment.is_overdue) {
             return (
@@ -246,7 +312,7 @@ export default function AssignmentDetail({
                                                 )}
                                             </div>
 
-                                            {submission.file_path && (
+                                            {submission.submission_link && (
                                                 <div className="flex items-center gap-2">
                                                     <FileText className="w-4 h-4 text-gray-500" />
                                                     <Button
@@ -256,7 +322,7 @@ export default function AssignmentDetail({
                                                     >
                                                         <a
                                                             href={
-                                                                submission.file_path
+                                                                submission.submission_link
                                                             }
                                                             target="_blank"
                                                         >
@@ -277,6 +343,140 @@ export default function AssignmentDetail({
                                                     </p>
                                                 </div>
                                             )}
+
+                                            {submission.notes && (
+                                                <div className="p-4 rounded-lg bg-gray-50">
+                                                    <h4 className="mb-2 font-semibold text-gray-800">
+                                                        Your Notes
+                                                    </h4>
+                                                    <p className="text-gray-700">
+                                                        {submission.notes}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {assignment.is_open ? (
+                                                <Dialog
+                                                    open={isSubmissionModalOpen}
+                                                    onOpenChange={
+                                                        setIsSubmissionModalOpen
+                                                    }
+                                                >
+                                                    <DialogTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            className="w-full mt-4 text-blue-600 border-blue-200 hover:bg-blue-50"
+                                                        >
+                                                            <Upload className="w-4 h-4 mr-2" />
+                                                            Edit Submission
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="sm:max-w-[425px]">
+                                                        <DialogHeader>
+                                                            <DialogTitle className="flex items-center gap-2">
+                                                                <Upload className="w-5 h-5 text-blue-600" />
+                                                                Edit Submission
+                                                            </DialogTitle>
+                                                            <DialogDescription>
+                                                                Update your
+                                                                assignment
+                                                                submission
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="grid gap-4 py-4">
+                                                            <div className="grid items-center grid-cols-4 gap-4">
+                                                                <Label
+                                                                    htmlFor="edit-submission-link"
+                                                                    className="text-right"
+                                                                >
+                                                                    Link *
+                                                                </Label>
+                                                                <Input
+                                                                    id="edit-submission-link"
+                                                                    value={
+                                                                        submissionLink
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        setSubmissionLink(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
+                                                                    }
+                                                                    placeholder="https://drive.google.com/..."
+                                                                    className="col-span-3"
+                                                                />
+                                                            </div>
+                                                            <div className="grid items-start grid-cols-4 gap-4">
+                                                                <Label
+                                                                    htmlFor="edit-submission-notes"
+                                                                    className="pt-2 text-right"
+                                                                >
+                                                                    Notes
+                                                                </Label>
+                                                                <Textarea
+                                                                    id="edit-submission-notes"
+                                                                    value={
+                                                                        submissionNotes
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        setSubmissionNotes(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
+                                                                    }
+                                                                    placeholder="Additional notes (optional)"
+                                                                    className="col-span-3"
+                                                                    rows={3}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <DialogFooter>
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                onClick={() =>
+                                                                    setIsSubmissionModalOpen(
+                                                                        false
+                                                                    )
+                                                                }
+                                                            >
+                                                                Cancel
+                                                            </Button>
+                                                            <Button
+                                                                type="button"
+                                                                onClick={
+                                                                    handleSubmission
+                                                                }
+                                                                disabled={
+                                                                    isSubmitting ||
+                                                                    !submissionLink.trim()
+                                                                }
+                                                                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                                                            >
+                                                                {isSubmitting
+                                                                    ? "Updating..."
+                                                                    : "Update Submission"}
+                                                            </Button>
+                                                        </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            ) : (
+                                                <div className="p-4 mt-4 text-center bg-red-50 border border-red-200 rounded-lg">
+                                                    <AlertCircle className="w-6 h-6 mx-auto mb-2 text-red-500" />
+                                                    <p className="text-sm font-medium text-red-800">
+                                                        {assignment.is_overdue
+                                                            ? "Deadline has passed - submissions no longer accepted"
+                                                            : "Assignment is closed for submissions"
+                                                        }
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="py-8 text-center">
@@ -290,21 +490,138 @@ export default function AssignmentDetail({
                                                         You haven't submitted
                                                         this assignment yet.
                                                     </p>
-                                                    <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                                                        <Upload className="w-4 h-4 mr-2" />
-                                                        Submit Assignment
-                                                    </Button>
+                                                    <Dialog
+                                                        open={
+                                                            isSubmissionModalOpen
+                                                        }
+                                                        onOpenChange={
+                                                            setIsSubmissionModalOpen
+                                                        }
+                                                    >
+                                                        <DialogTrigger asChild>
+                                                            <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+                                                                <Upload className="w-4 h-4 mr-2" />
+                                                                Submit
+                                                                Assignment
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent className="sm:max-w-[425px]">
+                                                            <DialogHeader>
+                                                                <DialogTitle className="flex items-center gap-2">
+                                                                    <Upload className="w-5 h-5 text-blue-600" />
+                                                                    Submit
+                                                                    Assignment
+                                                                </DialogTitle>
+                                                                <DialogDescription>
+                                                                    Submit your
+                                                                    assignment
+                                                                    by providing
+                                                                    a link to
+                                                                    your work
+                                                                    (Google
+                                                                    Drive,
+                                                                    OneDrive,
+                                                                    etc.)
+                                                                </DialogDescription>
+                                                            </DialogHeader>
+                                                            <div className="grid gap-4 py-4">
+                                                                <div className="grid items-center grid-cols-4 gap-4">
+                                                                    <Label
+                                                                        htmlFor="submission-link"
+                                                                        className="text-right"
+                                                                    >
+                                                                        Link *
+                                                                    </Label>
+                                                                    <Input
+                                                                        id="submission-link"
+                                                                        value={
+                                                                            submissionLink
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            setSubmissionLink(
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
+                                                                        }
+                                                                        placeholder="https://drive.google.com/..."
+                                                                        className="col-span-3"
+                                                                    />
+                                                                </div>
+                                                                <div className="grid items-start grid-cols-4 gap-4">
+                                                                    <Label
+                                                                        htmlFor="submission-notes"
+                                                                        className="pt-2 text-right"
+                                                                    >
+                                                                        Notes
+                                                                    </Label>
+                                                                    <Textarea
+                                                                        id="submission-notes"
+                                                                        value={
+                                                                            submissionNotes
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            setSubmissionNotes(
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
+                                                                        }
+                                                                        placeholder="Additional notes (optional)"
+                                                                        className="col-span-3"
+                                                                        rows={3}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <DialogFooter>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    onClick={() =>
+                                                                        setIsSubmissionModalOpen(
+                                                                            false
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Cancel
+                                                                </Button>
+                                                                <Button
+                                                                    type="button"
+                                                                    onClick={
+                                                                        handleSubmission
+                                                                    }
+                                                                    disabled={
+                                                                        isSubmitting ||
+                                                                        !submissionLink.trim()
+                                                                    }
+                                                                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                                                                >
+                                                                    {isSubmitting
+                                                                        ? "Submitting..."
+                                                                        : "Submit"}
+                                                                </Button>
+                                                            </DialogFooter>
+                                                        </DialogContent>
+                                                    </Dialog>
                                                 </div>
                                             ) : (
                                                 <div>
-                                                    <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                                                    <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-400" />
                                                     <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                                                        Assignment Closed
+                                                        {assignment.is_overdue
+                                                            ? "Deadline Has Passed"
+                                                            : "Assignment Closed"
+                                                        }
                                                     </h3>
                                                     <p className="text-gray-600">
-                                                        This assignment is no
-                                                        longer accepting
-                                                        submissions.
+                                                        {assignment.is_overdue
+                                                            ? "The submission deadline has passed and no new submissions are being accepted."
+                                                            : "This assignment is no longer accepting submissions."
+                                                        }
                                                     </p>
                                                 </div>
                                             )}

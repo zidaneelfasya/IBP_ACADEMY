@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('feedback')->nullable();
             $table->foreignId('graded_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('graded_at')->nullable();
-            $table->timestamp('submitted_at');
+            $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
 
             $table->unique(['assignment_id', 'team_registration_id']);
