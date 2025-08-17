@@ -1,4 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
+import axios from 'axios';
 import { Head } from "@inertiajs/react";
 import { useState } from "react";
 import { Button } from "@/Components/ui/button";
@@ -39,16 +40,25 @@ interface Material {
     videoUrl?: string;
     coverImage?: string;
     category: string;
+    competition_category_id: number;
     files: File[];
     readCount: number;
+    isSemifinal: boolean;
     createdAt: Date;
+}
+
+interface CompetitionCategory {
+    id: number;
+    name: string;
+    is_active: boolean;
 }
 
 interface Props {
     materials: Material[];
+    competitionCategories: CompetitionCategory[];
 }
 
-export default function AdminPage({ materials: initialMaterials }: Props) {
+export default function AdminPage({ materials: initialMaterials, competitionCategories }: Props) {
     const [materials, setMaterials] = useState<Material[]>(
         initialMaterials || []
     );
@@ -56,7 +66,8 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
     const [description, setDescription] = useState("");
     const [content, setContent] = useState("");
     const [videoUrl, setVideoUrl] = useState("");
-    const [category, setCategory] = useState("");
+    const [categoryId, setCategoryId] = useState<number | null>(null);
+    const [isSemifinal, setIsSemifinal] = useState(false);
     const [coverImage, setCoverImage] = useState<File | null>(null);
     const [coverImagePreview, setCoverImagePreview] = useState<string>("");
     const [files, setFiles] = useState<File[]>([]);
@@ -67,19 +78,9 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
     const [editDescription, setEditDescription] = useState("");
     const [editContent, setEditContent] = useState("");
     const [editVideoUrl, setEditVideoUrl] = useState("");
-    const [editCategory, setEditCategory] = useState("");
+    const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
+    const [editIsSemifinal, setEditIsSemifinal] = useState(false);
     const [previewId, setPreviewId] = useState<string | null>(null);
-
-    const categories = [
-        "Lomba Desain",
-        "Lomba Programming",
-        "Lomba Video",
-        "Lomba Fotografi",
-        "Lomba Karya Tulis",
-        "Lomba Presentasi",
-        "Lomba Inovasi",
-        "Lomba Startup",
-    ];
 
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -153,61 +154,59 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (
-            !title.trim() ||
-            !description.trim() ||
-            !content.trim() ||
-            !category.trim()
-        )
-            return;
+    e.preventDefault();
+    if (!title.trim() || !description.trim() || !content.trim() || !categoryId) {
+        return alert('Please fill all required fields');
+    }
 
-        setIsUploading(true);
+    setIsUploading(true);
 
-        // In a real Laravel app, you would submit this to your backend
-        // For now we'll simulate it
-        const formData = new FormData();
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("content", content);
-        formData.append("category", category);
-        if (videoUrl) formData.append("videoUrl", videoUrl);
-        if (coverImage) formData.append("coverImage", coverImage);
-        files.forEach((file) => formData.append("files[]", file));
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("content", content);
+    formData.append("competition_category_id", categoryId.toString());
+    formData.append("is_semifinal", isSemifinal ? "1" : "0");
+    if (videoUrl) formData.append("video_url", videoUrl);
+    if (coverImage) formData.append("cover_image", coverImage);
+    files.forEach((file) => formData.append("files[]", file));
 
-        try {
-            // This would be your actual API call in Laravel
-            // await axios.post('/admin/materials', formData)
+    try {
+        // Get CSRF token from meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-            // Simulate API response delay
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+        const response = await axios.post(route('courses.store'), formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'X-CSRF-TOKEN': csrfToken || '',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            withCredentials: true,
+        });
 
-            const newMaterial: Material = {
-                id: Date.now().toString(),
-                title: title.trim(),
-                description: description.trim(),
-                content: content.trim(),
-                videoUrl: videoUrl.trim() || undefined,
-                coverImage: coverImagePreview || undefined,
-                category: category.trim(),
-                files: [...files],
-                readCount: Math.floor(Math.random() * 50) + 1,
-                createdAt: new Date(),
-            };
-
-            setMaterials((prev) => [newMaterial, ...prev]);
-            setTitle("");
-            setDescription("");
-            setContent("");
-            setVideoUrl("");
-            setCategory("");
-            setCoverImage(null);
-            setCoverImagePreview("");
-            setFiles([]);
-        } finally {
-            setIsUploading(false);
-        }
-    };
+        // Reset form on success
+        setTitle("");
+        setDescription("");
+        setContent("");
+        setVideoUrl("");
+        setCategoryId(null);
+        setIsSemifinal(false);
+        setCoverImage(null);
+        setCoverImagePreview("");
+        setFiles([]);
+        
+        // Use Inertia's router to reload the page properly
+        window.location.href = route('courses.index');
+    } catch (error) {
+        console.error('Error creating course:', error);
+        alert('Terjadi kesalahan saat menyimpan materi: ' + 
+            (error as any).response?.data?.message || 
+            (error as any).message || 
+            'Unknown error');
+    } finally {
+        setIsUploading(false);
+    }
+};
 
     const startEdit = (material: Material) => {
         setEditingId(material.id);
@@ -215,7 +214,8 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
         setEditDescription(material.description);
         setEditContent(material.content);
         setEditVideoUrl(material.videoUrl || "");
-        setEditCategory(material.category);
+        setEditCategoryId(material.competition_category_id);
+        setEditIsSemifinal(material.isSemifinal);
     };
 
     const saveEdit = (id: string) => {
@@ -228,7 +228,9 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                           description: editDescription,
                           content: editContent,
                           videoUrl: editVideoUrl.trim() || undefined,
-                          category: editCategory,
+                          competition_category_id: editCategoryId || 0,
+                          category: competitionCategories.find(c => c.id === editCategoryId)?.name || 'Unknown',
+                          isSemifinal: editIsSemifinal,
                       }
                     : material
             )
@@ -260,8 +262,21 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
         <AdminLayout>
             <Head title="Admin Panel" />
 
-            <div className="min-h-screen bg-background">
-                <div className="container mx-auto px-4 py-8">
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 relative">
+                {/* Subtle background pattern */}
+                <div className="absolute inset-0 opacity-10">
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            backgroundImage: `
+                                radial-gradient(circle at 25px 25px, #3b82f6 2px, transparent 0),
+                                radial-gradient(circle at 75px 75px, #1e40af 2px, transparent 0)
+                            `,
+                            backgroundSize: "100px 100px",
+                        }}
+                    />
+                </div>
+                <div className="container mx-auto px-4 py-8 relative z-10">
                     <div className="flex items-center gap-4 mb-8">
                         
                         <div>
@@ -274,80 +289,85 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                         </div>
                     </div>
 
-                    <div className="grid lg:grid-cols-2 gap-8">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Upload className="w-5 h-5" />
+                    <div className="grid lg:grid-cols-2 gap-8 lg:items-start">
+                        <Card className="shadow-sm border-gray-200/80 bg-white/80 backdrop-blur-sm  flex flex-col">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="flex items-center gap-2 text-gray-800">
+                                    <Upload className="w-5 h-5 text-blue-600" />
                                     Upload Materi Baru
                                 </CardTitle>
-                                <CardDescription>
+                                <CardDescription className="text-gray-600">
                                     Tambahkan materi pembelajaran dengan
                                     deskripsi dan lampiran
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="flex-1">
                                 <form
                                     onSubmit={handleSubmit}
                                     className="space-y-6"
                                 >
                                     <div className="space-y-2">
-                                        <Label htmlFor="title">
-                                            Judul Materi
+                                        <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
+                                            Judul Materi <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="title"
+                                            name="title"
                                             value={title}
                                             onChange={(e) =>
                                                 setTitle(e.target.value)
                                             }
                                             placeholder="Masukkan judul materi..."
+                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                             required
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="description">
-                                            Deskripsi
+                                        <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
+                                            Deskripsi <span className="text-red-500">*</span>
                                         </Label>
                                         <Textarea
                                             id="description"
+                                            name="description"
                                             value={description}
                                             onChange={(e) =>
                                                 setDescription(e.target.value)
                                             }
                                             placeholder="Deskripsi singkat tentang materi ini..."
                                             rows={3}
+                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                             required
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="category">
-                                            Kategori Lomba
+                                        <Label htmlFor="category" className="text-sm font-semibold text-gray-700">
+                                            Kategori Lomba <span className="text-red-500">*</span>
                                         </Label>
                                         <select
                                             id="category"
-                                            value={category}
+                                            name="category"
+                                            value={categoryId || ""}
                                             onChange={(e) =>
-                                                setCategory(e.target.value)
+                                                setCategoryId(e.target.value ? parseInt(e.target.value) : null)
                                             }
-                                            className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                             required
                                         >
                                             <option value="">
                                                 Pilih kategori lomba...
                                             </option>
-                                            {categories.map((cat) => (
-                                                <option key={cat} value={cat}>
-                                                    {cat}
+                                            {competitionCategories.map((cat) => (
+                                                <option key={cat.id} value={cat.id}>
+                                                    {cat.name}
                                                 </option>
                                             ))}
                                         </select>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="coverImage">
+                                        <Label htmlFor="coverImage" className="text-sm font-semibold text-gray-700">
                                             Gambar Cover
                                         </Label>
                                         <div className="space-y-3">
@@ -368,6 +388,7 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                 </Button>
                                                 <input
                                                     id="cover-upload"
+                                                    name="cover-upload"
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={
@@ -390,11 +411,11 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                 )}
                                             </div>
                                             {coverImagePreview && (
-                                                <div className="relative inline-block">
+                                                <div className="relative inline-block p-1 bg-gray-50 rounded-lg border border-gray-200">
                                                     <img
                                                         src={coverImagePreview}
                                                         alt="Preview cover"
-                                                        className="w-32 h-32 object-cover rounded-lg border"
+                                                        className="w-32 h-32 object-cover rounded-lg shadow-sm"
                                                     />
                                                     <Badge className="absolute -top-2 -right-2 text-xs">
                                                         {coverImage?.name}
@@ -405,32 +426,36 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="content">
-                                            Konten Lengkap
+                                        <Label htmlFor="content" className="text-sm font-semibold text-gray-700">
+                                            Konten Lengkap <span className="text-red-500">*</span>
                                         </Label>
                                         <Textarea
                                             id="content"
+                                            name="content"
                                             value={content}
                                             onChange={(e) =>
                                                 setContent(e.target.value)
                                             }
                                             placeholder="Tulis konten materi lengkap di sini..."
                                             rows={8}
+                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                             required
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="videoUrl">
+                                        <Label htmlFor="videoUrl" className="text-sm font-semibold text-gray-700">
                                             Link Video (Opsional)
                                         </Label>
                                         <Input
                                             id="videoUrl"
+                                            name="videoUrl"
                                             value={videoUrl}
                                             onChange={(e) =>
                                                 setVideoUrl(e.target.value)
                                             }
                                             placeholder="https://youtube.com/watch?v=... atau https://vimeo.com/..."
+                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                         />
                                         {videoUrl &&
                                             isValidVideoUrl(videoUrl) && (
@@ -463,28 +488,55 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                             )}
                                     </div>
 
+                                        <div className="space-y-2">
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="isSemifinal"
+                                                    name="isSemifinal"
+                                                    checked={isSemifinal}
+                                                    onChange={(e) =>
+                                                        setIsSemifinal(e.target.checked)
+                                                    }
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                                />
+                                                <Label 
+                                                    htmlFor="isSemifinal" 
+                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                >
+                                                    Khusus untuk Peserta Semifinal
+                                                </Label>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">
+                                                Centang jika materi ini hanya untuk peserta yang telah lolos ke tahap semifinal
+                                            </p>
+                                        </div>
+
                                     <div className="space-y-4">
-                                        <Label>Lampiran File</Label>
+                                        <Label className="text-sm font-semibold text-gray-700">
+                                            Lampiran File
+                                        </Label>
 
                                         <div
-                                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
                                                 dragActive
-                                                    ? "border-accent bg-accent/5"
-                                                    : "border-border hover:border-accent/50"
+                                                    ? "border-blue-400 bg-blue-50/50 border-solid shadow-md"
+                                                    : "border-gray-300 hover:border-blue-300 hover:bg-gray-50/50"
                                             }`}
                                             onDragEnter={handleDrag}
                                             onDragLeave={handleDrag}
                                             onDragOver={handleDrag}
                                             onDrop={handleDrop}
                                         >
-                                            <Upload className="w-8 h-8 mx-auto mb-4 text-muted-foreground" />
-                                            <p className="text-sm text-muted-foreground mb-2">
+                                            <Upload className="w-8 h-8 mx-auto mb-4 text-gray-500" />
+                                            <p className="text-sm text-gray-600 mb-2">
                                                 Seret & lepas file di sini atau
                                             </p>
                                             <Button
                                                 type="button"
                                                 variant="outline"
                                                 size="sm"
+                                                className="border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400"
                                                 asChild
                                             >
                                                 <label
@@ -494,8 +546,12 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                     Pilih File
                                                 </label>
                                             </Button>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                PDF, DOC, DOCX, PPT, PPTX, JPG, PNG, MP4, MP3
+                                            </p>
                                             <input
                                                 id="file-upload"
+                                                name="file-upload"
                                                 type="file"
                                                 multiple
                                                 onChange={handleFileInput}
@@ -512,7 +568,7 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                 {files.map((file, index) => (
                                                     <div
                                                         key={index}
-                                                        className="flex items-center justify-between p-2 bg-muted rounded-lg"
+                                                        className="flex items-center justify-between p-3 bg-gray-50/80 rounded-lg border border-gray-200 hover:bg-gray-100/80 transition-all duration-200"
                                                     >
                                                         <div className="flex items-center gap-2">
                                                             {getFileIcon(file)}
@@ -553,13 +609,13 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
 
                                     <Button
                                         type="submit"
-                                        className="w-full bg-accent hover:bg-accent/90"
+                                        className="w-full bg-primary text-white font-semibold py-3 shadow-md hover:shadow-lg transition-all duration-200"
                                         disabled={
                                             isUploading ||
                                             !title.trim() ||
                                             !description.trim() ||
                                             !content.trim() ||
-                                            !category.trim()
+                                            !categoryId
                                         }
                                     >
                                         {isUploading ? (
@@ -569,7 +625,7 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                             </>
                                         ) : (
                                             <>
-                                                <Upload className="w-4 h-4 mr-2" />
+                                                <Upload className="w-4 h-4 mr-2 " />
                                                 Upload Materi
                                             </>
                                         )}
@@ -578,31 +634,51 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                             </CardContent>
                         </Card>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Materi yang Diupload</CardTitle>
-                                <CardDescription>
+                        <Card className="shadow-sm border-gray-200/80 bg-white/80 backdrop-blur-sm h-full flex flex-col">
+                            <CardHeader className="pb-4">
+                                <CardTitle className="flex items-center justify-between text-gray-800">
+                                    <span>Materi yang Diupload</span>
+                                    {materials.length > 0 && (
+                                        <Badge variant="secondary" className="text-xs">
+                                            {materials.length} Materi
+                                        </Badge>
+                                    )}
+                                </CardTitle>
+                                <CardDescription className="text-gray-600">
                                     Kelola materi pembelajaran yang telah
                                     diupload
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="flex-1  overflow-y-auto relative course-list-scroll">
+                                {/* Scroll indicator gradient */}
+                                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white/80 to-transparent pointer-events-none z-10" style={{display: materials.length > 3 ? 'block' : 'none'}}></div>
+                                
                                 {materials.length === 0 ? (
                                     <div className="text-center py-8 text-muted-foreground">
                                         <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                                         <p>Belum ada materi yang diupload</p>
                                     </div>
                                 ) : (
-                                    <div className="space-y-4">
-                                        {materials.map((material) => (
+                                    <>
+                                        {materials.length > 3 && (
+                                            <div className="text-xs text-gray-500 mb-3 flex items-center justify-center gap-2 bg-blue-50/50 py-2 rounded-md">
+                                                <span>Scroll untuk melihat lebih banyak</span>
+                                                <svg className="w-3 h-3 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                        <div className="space-y-4 pr-2 pb-6">
+                                            {materials.map((material) => (
                                             <div
                                                 key={material.id}
-                                                className="p-4 border rounded-lg"
+                                                className="p-5 border border-gray-200 rounded-lg bg-white/60 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-gray-300"
                                             >
                                                 {editingId === material.id ? (
                                                     <div className="space-y-4">
                                                         <Input
                                                             value={editTitle}
+                                                            name="editTitle"
                                                             onChange={(e) =>
                                                                 setEditTitle(
                                                                     e.target
@@ -610,11 +686,13 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                                 )
                                                             }
                                                             placeholder="Judul materi..."
+                                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                                         />
                                                         <Textarea
                                                             value={
                                                                 editDescription
                                                             }
+                                                            name="editDescription"
                                                             onChange={(e) =>
                                                                 setEditDescription(
                                                                     e.target
@@ -623,6 +701,7 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                             }
                                                             placeholder="Deskripsi..."
                                                             rows={2}
+                                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                                         />
                                                         <div className="space-y-2">
                                                             <Label htmlFor="editCategory">
@@ -630,35 +709,25 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                             </Label>
                                                             <select
                                                                 id="editCategory"
-                                                                value={
-                                                                    editCategory
-                                                                }
+                                                                name="editCategory"
+                                                                value={editCategoryId || ""}
                                                                 onChange={(e) =>
-                                                                    setEditCategory(
-                                                                        e.target
-                                                                            .value
-                                                                    )
+                                                                    setEditCategoryId(e.target.value ? parseInt(e.target.value) : null)
                                                                 }
-                                                                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+                                                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                                             >
                                                                 <option value="">
                                                                     Pilih
                                                                     kategori
                                                                     lomba...
                                                                 </option>
-                                                                {categories.map(
+                                                                {competitionCategories.map(
                                                                     (cat) => (
                                                                         <option
-                                                                            key={
-                                                                                cat
-                                                                            }
-                                                                            value={
-                                                                                cat
-                                                                            }
+                                                                            key={cat.id}
+                                                                            value={cat.id}
                                                                         >
-                                                                            {
-                                                                                cat
-                                                                            }
+                                                                            {cat.name}
                                                                         </option>
                                                                     )
                                                                 )}
@@ -671,6 +740,7 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                             </Label>
                                                             <Input
                                                                 id="editVideoUrl"
+                                                                name="editVideoUrl"
                                                                 value={
                                                                     editVideoUrl
                                                                 }
@@ -681,10 +751,32 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                                     )
                                                                 }
                                                                 placeholder="https://youtube.com/watch?v=... atau https://vimeo.com/..."
+                                                                className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                                             />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center space-x-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    id="editIsSemifinal"
+                                                                    name="editIsSemifinal"
+                                                                    checked={editIsSemifinal}
+                                                                    onChange={(e) =>
+                                                                        setEditIsSemifinal(e.target.checked)
+                                                                    }
+                                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                                                />
+                                                                <Label 
+                                                                    htmlFor="editIsSemifinal" 
+                                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                                >
+                                                                    untuk Peserta Lolos Tahap Semifinal
+                                                                </Label>
+                                                            </div>
                                                         </div>
                                                         <Textarea
                                                             value={editContent}
+                                                            name="editContent"
                                                             onChange={(e) =>
                                                                 setEditContent(
                                                                     e.target
@@ -885,7 +977,8 @@ export default function AdminPage({ materials: initialMaterials }: Props) {
                                                 )}
                                             </div>
                                         ))}
-                                    </div>
+                                        </div>
+                                    </>
                                 )}
                             </CardContent>
                         </Card>
