@@ -22,6 +22,7 @@ class Course extends Model
         'is_active',
         'is_semifinal',
         'created_by',
+        'slug',
     ];
 
     protected $casts = [

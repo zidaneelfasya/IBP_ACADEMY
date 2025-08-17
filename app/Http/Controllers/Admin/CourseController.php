@@ -102,6 +102,8 @@ class CourseController extends Controller
 
     DB::beginTransaction();
 
+
+
     try {
         $course = Course::create([
             'title' => $validated['title'],
@@ -112,7 +114,9 @@ class CourseController extends Controller
             'is_semifinal' => $validated['is_semifinal'],
             'created_by' => auth()->id(),
             'is_active' => true,
+            'slug' => \Illuminate\Support\Str::slug($validated['title']) . '-' . \Illuminate\Support\Str::random(6), 
             'read_count' => 0
+
         ]);
 
         // Log::debug('Course created:', $course->toArray());

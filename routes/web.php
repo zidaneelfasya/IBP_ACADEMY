@@ -227,7 +227,8 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
     Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
-    // Route::get('/material/{course}', [UserCourseController::class, 'show'])->name('user.material.show');;
+     Route::get('/material/{slug}', [UserCourseController::class, 'show'])
+         ->name('user.material.show');
 
 });
 

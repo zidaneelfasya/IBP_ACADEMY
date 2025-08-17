@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Storage;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
@@ -15,21 +16,14 @@ class UserCourseController extends Controller
     {
         $user = Auth::user();
 
-        // Get team registration for current user
         $teamRegistration = TeamRegistration::where('user_id', $user->id)->first();
 
         if (!$teamRegistration) {
-            return Inertia::render('User/Course', [
-                'generalCourses' => [],
-                'semifinalCourses' => [],
-                'isSemifinalist' => false,
-                'message' => 'You are not registered in any competition yet.'
-            ]);
+            return Inertia::render('User/NoTeam');
         }
 
-        // Get participant progress
+        // Cek participant progress
         $participantProgress = ParticipantProgress::where('participant_id', $teamRegistration->id)->first();
-
         if (!$participantProgress) {
             return Inertia::render('User/Course', [
                 'generalCourses' => [],
@@ -42,43 +36,47 @@ class UserCourseController extends Controller
         // Get competition category from team registration
         $competitionCategoryId = $teamRegistration->competition_category_id;
 
-        // Check if user is semifinalist (based on competition stage)
-        $isSemifinalist = $participantProgress->competition_stage_id >= 2; // Sesuaikan dengan stage semifinal Anda
+       $isSemifinalist = ParticipantProgress::where('participant_id', $teamRegistration->id)
+        ->whereHas('stage', function($query) {
+            $query->where('id', 3); // Assuming stage with ID 3 is semifinal
+        })
+        ->where('status', 'approved')
+        ->exists();
 
-       $generalCourses = Course::query()
+
+      $generalCourses = Course::query()
     ->where('competition_category_id', $competitionCategoryId)
     ->where('is_semifinal', false)
     ->where('is_active', true)
     ->get()
-    ->map(function ($course) {
-        return [
-            'id' => $course->id,
-            'title' => $course->title,
-            'description' => $course->description,
-            'thumbnail' => $course->cover_image
-                ? asset('storage/' . $course->cover_image) // Konversi ke full URL
-                : asset('image/course/default.jpg'), // Fallback jika tidak ada
-        ];
-    });
+    ->map(fn($course) => [
+        'id'        => $course->id,
+        'slug'      => $course->slug,
+        'title'     => $course->title,
+        'description'=> $course->description,
+        'thumbnail' => $course->cover_image
+            ? asset('storage/' . $course->cover_image)
+            : asset('image/course/default.jpg'),
+        'category'  => $course->competitionCategory->name,
+    ]);
 
         // Get semifinal courses if user is semifinalist
-        $semifinalCourses = collect([]);
-        if ($isSemifinalist) {
-            $semifinalCourses = Course::query()
-                ->where('competition_category_id', $competitionCategoryId)
-                ->where('is_semifinal', true)
-                ->where('is_active', true)
-                ->select(['id', 'title', 'description', 'cover_image', 'competition_category_id'])
-                ->get()
-                ->map(function ($course) {
-                    return [
-                        'id' => $course->id,
-                        'title' => $course->title,
-                        'description' => $course->description,
-                        'thumbnail' => $course->cover_image,
-                    ];
-                });
-        }
+       $semifinalCourses = Course::query()
+    ->where('competition_category_id', $competitionCategoryId)
+    ->where('is_semifinal', true)
+    ->where('is_active', true)
+    ->get()
+    ->map(fn($course) => [
+        'id'        => $course->id,
+        'slug'      => $course->slug,
+        'title'     => $course->title,
+        'description'=> $course->description,
+        'thumbnail' => $course->cover_image
+            ? asset('storage/' . $course->cover_image)
+            : asset('image/course/default.jpg'),
+        'category'  => $course->competitionCategory->name,
+    ]);
+
 
         return Inertia::render('User/Course', [
             'generalCourses' => $generalCourses,
@@ -86,4 +84,42 @@ class UserCourseController extends Controller
             'isSemifinalist' => $isSemifinalist,
         ]);
     }
+
+   public function show(string $slug)
+{
+    $course = Course::with(['files', 'competitionCategory'])
+                    ->where('slug', $slug)
+                    ->where('is_active', true)
+                    ->firstOrFail();
+
+    // optional: increment read counter
+    $course->incrementReadCount();
+
+
+
+    return Inertia::render('User/Course-detail', [
+        'course' => [
+            'id'            => $course->id,
+            'title'         => $course->title,
+
+            'description'   => $course->description,
+            'content'       => $course->content,
+            'videoUrl'      => $course->video_url,        // YouTube link or null
+           'cover' => $course->cover_image
+                                ? asset('storage/' . $course->cover_image)
+                                : asset('image/course/default.jpg'),
+            'category'      => $course->competitionCategory->name,
+            'readCount'     => $course->read_count,
+            'uploadedBy' => $course->creator->name,        // nama uploader
+            'uploadedAt' => $course->created_at->format('d M Y, H:i'),
+            'files'         => $course->files->map(fn($f) => [
+                'id'    => $f->id,
+                'name'  => $f->original_name,
+                'type'  => $f->mime_type,
+                'size'  => $f->size_for_humans,
+                'url'   => Storage::url($f->file_path),
+            ]),
+        ],
+    ]);
+}
 }

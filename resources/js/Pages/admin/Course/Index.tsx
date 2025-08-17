@@ -194,14 +194,14 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         setCoverImage(null);
         setCoverImagePreview("");
         setFiles([]);
-        
+
         // Use Inertia's router to reload the page properly
         window.location.href = route('courses.index');
     } catch (error) {
         console.error('Error creating course:', error);
-        alert('Terjadi kesalahan saat menyimpan materi: ' + 
-            (error as any).response?.data?.message || 
-            (error as any).message || 
+        alert('Terjadi kesalahan saat menyimpan materi: ' +
+            (error as any).response?.data?.message ||
+            (error as any).message ||
             'Unknown error');
     } finally {
         setIsUploading(false);
@@ -278,7 +278,7 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                 </div>
                 <div className="container mx-auto px-4 py-8 relative z-10">
                     <div className="flex items-center gap-4 mb-8">
-                        
+
                         <div>
                             <h1 className="text-3xl font-bold text-foreground">
                                 Panel Admin
@@ -500,8 +500,8 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                     }
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                                                 />
-                                                <Label 
-                                                    htmlFor="isSemifinal" 
+                                                <Label
+                                                    htmlFor="isSemifinal"
                                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                 >
                                                     Khusus untuk Peserta Semifinal
@@ -652,7 +652,7 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                             <CardContent className="flex-1  overflow-y-auto relative course-list-scroll">
                                 {/* Scroll indicator gradient */}
                                 <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white/80 to-transparent pointer-events-none z-10" style={{display: materials.length > 3 ? 'block' : 'none'}}></div>
-                                
+
                                 {materials.length === 0 ? (
                                     <div className="text-center py-8 text-muted-foreground">
                                         <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -766,8 +766,8 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                                     }
                                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                                                                 />
-                                                                <Label 
-                                                                    htmlFor="editIsSemifinal" 
+                                                                <Label
+                                                                    htmlFor="editIsSemifinal"
                                                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                                 >
                                                                     untuk Peserta Lolos Tahap Semifinal
