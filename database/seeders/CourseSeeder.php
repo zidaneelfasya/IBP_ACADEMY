@@ -205,9 +205,13 @@ class CourseSeeder extends Seeder
         }
 
         $this->command->info('CourseSeeder completed successfully!');
-        $this->command->info('Created ' . count($courses) . ' comprehensive courses with sample files:');
-        $this->command->info('- ' . array_count_values(array_column($courses, 'is_semifinal'))[false] . ' general access courses');
-        $this->command->info('- ' . array_count_values(array_column($courses, 'is_semifinal'))[true] . ' semifinal exclusive courses');
-        $this->command->info('- Coverage: BCC and BPC competition categories with cross-category content');
+    $this->command->info('Created ' . count($courses) . ' comprehensive courses with sample files:');
+    
+    $generalCourses = count(array_filter($courses, fn($course) => $course['is_semifinal'] === false));
+    $semifinalCourses = count(array_filter($courses, fn($course) => $course['is_semifinal'] === true));
+    $this->command->info('- ' . $generalCourses . ' general access courses');
+    $this->command->info('- ' . $semifinalCourses . ' semifinal exclusive courses');
+    
+    $this->command->info('- Coverage: BCC and BPC competition categories with cross-category content');
     }
 }
