@@ -61,11 +61,12 @@ const data = {
             url: "/admin/assignments",
             icon: FolderIcon,
         },
-        // {
-        //     title: "Team",
-        //     url: "#",
-        //     icon: UsersIcon,
-        // },
+        {
+            title: "Course",
+            url: "/admin/dashboard/course",
+            icon: ListIcon,
+        },
+
     ],
     navClouds: [
         {
@@ -192,13 +193,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent className="">
                 <NavMain items={data.navMain} />
                  <div className="px-4 py-2">
-                    
+
                 </div>
-                <NavParticipant 
-                    items={data.competitionStages} 
+                <NavParticipant
+                    items={data.competitionStages}
 
                 />
-                
+
                 {/* <NavDocuments items={data.documents} /> */}
                 <NavSecondary
                     items={data.navSecondary}

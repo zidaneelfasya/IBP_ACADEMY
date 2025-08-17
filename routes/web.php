@@ -94,6 +94,9 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
         Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])->name('progress.approve');
         Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
+        Route::get('/course', function () {
+            return Inertia::render('admin/Course/Index');
+        })->name('course.index');
     });
 });
 
@@ -193,7 +196,7 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
  Route::get('/competition/success/{registration:uuid}', [CompetitionController::class, 'success'])
         ->name('competition.success');
 });
-   
+
 
 
 
