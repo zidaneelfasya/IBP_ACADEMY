@@ -1,5 +1,7 @@
 "use client";
 
+
+
 import { useState, useEffect } from "react";
 import { usePage, Link } from "@inertiajs/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -112,11 +114,11 @@ export default function ParticipantProfile() {
     const [progressPercentage, setProgressPercentage] = useState(0);
 
     const roundDates = [
-        "1 - 7 August 2025",
-        "8 - 14 August 2025",
-        "15 - 21 August 2025",
-        "22 - 28 August 2025",
-        "29 August - 4 September 2025",
+        " 8-21 August 2025",
+        " 8-31 August 2025",
+        " 9-23 August 2025",
+        " 1-25 August 2025",
+
     ];
 
     useEffect(() => {
@@ -329,7 +331,7 @@ export default function ParticipantProfile() {
                     <Card className="text-center">
                         <CardContent className="p-4">
                             <div className="text-2xl font-bold text-purple-600">
-                                {teamMembers.length }
+                                {teamMembers.length}
                             </div>
                             <div className="text-sm text-gray-600">
                                 Team Members
@@ -674,7 +676,19 @@ export default function ParticipantProfile() {
                                                         Approved at
                                                     </span>
                                                     <span className="text-sm text-gray-600">
-                                                        {stage.approved_at}
+                                                        {new Date(
+                                                            stage.approved_at
+                                                        ).toLocaleString(
+                                                            "en-US",
+                                                            {
+                                                                month: "short",
+                                                                day: "numeric",
+                                                                year: "numeric",
+                                                                hour: "numeric",
+                                                                minute: "2-digit",
+                                                                hour12: true,
+                                                            }
+                                                        )}
                                                     </span>
                                                 </div>
                                             )}
