@@ -63,7 +63,7 @@ const data = {
         },
         {
             title: "Course",
-            url: "/admin/dashboard/course",
+            url: "/admin/dashboard/courses",
             icon: ListIcon,
         },
 
