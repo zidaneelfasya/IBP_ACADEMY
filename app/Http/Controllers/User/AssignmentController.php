@@ -121,7 +121,6 @@ class AssignmentController extends Controller
 
         $progress = ParticipantProgress::where('participant_id', $teamRegistration->id)
             ->where('competition_stage_id', $preliminaryStage->id)
-            ->where('status', 'approved')
             ->first();
 
         if (!$progress) {
