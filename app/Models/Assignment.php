@@ -30,6 +30,19 @@ class Assignment extends Model
     ];
 
     /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Cascade delete submissions when assignment is deleted
+        static::deleting(function ($assignment) {
+            $assignment->submissions()->delete();
+        });
+    }
+
+    /**
      * Get the route key for the model.
      */
     public function getRouteKeyName()

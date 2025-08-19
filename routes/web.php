@@ -1,5 +1,7 @@
 <?php
 
+
+
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +24,8 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
+// user course controller
+use App\Http\Controllers\UserCourseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +98,19 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
         Route::post('/admin/progress/{progress}/approve', [ParticipantProgressController::class, 'approve'])->name('progress.approve');
         Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
+
+        // Course Management Routes - Manual
+        Route::get('courses', [\App\Http\Controllers\Admin\CourseController::class, 'index'])->name('courses.index');
+        Route::get('courses/create', [\App\Http\Controllers\Admin\CourseController::class, 'create'])->name('courses.create');
+        Route::post('courses', [\App\Http\Controllers\Admin\CourseController::class, 'store'])->name('courses.store');
+        Route::get('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'show'])->name('courses.show');
+        Route::get('courses/{course}/edit', [\App\Http\Controllers\Admin\CourseController::class, 'edit'])->name('courses.edit');
+        Route::put('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'update'])->name('courses.update');
+        Route::delete('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'destroy'])->name('courses.destroy');
+        Route::delete('courses/{course}/files/{file}', [\App\Http\Controllers\Admin\CourseController::class, 'deleteFile'])
+            ->name('courses.files.destroy');
+
+
     });
 });
 
@@ -212,7 +229,10 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
-    Route::get('/course', fn() => Inertia::render('User/Course'))->name('dashboard.user.course');
+    Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
+     Route::get('/material/{slug}', [UserCourseController::class, 'show'])
+         ->name('user.material.show');
+
 });
 
 Route::fallback(function () {
@@ -232,21 +252,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         ->name('assignments.create');
     Route::post('assignments', [AdminAssignmentController::class, 'store'])
         ->name('assignments.store');
-    Route::get('assignments/{assignment}', [AdminAssignmentController::class, 'show'])
+    Route::get('assignments/{assignment:uuid}', [AdminAssignmentController::class, 'show'])
         ->name('assignments.show');
-    Route::get('assignments/{assignment}/edit', [AdminAssignmentController::class, 'edit'])
+    Route::get('assignments/{assignment:uuid}/edit', [AdminAssignmentController::class, 'edit'])
         ->name('assignments.edit');
-    Route::put('assignments/{assignment}', [AdminAssignmentController::class, 'update'])
+    Route::put('assignments/{assignment:uuid}', [AdminAssignmentController::class, 'update'])
         ->name('assignments.update');
-    Route::delete('assignments/{assignment}', [AdminAssignmentController::class, 'destroy'])
+    Route::delete('assignments/{assignment:uuid}', [AdminAssignmentController::class, 'destroy'])
         ->name('assignments.destroy');
-    Route::patch('assignments/{assignment}/toggle-status', [AdminAssignmentController::class, 'toggleStatus'])
+    Route::patch('assignments/{assignment:uuid}/toggle-status', [AdminAssignmentController::class, 'toggleStatus'])
         ->name('assignments.toggle-status');
     Route::get('assignments-by-stage', [AdminAssignmentController::class, 'getByStage'])
         ->name('assignments.by-stage');
 
     // Assignment Submissions
-    Route::prefix('assignments/{assignment}')->name('assignments.')->group(function () {
+    Route::prefix('assignments/{assignment:uuid}')->name('assignments.')->group(function () {
         Route::get('submissions', [AssignmentSubmissionController::class, 'index'])
             ->name('submissions.index');
         Route::get('submissions/{submission}', [AssignmentSubmissionController::class, 'show'])

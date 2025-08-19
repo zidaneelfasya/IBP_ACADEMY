@@ -22,9 +22,20 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
 import {
     Select,
     SelectContent,
@@ -55,6 +66,7 @@ import { toast } from 'sonner';
 
 interface Assignment {
     id: number;
+    uuid: string;
     title: string;
     description: string;
     instructions: string | null;
@@ -141,6 +153,9 @@ export default function Assignment({
     },
 }: AssignmentIndexProps) {
     const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const [isTogglingStatus, setIsTogglingStatus] = useState<string | null>(null);
     const [filters, setFilters] = useState({
         stage_id: initialFilters.stage_id || "all",
         status: initialFilters.status || "all",
@@ -174,17 +189,26 @@ export default function Assignment({
         setSelectedAssignment(assignment);
     };
 
-    const handleToggleStatus = async (assignmentId: number) => {
+    const handleToggleStatus = async (assignmentUuid: string) => {
+        if (isTogglingStatus === assignmentUuid) return;
+        
+        setIsTogglingStatus(assignmentUuid);
+        
         try {
             router.patch(
-                route("admin.assignments.toggle-status", assignmentId),
+                route("admin.assignments.toggle-status", assignmentUuid),
                 {},
                 {
                     onSuccess: () => {
                         toast.success("Status tugas berhasil diubah");
+                        setIsTogglingStatus(null);
                     },
                     onError: () => {
                         toast.error("Gagal mengubah status tugas");
+                        setIsTogglingStatus(null);
+                    },
+                    onFinish: () => {
+                        setIsTogglingStatus(null);
                     },
                     preserveScroll: true,
                 }
@@ -192,25 +216,42 @@ export default function Assignment({
         } catch (error) {
             console.error("Error toggling status:", error);
             toast.error("Terjadi kesalahan saat mengubah status");
+            setIsTogglingStatus(null);
         }
     };
 
-    const handleDeleteAssignment = async (assignmentId: number) => {
-        if (confirm("Apakah Anda yakin ingin menghapus tugas ini?")) {
-            try {
-                router.delete(route("admin.assignments.destroy", assignmentId), {
-                    onSuccess: () => {
-                        toast.success("Tugas berhasil dihapus");
-                    },
-                    onError: () => {
-                        toast.error("Gagal menghapus tugas");
-                    },
-                });
-            } catch (error) {
-                console.error("Error deleting assignment:", error);
-                toast.error("Terjadi kesalahan saat menghapus tugas");
-            }
+    const handleDeleteAssignment = async (assignmentUuid: string) => {
+        if (isDeleting === assignmentUuid) return;
+
+        setIsDeleting(assignmentUuid);
+        
+        try {
+            router.delete(route("admin.assignments.destroy", assignmentUuid), {
+                onSuccess: () => {
+                    toast.success("Tugas dan semua submission berhasil dihapus");
+                    setIsDeleting(null);
+                    setDeleteConfirmOpen(null);
+                },
+                onError: () => {
+                    toast.error("Gagal menghapus tugas");
+                    setIsDeleting(null);
+                    setDeleteConfirmOpen(null);
+                },
+                onFinish: () => {
+                    setIsDeleting(null);
+                    setDeleteConfirmOpen(null);
+                }
+            });
+        } catch (error) {
+            console.error("Error deleting assignment:", error);
+            toast.error("Terjadi kesalahan saat menghapus tugas");
+            setIsDeleting(null);
+            setDeleteConfirmOpen(null);
         }
+    };
+
+    const confirmDelete = (assignmentUuid: string) => {
+        setDeleteConfirmOpen(assignmentUuid);
     };
 
     return (
@@ -382,6 +423,8 @@ export default function Assignment({
                         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                             {initialAssignments.data.map((assignment) => {
                                 const deadlineStatus = getDeadlineStatus(assignment.deadline);
+                                const isCurrentlyDeleting = isDeleting === assignment.uuid;
+                                const isCurrentlyTogglingStatus = isTogglingStatus === assignment.uuid;
 
                                 return (
                                     <Card key={assignment.id} className="group hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/20">
@@ -409,6 +452,7 @@ export default function Assignment({
                                                                 size="sm"
                                                                 className="h-8 w-8 p-0 shrink-0"
                                                                 aria-label="Open menu"
+                                                                disabled={isCurrentlyDeleting || isCurrentlyTogglingStatus}
                                                             >
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
@@ -420,32 +464,33 @@ export default function Assignment({
                                                                 View Details
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem asChild>
-                                                                <Link href={route("admin.assignments.submissions.index", assignment.id)}>
+                                                                <Link href={route("admin.assignments.submissions.index", assignment.uuid)}>
                                                                     <FileText className="mr-2 h-4 w-4" />
                                                                     View Submissions
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem asChild>
-                                                                <Link href={route("admin.assignments.edit", assignment.id)}>
+                                                                <Link href={route("admin.assignments.edit", assignment.uuid)}>
                                                                     <Edit className="mr-2 h-4 w-4" />
                                                                     Edit
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
-                                                                onClick={() => handleToggleStatus(assignment.id)}
+                                                                onClick={() => handleToggleStatus(assignment.uuid)}
                                                                 className={assignment.is_active ? "text-yellow-600" : "text-green-600"}
+                                                                disabled={isCurrentlyTogglingStatus}
                                                             >
-                                                                {assignment.is_active ? "Deactivate" : "Activate"}
+                                                                {isCurrentlyTogglingStatus ? "Loading..." : assignment.is_active ? "Deactivate" : "Activate"}
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                className="text-red-600"
-                                                                onClick={() => handleDeleteAssignment(assignment.id)}
-                                                            >
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                Delete
-                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />                                                        <DropdownMenuItem
+                                                            className="text-red-600"
+                                                            onClick={() => confirmDelete(assignment.uuid)}
+                                                            disabled={isCurrentlyDeleting}
+                                                        >
+                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                            {isCurrentlyDeleting ? "Deleting..." : "Delete"}
+                                                        </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </div>
@@ -538,7 +583,7 @@ export default function Assignment({
                                                     View Details
                                                 </Button>
                                                 <Link
-                                                    href={route("admin.assignments.submissions.index", assignment.id)}
+                                                    href={route("admin.assignments.submissions.index", assignment.uuid)}
                                                     className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3 flex-1"
                                                 >
                                                     <FileText className="mr-2 h-4 w-4" />
@@ -696,14 +741,14 @@ export default function Assignment({
                                 {/* Actions */}
                                 <div className="flex flex-col gap-2 pt-4 border-t sm:flex-row">
                                     <Link
-                                        href={route("admin.assignments.submissions.index", selectedAssignment.id)}
+                                        href={route("admin.assignments.submissions.index", selectedAssignment.uuid)}
                                         className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                                     >
                                         <FileText className="mr-2 h-4 w-4" />
                                         View Submissions
                                     </Link>
                                     <Link
-                                        href={route("admin.assignments.edit", selectedAssignment.id)}
+                                        href={route("admin.assignments.edit", selectedAssignment.uuid)}
                                         className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                                     >
                                         <Edit className="mr-2 h-4 w-4" />
@@ -721,6 +766,31 @@ export default function Assignment({
                         )}
                     </DialogContent>
                 </Dialog>
+
+                {/* Delete Confirmation Dialog */}
+                <AlertDialog open={!!deleteConfirmOpen} onOpenChange={() => setDeleteConfirmOpen(null)}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Tindakan ini tidak dapat dibatalkan. Assignment ini akan dihapus secara permanen 
+                                beserta semua submission yang terkait.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel disabled={isDeleting === deleteConfirmOpen}>
+                                Batal
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={() => deleteConfirmOpen && handleDeleteAssignment(deleteConfirmOpen)}
+                                disabled={isDeleting === deleteConfirmOpen}
+                                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                            >
+                                {isDeleting === deleteConfirmOpen ? "Menghapus..." : "Ya, Hapus"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </AdminLayout>
     );

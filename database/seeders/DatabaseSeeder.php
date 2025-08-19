@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             TeamRegistrationSeederNew::class,
             AssignmentSeeder::class,
             AssignmentSubmissionSeeder::class,
-
+            CourseSeeder::class,
 
         ]);
     }
