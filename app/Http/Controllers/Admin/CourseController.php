@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-// use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 class CourseController extends Controller
 {
@@ -149,7 +149,7 @@ class CourseController extends Controller
 
         DB::commit();
 
-        return redirect()->route('courses.index')
+        return redirect()->route('admin.courses.index')
             ->with('success', 'Course berhasil dibuat!');
 
     } catch (\Exception $e) {
@@ -195,7 +195,12 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
-        $request->validate([
+        Log::info('Course update request received', [
+            'course_id' => $course->id,
+            'request_data' => $request->all()
+        ]);
+
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'content' => 'required|string',
@@ -218,19 +223,28 @@ class CourseController extends Controller
             'files.*.max' => 'Ukuran file maksimal 10MB',
         ]);
 
+        Log::info('Course update validation passed', ['validated_data' => $validated]);
+
         try {
             DB::beginTransaction();
 
             // Update course
-            $course->update([
+            $updateData = [
                 'title' => $request->title,
                 'description' => $request->description,
                 'content' => $request->content,
                 'competition_category_id' => $request->competition_category_id,
                 'video_url' => $request->video_url,
                 'is_semifinal' => $request->boolean('is_semifinal', false),
-                'is_active' => $request->boolean('is_active', true)
-            ]);
+                'is_active' => $request->boolean('is_active', true),
+                'slug' => \Illuminate\Support\Str::slug($request->title) . '-' . \Illuminate\Support\Str::random(6),
+            ];
+
+            Log::info('About to update course', ['update_data' => $updateData]);
+
+            $course->update($updateData);
+
+            Log::info('Course updated successfully', ['course_id' => $course->id]);
 
             // Handle cover image
             if ($request->hasFile('cover_image')) {
@@ -262,12 +276,22 @@ class CourseController extends Controller
 
             DB::commit();
 
-            return redirect()->route('courses.index')
+            Log::info('Course update completed successfully');
+
+            // Always redirect to refresh the page with updated data
+            return redirect()->route('admin.courses.index')
                 ->with('success', 'Course berhasil diupdate!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat mengupdate course.']);
+            
+            Log::error('Error updating course', [
+                'course_id' => $course->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat mengupdate course: ' . $e->getMessage()]);
         }
     }
 
@@ -297,7 +321,7 @@ class CourseController extends Controller
 
             DB::commit();
 
-            return redirect()->route('courses.index')
+            return redirect()->route('admin.courses.index')
                 ->with('success', 'Course berhasil dihapus!');
 
         } catch (\Exception $e) {
