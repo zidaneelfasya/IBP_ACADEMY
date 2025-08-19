@@ -73,15 +73,16 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
+     Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
+            ->name('export.team-registrations');
+        Route::get('/export/team-registrations-simple', [ExportController::class, 'exportTeamRegistrationsSimple'])
+            ->name('export.team-registrations-simple');
     Route::prefix('/admin/dashboard')->group(function () {
         Route::get('/', [AllParticipantController::class, 'index'])->name('team.index');
 
         Route::get('/participant', [AllParticipantController::class, 'index'])->name('team.index');
 
-        Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
-            ->name('export.team-registrations');
-        Route::get('/export/team-registrations-simple', [ExportController::class, 'exportTeamRegistrationsSimple'])
-            ->name('export.team-registrations-simple');
+       
         Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');
         Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.preliminary.index');
         Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.preliminary.semifinal.index');
@@ -100,17 +101,15 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::post('/admin/progress/{progress}/reject', [TeamRegistrationController::class, 'updateStatusReject'])->name('progress.update-status-reject');
 
         // Course Management Routes - Manual
-        Route::get('courses', [\App\Http\Controllers\Admin\CourseController::class, 'index'])->name('courses.index');
-        Route::get('courses/create', [\App\Http\Controllers\Admin\CourseController::class, 'create'])->name('courses.create');
-        Route::post('courses', [\App\Http\Controllers\Admin\CourseController::class, 'store'])->name('courses.store');
-        Route::get('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'show'])->name('courses.show');
-        Route::get('courses/{course}/edit', [\App\Http\Controllers\Admin\CourseController::class, 'edit'])->name('courses.edit');
-        Route::put('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'update'])->name('courses.update');
-        Route::delete('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'destroy'])->name('courses.destroy');
+        Route::get('courses', [\App\Http\Controllers\Admin\CourseController::class, 'index'])->name('admin.courses.index');
+        Route::get('courses/create', [\App\Http\Controllers\Admin\CourseController::class, 'create'])->name('admin.courses.create');
+        Route::post('courses', [\App\Http\Controllers\Admin\CourseController::class, 'store'])->name('admin.courses.store');
+        Route::get('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'show'])->name('admin.courses.show');
+        Route::get('courses/{course}/edit', [\App\Http\Controllers\Admin\CourseController::class, 'edit'])->name('admin.courses.edit');
+        Route::put('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'update'])->name('admin.courses.update');
+        Route::delete('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'destroy'])->name('admin.courses.destroy');
         Route::delete('courses/{course}/files/{file}', [\App\Http\Controllers\Admin\CourseController::class, 'deleteFile'])
-            ->name('courses.files.destroy');
-
-
+            ->name('admin.courses.files.destroy');
     });
 });
 
