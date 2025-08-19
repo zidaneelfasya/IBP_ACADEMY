@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\CompetitionStage;
 use App\Models\ParticipantProgress;
 use App\Models\TeamRegistration;
@@ -47,12 +48,16 @@ class AssignmentController extends Controller
         }
 
         // User has access, get assignments for preliminary stage
-        $assignments = Assignment::with(['competitionStage', 'creator'])
+        $assignments = Assignment::with(['competitionStage', 'creator', 'submissions'])
             ->where('competition_stage_id', $preliminaryStage->id)
             ->where('is_active', true)
             ->orderBy('deadline', 'asc')
             ->get()
-            ->map(function ($assignment) {
+            ->map(function ($assignment) use ($teamRegistration) {
+                $userSubmission = $assignment->submissions()
+                    ->where('team_registration_id', $teamRegistration->id)
+                    ->first();
+
                 return [
                     'uuid' => $assignment->uuid,
                     'title' => $assignment->title,
@@ -65,6 +70,8 @@ class AssignmentController extends Controller
                     'is_open' => $assignment->isOpen(),
                     'stage_name' => $assignment->competitionStage->name,
                     'created_by' => $assignment->creator->name ?? 'System',
+                    'is_submitted' => $userSubmission ? true : false,
+                    'submission_date' => $userSubmission ? $userSubmission->submitted_at->format('M d, Y H:i') : null,
                 ];
             });
 
@@ -114,7 +121,6 @@ class AssignmentController extends Controller
 
         $progress = ParticipantProgress::where('participant_id', $teamRegistration->id)
             ->where('competition_stage_id', $preliminaryStage->id)
-            ->where('status', 'approved')
             ->first();
 
         if (!$progress) {
@@ -155,12 +161,84 @@ class AssignmentController extends Controller
                 'submitted_at' => $userSubmission->submitted_at,
                 'status' => $userSubmission->status,
                 'feedback' => $userSubmission->feedback,
-                'file_path' => $userSubmission->submission_link,
+                'submission_link' => $userSubmission->submission_link,
+                'notes' => $userSubmission->notes,
             ] : null,
             'team' => [
                 'id' => $teamRegistration->id,
                 'name' => $teamRegistration->tim_name,
             ],
         ]);
+    }
+
+    public function submitAssignment(Request $request, $uuid)
+    {
+        $user = $request->user();
+
+        // Validate input
+        $request->validate([
+            'submission_link' => 'required|string|max:500',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        // Get team registration
+        $teamRegistration = TeamRegistration::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->first();
+
+        if (!$teamRegistration) {
+            return response()->json(['error' => 'Access denied.'], 403);
+        }
+
+        // Get assignment
+        $assignment = Assignment::where('uuid', $uuid)->firstOrFail();
+
+        // Check if assignment is still open
+        if (!$assignment->isOpen()) {
+            if ($assignment->isOverdue()) {
+                return response()->json([
+                    'error' => 'Assignment deadline has passed. Submissions are no longer accepted.'
+                ], 400);
+            } else {
+                return response()->json([
+                    'error' => 'Assignment submission is closed.'
+                ], 400);
+            }
+        }
+
+        // Check if submission already exists
+        $existingSubmission = AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('team_registration_id', $teamRegistration->id)
+            ->first();
+
+        if ($existingSubmission) {
+            // Update existing submission
+            $existingSubmission->update([
+                'submission_link' => $request->submission_link,
+                'notes' => $request->notes,
+                'submitted_at' => now(),
+                'status' => 'pending'
+            ]);
+
+            return response()->json([
+                'message' => 'Assignment submission updated successfully!',
+                'submission' => $existingSubmission
+            ]);
+        } else {
+            // Create new submission
+            $submission = AssignmentSubmission::create([
+                'assignment_id' => $assignment->id,
+                'team_registration_id' => $teamRegistration->id,
+                'submission_link' => $request->submission_link,
+                'notes' => $request->notes,
+                'submitted_at' => now(),
+                'status' => 'pending'
+            ]);
+
+            return response()->json([
+                'message' => 'Assignment submitted successfully!',
+                'submission' => $submission
+            ]);
+        }
     }
 }
