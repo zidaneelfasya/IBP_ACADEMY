@@ -57,7 +57,7 @@ const data = {
         //     icon: BarChartIcon,
         // },
         {
-            title: "Tugas",
+            title: "Assignment",
             url: "/admin/assignments",
             icon: FolderIcon,
         },
