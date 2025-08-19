@@ -9,6 +9,7 @@ use App\Models\AssignmentSubmission;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AssignmentController extends Controller
@@ -184,14 +185,30 @@ class AssignmentController extends Controller
     }
 
     /**
-     * Remove the specified assignment
+     * Remove the specified assignment and its submissions
      */
     public function destroy(Assignment $assignment)
     {
-        $assignment->delete();
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('admin.assignments.index')
-            ->with('success', 'Assignment deleted successfully.');
+            // Get submission count for logging
+            $submissionCount = $assignment->submissions()->count();
+
+            // Delete the assignment (submissions will be deleted automatically via model boot method)
+            $assignment->delete();
+
+            DB::commit();
+
+            return redirect()->route('admin.assignments.index')
+                ->with('success', "Assignment dan {$submissionCount} submission berhasil dihapus.");
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            return redirect()->route('admin.assignments.index')
+                ->with('error', 'Terjadi kesalahan saat menghapus assignment.');
+        }
     }
 
     /**
@@ -199,13 +216,20 @@ class AssignmentController extends Controller
      */
     public function toggleStatus(Assignment $assignment)
     {
-        $assignment->update([
-            'is_active' => !$assignment->is_active
-        ]);
+        try {
+            $assignment->update([
+                'is_active' => !$assignment->is_active
+            ]);
 
-        $status = $assignment->is_active ? 'activated' : 'deactivated';
+            $status = $assignment->is_active ? 'diaktifkan' : 'dinonaktifkan';
 
-        return back()->with('success', "Assignment {$status} successfully.");
+            return redirect()->route('admin.assignments.index')
+                ->with('success', "Assignment berhasil {$status}.");
+
+        } catch (\Exception $e) {
+            return redirect()->route('admin.assignments.index')
+                ->with('error', 'Terjadi kesalahan saat mengubah status assignment.');
+        }
     }
 
     /**
