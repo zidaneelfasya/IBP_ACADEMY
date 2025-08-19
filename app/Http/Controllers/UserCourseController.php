@@ -38,7 +38,7 @@ class UserCourseController extends Controller
 
        $isSemifinalist = ParticipantProgress::where('participant_id', $teamRegistration->id)
         ->whereHas('stage', function($query) {
-            $query->where('id', 3); // Assuming stage with ID 3 is semifinal
+            $query->where('id', 2); // Assuming stage with ID 3 is semifinal
         })
         ->where('status', 'approved')
         ->exists();
