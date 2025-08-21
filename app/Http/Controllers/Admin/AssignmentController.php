@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\CompetitionStage;
+use App\Models\CompetitionCategory;
 use App\Models\AssignmentSubmission;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,12 +20,17 @@ class AssignmentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Assignment::with(['competitionStage', 'creator', 'submissions'])
+        $query = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
             ->orderBy('created_at', 'desc');
 
         // Filter by stage
         if ($request->stage_id && $request->stage_id !== 'all') {
             $query->where('competition_stage_id', $request->stage_id);
+        }
+
+        // Filter by category
+        if ($request->category_id && $request->category_id !== 'all') {
+            $query->where('competition_category_id', $request->category_id);
         }
 
         // Filter by status
@@ -55,6 +61,7 @@ class AssignmentController extends Controller
         });
 
         $stages = CompetitionStage::orderBy('order')->get();
+        $categories = CompetitionCategory::active()->get();
 
         // Calculate stats
         $stats = [
@@ -67,8 +74,10 @@ class AssignmentController extends Controller
         return Inertia::render('admin/Assignment/Index', [
             'assignments' => $assignments,
             'stages' => $stages,
+            'categories' => $categories,
             'filters' => [
                 'stage_id' => $request->stage_id ?? 'all',
+                'category_id' => $request->category_id ?? 'all',
                 'status' => $request->status ?? 'all',
                 'search' => $request->search ?? '',
             ],
@@ -82,9 +91,11 @@ class AssignmentController extends Controller
     public function create()
     {
         $stages = CompetitionStage::orderBy('order')->get();
+        $categories = CompetitionCategory::active()->get();
 
         return Inertia::render('admin/Assignment/Create', [
-            'stages' => $stages
+            'stages' => $stages,
+            'categories' => $categories
         ]);
     }
 
@@ -95,6 +106,7 @@ class AssignmentController extends Controller
     {
         $validated = $request->validate([
             'competition_stage_id' => 'required|exists:competition_stages,id',
+            'competition_category_id' => 'required|exists:competition_categories,id',
             'title' => 'required|string|min:5|max:255',
             'description' => 'required|string|min:10|max:1000',
             'instructions' => 'nullable|string|max:2000',
@@ -103,6 +115,8 @@ class AssignmentController extends Controller
         ], [
             'competition_stage_id.required' => 'Tahap kompetisi harus dipilih',
             'competition_stage_id.exists' => 'Tahap kompetisi tidak valid',
+            'competition_category_id.required' => 'Kategori kompetisi harus dipilih',
+            'competition_category_id.exists' => 'Kategori kompetisi tidak valid',
             'title.required' => 'Judul tugas harus diisi',
             'title.min' => 'Judul tugas minimal 5 karakter',
             'title.max' => 'Judul tugas maksimal 255 karakter',
@@ -130,6 +144,7 @@ class AssignmentController extends Controller
     {
         $assignment->load([
             'competitionStage',
+            'competitionCategory',
             'creator',
             'submissions.team',
             'submissions.grader'
@@ -157,10 +172,12 @@ class AssignmentController extends Controller
     public function edit(Assignment $assignment)
     {
         $stages = CompetitionStage::orderBy('order')->get();
+        $categories = CompetitionCategory::active()->get();
 
         return Inertia::render('admin/Assignment/Edit', [
             'assignment' => $assignment,
-            'stages' => $stages
+            'stages' => $stages,
+            'categories' => $categories
         ]);
     }
 
@@ -171,6 +188,7 @@ class AssignmentController extends Controller
     {
         $validated = $request->validate([
             'competition_stage_id' => 'required|exists:competition_stages,id',
+            'competition_category_id' => 'required|exists:competition_categories,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'instructions' => 'nullable|string',
@@ -233,14 +251,19 @@ class AssignmentController extends Controller
     }
 
     /**
-     * Get assignments by stage (for AJAX)
+     * Get assignments by stage and category (for AJAX)
      */
     public function getByStage(Request $request)
     {
-        $assignments = Assignment::where('competition_stage_id', $request->stage_id)
-            ->where('is_active', true)
-            ->orderBy('deadline')
-            ->get(['id', 'title', 'deadline']);
+        $query = Assignment::where('competition_stage_id', $request->stage_id)
+            ->where('is_active', true);
+
+        if ($request->category_id) {
+            $query->where('competition_category_id', $request->category_id);
+        }
+
+        $assignments = $query->orderBy('deadline')
+            ->get(['id', 'title', 'deadline', 'competition_category_id']);
 
         return response()->json($assignments);
     }
