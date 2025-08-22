@@ -45,12 +45,20 @@ interface CompetitionStage {
     order: number;
 }
 
+interface CompetitionCategory {
+    id: number;
+    name: string;
+    is_active: boolean;
+}
+
 interface CreateAssignmentProps {
     stages: CompetitionStage[];
+    categories: CompetitionCategory[];
 }
 
 interface FormData {
     competition_stage_id: string;
+    competition_category_id: string;
     title: string;
     description: string;
     instructions: string;
@@ -58,11 +66,12 @@ interface FormData {
     is_active: boolean;
 }
 
-export default function CreateAssignment({ stages }: CreateAssignmentProps) {
+export default function CreateAssignment({ stages, categories }: CreateAssignmentProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { data, setData, post, processing, errors, reset } = useForm<FormData>({
         competition_stage_id: "",
+        competition_category_id: "",
         title: "",
         description: "",
         instructions: "",
@@ -187,6 +196,42 @@ export default function CreateAssignment({ stages }: CreateAssignmentProps) {
                                     <p className="text-sm text-red-600 flex items-center gap-1">
                                         <AlertCircle className="h-3 w-3" />
                                         {errors.competition_stage_id}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Competition Category */}
+                            <div className="space-y-2">
+                                <Label htmlFor="competition_category_id" className="text-sm font-medium">
+                                    Kategori Kompetisi <span className="text-red-500">*</span>
+                                </Label>
+                                <Select
+                                    value={data.competition_category_id}
+                                    onValueChange={(value) => setData("competition_category_id", value)}
+                                >
+                                    <SelectTrigger className={`w-full ${errors.competition_category_id ? 'border-red-500 focus:border-red-500' : ''}`}>
+                                        <SelectValue placeholder="Pilih kategori kompetisi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={category.id.toString()}>
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-3 h-3 rounded-full ${category.name === 'BPC' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                                                    <span className="font-medium">
+                                                        {category.name === 'BPC' ? 'Business Plan Competition' : 'Business Case Competition'}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        ({category.name})
+                                                    </span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.competition_category_id && (
+                                    <p className="text-sm text-red-600 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" />
+                                        {errors.competition_category_id}
                                     </p>
                                 )}
                             </div>

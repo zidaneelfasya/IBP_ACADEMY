@@ -39,12 +39,14 @@ import { toast } from "sonner";
 
 interface Assignment {
     id: number;
+    uuid: string;
     title: string;
     description: string;
     instructions: string | null;
     deadline: string;
     is_active: boolean;
     competition_stage_id: number;
+    competition_category_id: number;
 }
 
 interface CompetitionStage {
@@ -53,13 +55,21 @@ interface CompetitionStage {
     order: number;
 }
 
+interface CompetitionCategory {
+    id: number;
+    name: string;
+    is_active: boolean;
+}
+
 interface EditAssignmentProps {
     assignment: Assignment;
     stages: CompetitionStage[];
+    categories: CompetitionCategory[];
 }
 
 interface FormData {
     competition_stage_id: string;
+    competition_category_id: string;
     title: string;
     description: string;
     instructions: string;
@@ -67,11 +77,12 @@ interface FormData {
     is_active: boolean;
 }
 
-export default function EditAssignment({ assignment, stages }: EditAssignmentProps) {
+export default function EditAssignment({ assignment, stages, categories }: EditAssignmentProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { data, setData, put, processing, errors, reset } = useForm<FormData>({
         competition_stage_id: assignment.competition_stage_id.toString(),
+        competition_category_id: assignment.competition_category_id.toString(),
         title: assignment.title,
         description: assignment.description,
         instructions: assignment.instructions || "",
@@ -83,7 +94,7 @@ export default function EditAssignment({ assignment, stages }: EditAssignmentPro
         e.preventDefault();
         setIsSubmitting(true);
 
-        put(route("admin.assignments.update", assignment.id), {
+        put(route("admin.assignments.update", assignment.uuid), {
             onSuccess: () => {
                 toast.success("Tugas berhasil diperbarui!");
             },
@@ -195,6 +206,42 @@ export default function EditAssignment({ assignment, stages }: EditAssignmentPro
                                     <p className="text-sm text-red-600 flex items-center gap-1">
                                         <AlertCircle className="h-3 w-3" />
                                         {errors.competition_stage_id}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Competition Category */}
+                            <div className="space-y-2">
+                                <Label htmlFor="competition_category_id" className="text-sm font-medium">
+                                    Kategori Kompetisi <span className="text-red-500">*</span>
+                                </Label>
+                                <Select
+                                    value={data.competition_category_id}
+                                    onValueChange={(value) => setData("competition_category_id", value)}
+                                >
+                                    <SelectTrigger className={`w-full ${errors.competition_category_id ? 'border-red-500 focus:border-red-500' : ''}`}>
+                                        <SelectValue placeholder="Pilih kategori kompetisi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {categories.map((category) => (
+                                            <SelectItem key={category.id} value={category.id.toString()}>
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-3 h-3 rounded-full ${category.name === 'BPC' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                                                    <span className="font-medium">
+                                                        {category.name === 'BPC' ? 'Business Plan Competition' : 'Business Case Competition'}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        ({category.name})
+                                                    </span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.competition_category_id && (
+                                    <p className="text-sm text-red-600 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" />
+                                        {errors.competition_category_id}
                                     </p>
                                 )}
                             </div>

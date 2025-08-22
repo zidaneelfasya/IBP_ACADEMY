@@ -47,9 +47,10 @@ class AssignmentController extends Controller
             );
         }
 
-        // User has access, get assignments for preliminary stage
-        $assignments = Assignment::with(['competitionStage', 'creator', 'submissions'])
+        // User has access, get assignments for preliminary stage and user's category
+        $assignments = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
             ->where('competition_stage_id', $preliminaryStage->id)
+            ->where('competition_category_id', $teamRegistration->competition_category_id)
             ->where('is_active', true)
             ->orderBy('deadline', 'asc')
             ->get()
@@ -128,12 +129,13 @@ class AssignmentController extends Controller
         }
 
         // Get assignment details by UUID
-        $assignment = Assignment::with(['competitionStage', 'creator', 'submissions'])
+        $assignment = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
             ->where('uuid', $uuid)
             ->firstOrFail();
 
-        // Check if assignment belongs to preliminary stage
-        if ($assignment->competition_stage_id !== $preliminaryStage->id) {
+        // Check if assignment belongs to preliminary stage and user's category
+        if ($assignment->competition_stage_id !== $preliminaryStage->id || 
+            $assignment->competition_category_id !== $teamRegistration->competition_category_id) {
             return redirect()->route('dashboard.user.tugas')->with('error', 'Assignment not found.');
         }
 
@@ -192,6 +194,11 @@ class AssignmentController extends Controller
 
         // Get assignment
         $assignment = Assignment::where('uuid', $uuid)->firstOrFail();
+
+        // Verify assignment belongs to user's category
+        if ($assignment->competition_category_id !== $teamRegistration->competition_category_id) {
+            return response()->json(['error' => 'Assignment not found.'], 404);
+        }
 
         // Check if assignment is still open
         if (!$assignment->isOpen()) {

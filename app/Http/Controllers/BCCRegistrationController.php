@@ -296,7 +296,7 @@ class BCCRegistrationController extends Controller
         return DB::transaction(function () use ($categoryId) {
             $year = date('Y');
             $month = date('m');
-            $prefix = 'BPC' . $year . $month;
+            $prefix = 'BCC' . $year . $month;
 
             // Dapatkan nomor terakhir dengan LOCK
             $lastRegistration = TeamRegistration::where('registration_number', 'like', $prefix . '%')

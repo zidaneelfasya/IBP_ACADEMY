@@ -78,6 +78,14 @@ interface Props {
     competitionCategories: CompetitionCategory[];
 }
 
+const truncateText = (text: string, wordLimit: number = 10): string => {
+    const words = text.split(' ');
+    if (words.length <= wordLimit) {
+        return text;
+    }
+    return words.slice(0, wordLimit).join(' ') + '...';
+};
+
 export default function AdminPage({ materials: initialMaterials, competitionCategories }: Props) {
     const [materials, setMaterials] = useState<Material[]>(
         initialMaterials || []
@@ -916,7 +924,7 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                                     </h3>
                                                                     <p className="text-sm text-muted-foreground">
                                                                         {
-                                                                            material.description
+                                                                            truncateText(material.description, 10)
                                                                         }
                                                                     </p>
                                                                     <div className="flex items-center gap-2 mt-1">
