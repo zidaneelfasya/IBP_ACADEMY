@@ -39,6 +39,7 @@ import { toast } from "sonner";
 
 interface Assignment {
     id: number;
+    uuid: string;
     title: string;
     description: string;
     instructions: string | null;
@@ -93,7 +94,7 @@ export default function EditAssignment({ assignment, stages, categories }: EditA
         e.preventDefault();
         setIsSubmitting(true);
 
-        put(route("admin.assignments.update", assignment.id), {
+        put(route("admin.assignments.update", assignment.uuid), {
             onSuccess: () => {
                 toast.success("Tugas berhasil diperbarui!");
             },
