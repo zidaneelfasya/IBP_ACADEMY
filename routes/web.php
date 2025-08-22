@@ -24,7 +24,7 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
-// user course controller
+use App\Http\Controllers\CompetitionStageController;
 use App\Http\Controllers\UserCourseController;
 
 /*
@@ -82,7 +82,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
         Route::get('/participant', [AllParticipantController::class, 'index'])->name('team.index');
 
-       
+
         Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');
         Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.preliminary.index');
         Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.preliminary.semifinal.index');
@@ -110,7 +110,17 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::delete('courses/{course}', [\App\Http\Controllers\Admin\CourseController::class, 'destroy'])->name('admin.courses.destroy');
         Route::delete('courses/{course}/files/{file}', [\App\Http\Controllers\Admin\CourseController::class, 'deleteFile'])
             ->name('admin.courses.files.destroy');
-    });
+
+
+
+    Route::controller(CompetitionStageController::class)->group(function () {
+    Route::get('/competition-stages', 'index')->name('admin.stages.dashboard');
+    Route::post('/competition-stages', 'store')->name('admin.stages.store');
+    Route::put('/competition-stages/{stage}', 'update')->name('admin.stages.update');
+    Route::delete('/admin/competition-stages/{stage}', 'destroy')->name('admin.stages.destroy');
+});
+});
+
 });
 
 
