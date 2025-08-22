@@ -31,6 +31,13 @@ class UserSeeder extends Seeder
                 'role' => 'user',
                 'email_verified_at' => now(),
             ],
+            [
+                'name' => 'John Doe',
+                'email' => 'jaka@gmail.com',
+                'password' => Hash::make('password'),
+                'role' => 'user',
+                'email_verified_at' => now(),
+            ]
         ]);
     }
 }

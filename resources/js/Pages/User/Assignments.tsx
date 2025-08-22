@@ -33,6 +33,8 @@ interface Assignment {
     is_open: boolean;
     stage_name: string;
     created_by: string;
+    is_submitted: boolean;
+    submission_date?: string;
 }
 
 interface Team {
@@ -59,7 +61,17 @@ export default function Assignments({
     stage,
 }: AssignmentsProps) {
     const getStatusBadge = (assignment: Assignment) => {
-        if (assignment.is_overdue) {
+        if (assignment.is_submitted) {
+            return (
+                <Badge
+                    variant="default"
+                    className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600"
+                >
+                    <CheckCircle className="w-3 h-3" />
+                    Submitted
+                </Badge>
+            );
+        } else if (assignment.is_overdue) {
             return (
                 <Badge
                     variant="destructive"
@@ -90,7 +102,9 @@ export default function Assignments({
     };
 
     const getCardStyle = (assignment: Assignment) => {
-        if (assignment.is_overdue) {
+        if (assignment.is_submitted) {
+            return "border-blue-200 bg-blue-50/50 hover:bg-blue-50 border-2";
+        } else if (assignment.is_overdue) {
             return "border-red-200 bg-red-50/50 hover:bg-red-50";
         } else if (assignment.is_open) {
             return "border-green-200 bg-green-50/50 hover:bg-green-50 hover:shadow-lg hover:scale-[1.02]";
@@ -228,6 +242,8 @@ export default function Assignments({
                                                     className={`w-full ${
                                                         assignment.is_open
                                                             ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                                                            : assignment.is_overdue
+                                                            ? "bg-red-400 hover:bg-red-500"
                                                             : "bg-gray-400 hover:bg-gray-500"
                                                     }`}
                                                     disabled={
@@ -241,6 +257,8 @@ export default function Assignments({
                                                         <FileText className="w-4 h-4" />
                                                         {assignment.is_open
                                                             ? "View Assignment"
+                                                            : assignment.is_overdue
+                                                            ? "Deadline Passed"
                                                             : "Assignment Closed"}
                                                         <ExternalLink className="w-4 h-4" />
                                                     </a>
