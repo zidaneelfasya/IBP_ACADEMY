@@ -42,30 +42,39 @@
     }
 
     .dark {
-        --background: 0 0% 0%; /* 000000 */
-        --foreground: 0 0% 100%; /* FFFFFF */
-        --muted: 0 0% 8%;
-        --muted-foreground: 0 0% 70%;
-        --popover: 0 0% 4%;
-        --popover-foreground: 0 0% 100%;
-        --card: 0 0% 4%;
-        --card-foreground: 0 0% 100%;
-        --border: 0 0% 15%;
-        --input: 0 0% 8%;
-        --primary: 221 100% 35%; /* Lighter 082E80 for dark mode */
-        --primary-foreground: 0 0% 100%;
-        --secondary: 29 97% 69%; /* Lighter FB9F32 for dark mode */
-        --secondary-foreground: 0 0% 0%;
-        --accent: 52 100% 81%; /* Lighter FFE86F for dark mode */
-        --accent-foreground: 0 0% 0%;
-        --destructive: 0 84% 70%;
+        --background: 0 0% 100%; /* FFFFFF */
+        --foreground: 0 0% 0%; /* 000000 */
+        --muted: 0 0% 92%; /* EAE7E8 approx */
+        --muted-foreground: 0 0% 30%;
+        --popover: 0 0% 100%; /* FFFFFF */
+        --popover-foreground: 0 0% 0%; /* 000000 */
+        --card: 0 0% 92%; /* EAE7E8 approx */
+        --card-foreground: 0 0% 0%; /* 000000 */
+        --border: 0 0% 88%; /* EAE7E8 lighter */
+        --input: 0 0% 92%; /* EAE7E8 approx */
+        --primary: 221 100% 25%; /* 082E80 */
+        --primary-foreground: 0 0% 100%; /* FFFFFF */
+        --secondary: 29 97% 59%; /* FB9F32 */
+        --secondary-foreground: 0 0% 0%; /* 000000 */
+        --accent: 52 100% 71%; /* FFE86F */
+        --accent-foreground: 0 0% 0%; /* 000000 */
+        --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 100%;
-        --ring: 221 100% 35%;
-        --chart-1: 221 100% 35%;
-        --chart-2: 29 97% 69%;
-        --chart-3: 52 100% 81%;
-        --chart-4: 0 0% 15%;
-        --chart-5: 0 0% 100%;
+        --ring: 221 100% 25%; /* 082E80 */
+        --chart-1: 221 100% 25%; /* 082E80 */
+        --chart-2: 29 97% 59%; /* FB9F32 */
+        --chart-3: 52 100% 71%; /* FFE86F */
+        --chart-4: 0 0% 92%; /* EAE7E8 */
+        --chart-5: 0 0% 0%; /* 000000 */
+        --radius: 0.5rem;
+
+        /* Custom IBP Academy Colors */
+        --ibp-black: 0 0% 0%; /* 000000 */
+        --ibp-primary: 221 100% 25%; /* 082E80 */
+        --ibp-secondary: 29 97% 59%; /* FB9F32 */
+        --ibp-accent: 52 100% 71%; /* FFE86F */
+        --ibp-neutral: 0 0% 92%; /* EAE7E8 */
+        --ibp-white: 0 0% 100%; /* FFFFFF */
     }
 }
 @layer base {

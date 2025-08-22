@@ -1,7 +1,7 @@
 import AdminLayout from "@/Layouts/AdminLayout";
 import axios from 'axios';
-import { Head } from "@inertiajs/react";
-import { useState } from "react";
+import { Head, usePage } from "@inertiajs/react";
+import { useState, useEffect } from "react";
 import { Button } from "@/Components/ui/button";
 import {
     Card,
@@ -14,6 +14,24 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Textarea } from "@/Components/ui/textarea";
 import { Badge } from "@/Components/ui/badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
 import {
     ArrowLeft,
     Upload,
@@ -31,6 +49,8 @@ import {
     Play,
     Tag,
 } from "lucide-react";
+import { toast } from 'sonner';
+import { router } from "@inertiajs/react";
 
 interface Material {
     id: string;
@@ -62,6 +82,11 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const [materials, setMaterials] = useState<Material[]>(
         initialMaterials || []
     );
+
+    // Update materials when initialMaterials changes (after successful operations)
+    useEffect(() => {
+        setMaterials(initialMaterials || []);
+    }, [initialMaterials]);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [content, setContent] = useState("");
@@ -81,6 +106,10 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
     const [editIsSemifinal, setEditIsSemifinal] = useState(false);
     const [previewId, setPreviewId] = useState<string | null>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<string | null>(null);
+    const [updateConfirmOpen, setUpdateConfirmOpen] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -154,59 +183,62 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !description.trim() || !content.trim() || !categoryId) {
-        return alert('Please fill all required fields');
-    }
+        e.preventDefault();
+        if (!title.trim() || !description.trim() || !content.trim() || !categoryId) {
+            toast.error('Harap isi semua field yang wajib diisi');
+            return;
+        }
 
-    setIsUploading(true);
+        setIsUploading(true);
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("content", content);
-    formData.append("competition_category_id", categoryId.toString());
-    formData.append("is_semifinal", isSemifinal ? "1" : "0");
-    if (videoUrl) formData.append("video_url", videoUrl);
-    if (coverImage) formData.append("cover_image", coverImage);
-    files.forEach((file) => formData.append("files[]", file));
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("content", content);
+        formData.append("competition_category_id", categoryId.toString());
+        formData.append("is_semifinal", isSemifinal ? "1" : "0");
+        if (videoUrl) formData.append("video_url", videoUrl);
+        if (coverImage) formData.append("cover_image", coverImage);
+        files.forEach((file) => formData.append("files[]", file));
 
-    try {
-        // Get CSRF token from meta tag
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        try {
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-        const response = await axios.post(route('courses.store'), formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                'X-CSRF-TOKEN': csrfToken || '',
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-            withCredentials: true,
-        });
+            const response = await axios.post(route('admin.courses.store'), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                withCredentials: true,
+            });
 
-        // Reset form on success
-        setTitle("");
-        setDescription("");
-        setContent("");
-        setVideoUrl("");
-        setCategoryId(null);
-        setIsSemifinal(false);
-        setCoverImage(null);
-        setCoverImagePreview("");
-        setFiles([]);
+            // Reset form on success
+            setTitle("");
+            setDescription("");
+            setContent("");
+            setVideoUrl("");
+            setCategoryId(null);
+            setIsSemifinal(false);
+            setCoverImage(null);
+            setCoverImagePreview("");
+            setFiles([]);
 
-        // Use Inertia's router to reload the page properly
-        window.location.href = route('courses.index');
-    } catch (error) {
-        console.error('Error creating course:', error);
-        alert('Terjadi kesalahan saat menyimpan materi: ' +
-            (error as any).response?.data?.message ||
-            (error as any).message ||
-            'Unknown error');
-    } finally {
-        setIsUploading(false);
-    }
-};
+            toast.success('Materi berhasil diupload!');
+            
+            // Use Inertia's router to reload the page properly
+            window.location.href = route('admin.courses.index');
+        } catch (error) {
+            console.error('Error creating course:', error);
+            toast.error('Terjadi kesalahan saat menyimpan materi: ' +
+                ((error as any).response?.data?.message ||
+                (error as any).message ||
+                'Unknown error'));
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const startEdit = (material: Material) => {
         setEditingId(material.id);
@@ -218,35 +250,80 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         setEditIsSemifinal(material.isSemifinal);
     };
 
-    const saveEdit = (id: string) => {
-        setMaterials((prev) =>
-            prev.map((material) =>
-                material.id === id
-                    ? {
-                          ...material,
-                          title: editTitle,
-                          description: editDescription,
-                          content: editContent,
-                          videoUrl: editVideoUrl.trim() || undefined,
-                          competition_category_id: editCategoryId || 0,
-                          category: competitionCategories.find(c => c.id === editCategoryId)?.name || 'Unknown',
-                          isSemifinal: editIsSemifinal,
-                      }
-                    : material
-            )
+    const saveEdit = async (id: string) => {
+        if (!editTitle.trim() || !editDescription.trim() || !editContent.trim() || !editCategoryId) {
+            toast.error('Harap isi semua field yang wajib diisi');
+            return;
+        }
+        console.log('Saving edit for material ID:', id,
+            editTitle, editDescription, editContent, editCategoryId, editVideoUrl, editIsSemifinal
         );
-        setEditingId(null);
+        setIsUpdating(true);
+        try {
+            // Send update request to backend
+            
+            router.put(route('admin.courses.update', id), {
+                title: editTitle,
+                description: editDescription,
+                content: editContent,
+                competition_category_id: editCategoryId,
+                video_url: editVideoUrl.trim() || null,
+                is_semifinal: editIsSemifinal,
+                is_active: true
+
+            }, {
+                onSuccess: () => {
+                    setEditingId(null);
+                    setUpdateConfirmOpen(null);
+                    toast.success('Materi berhasil diperbarui');
+                },
+                onError: (errors) => {
+                    console.error('Update errors:', errors);
+                    toast.error('Gagal memperbarui materi: ' + (errors.error || 'Unknown error'));
+                },
+                onFinish: () => {
+                    setIsUpdating(false);
+                }
+            });
+        } catch (error) {
+            toast.error('Terjadi kesalahan saat memperbarui materi');
+            setIsUpdating(false);
+        }
     };
 
     const cancelEdit = () => {
         setEditingId(null);
+        setUpdateConfirmOpen(null);
     };
 
-    const deleteMaterial = (id: string) => {
-        if (confirm("Apakah Anda yakin ingin menghapus materi ini?")) {
-            setMaterials((prev) =>
-                prev.filter((material) => material.id !== id)
-            );
+    const confirmUpdate = (id: string) => {
+        setUpdateConfirmOpen(id);
+    };
+
+    const confirmDelete = (id: string) => {
+        setDeleteConfirmOpen(id);
+    };
+
+    const deleteMaterial = async (id: string) => {
+        setIsDeleting(true);
+        try {
+            // Send delete request to backend
+            router.delete(route('admin.courses.destroy', id), {
+                onSuccess: () => {
+                    setDeleteConfirmOpen(null);
+                    toast.success('Materi berhasil dihapus');
+                },
+                onError: (errors) => {
+                    console.error('Delete errors:', errors);
+                    toast.error('Gagal menghapus materi: ' + (errors.error || 'Unknown error'));
+                },
+                onFinish: () => {
+                    setIsDeleting(false);
+                }
+            });
+        } catch (error) {
+            toast.error('Terjadi kesalahan saat menghapus materi');
+            setIsDeleting(false);
         }
     };
 
@@ -790,13 +867,18 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                             <Button
                                                                 size="sm"
                                                                 onClick={() =>
-                                                                    saveEdit(
+                                                                    confirmUpdate(
                                                                         material.id
                                                                     )
                                                                 }
+                                                                disabled={isUpdating}
                                                             >
-                                                                <Save className="w-4 h-4 mr-1" />
-                                                                Simpan
+                                                                {isUpdating ? (
+                                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1" />
+                                                                ) : (
+                                                                    <Save className="w-4 h-4 mr-1" />
+                                                                )}
+                                                                {isUpdating ? "Menyimpan..." : "Simpan"}
                                                             </Button>
                                                             <Button
                                                                 size="sm"
@@ -804,6 +886,7 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                                 onClick={
                                                                     cancelEdit
                                                                 }
+                                                                disabled={isUpdating}
                                                             >
                                                                 <Cancel className="w-4 h-4 mr-1" />
                                                                 Batal
@@ -964,12 +1047,18 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                                     size="sm"
                                                                     variant="outline"
                                                                     onClick={() =>
-                                                                        deleteMaterial(
+                                                                        confirmDelete(
                                                                             material.id
                                                                         )
                                                                     }
+                                                                    disabled={isDeleting}
+                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                                                 >
-                                                                    <Trash2 className="w-4 h-4" />
+                                                                    {isDeleting ? (
+                                                                        <div className="w-4 h-4 border-2 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
+                                                                    ) : (
+                                                                        <Trash2 className="w-4 h-4" />
+                                                                    )}
                                                                 </Button>
                                                             </div>
                                                         </div>
@@ -985,6 +1074,70 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                     </div>
                 </div>
             </div>
+
+            {/* Update Confirmation Dialog */}
+            <AlertDialog open={!!updateConfirmOpen} onOpenChange={() => setUpdateConfirmOpen(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Konfirmasi Perubahan</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Apakah Anda yakin ingin menyimpan perubahan pada materi ini? 
+                            Pastikan semua informasi sudah benar sebelum menyimpan.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isUpdating}>
+                            Batal
+                        </AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={() => updateConfirmOpen && saveEdit(updateConfirmOpen)}
+                            disabled={isUpdating}
+                            className="bg-blue-600 hover:bg-blue-700"
+                        >
+                            {isUpdating ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                                    Menyimpan...
+                                </>
+                            ) : (
+                                "Simpan Perubahan"
+                            )}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!deleteConfirmOpen} onOpenChange={() => setDeleteConfirmOpen(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Hapus Materi</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Apakah Anda yakin ingin menghapus materi ini? 
+                            Tindakan ini tidak dapat dibatalkan dan semua data terkait akan hilang permanen.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>
+                            Batal
+                        </AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={() => deleteConfirmOpen && deleteMaterial(deleteConfirmOpen)}
+                            disabled={isDeleting}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isDeleting ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                                    Menghapus...
+                                </>
+                            ) : (
+                                "Hapus Materi"
+                            )}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AdminLayout>
     );
 }
