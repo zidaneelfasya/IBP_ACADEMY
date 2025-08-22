@@ -14,18 +14,25 @@ class UpdateParticipantProgress extends Command
 
     public function handle()
     {
+        
         $now = Carbon::now();
+        $updatedCount = 0;
+        $rejectedCount = 0;
         
         // Get active stages (where current date is between start and end date)
         $activeStages = CompetitionStage::where('start_date', '<=', $now)
             ->where('end_date', '>=', $now)
             ->get();
             
+            
         foreach ($activeStages as $stage) {
             // Update progresses that are still 'not_started' to 'in_progress'
-            ParticipantProgress::where('competition_stage_id', $stage->id)
+            $updated = ParticipantProgress::where('competition_stage_id', $stage->id)
                 ->where('status', 'not_started')
                 ->update(['status' => 'in_progress']);
+                
+            $updatedCount += $updated;
+            
                 
             // You can also add logic for expired stages here
         }
@@ -33,13 +40,20 @@ class UpdateParticipantProgress extends Command
         // Handle stages that have passed their end date
         $expiredStages = CompetitionStage::where('end_date', '<', $now)->get();
         
+        
+        
         foreach ($expiredStages as $stage) {
             // Update progresses that are still 'in_progress' to 'rejected' if not submitted
-            ParticipantProgress::where('competition_stage_id', $stage->id)
+            $rejected = ParticipantProgress::where('competition_stage_id', $stage->id)
                 ->where('status', 'in_progress')
                 ->update(['status' => 'rejected']);
+                
+            $rejectedCount += $rejected;
+            
         }
         
-        $this->info('Participant progress statuses updated successfully.');
+        $message = "Participant progress statuses updated successfully. Updated: {$updatedCount}, Rejected: {$rejectedCount}";
+        $this->info($message);
+        
     }
 }
