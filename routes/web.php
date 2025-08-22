@@ -24,8 +24,12 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
+use App\Http\Controllers\SemifinalRegistrationController;
 // user course controller
 use App\Http\Controllers\UserCourseController;
+
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -82,7 +86,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
         Route::get('/participant', [AllParticipantController::class, 'index'])->name('team.index');
 
-       
+
         Route::get('/registrasi-awal', [TeamRegistrationController::class, 'index'])->name('team.registration.index');
         Route::get('/preliminary', [PreliminaryParticipantController::class, 'index'])->name('team.preliminary.index');
         Route::get('/semifinal', [SemifinalParticipantController::class, 'index'])->name('team.preliminary.semifinal.index');
@@ -231,7 +235,9 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
     Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
      Route::get('/material/{slug}', [UserCourseController::class, 'show'])
          ->name('user.material.show');
-
+    //render inertria
+    Route::get('/semifinal-registration', [SemifinalRegistrationController::class, 'index'])
+        ->name('user.semifinal-registration.index');
 });
 
 Route::fallback(function () {
