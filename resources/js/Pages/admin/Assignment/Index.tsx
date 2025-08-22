@@ -79,6 +79,10 @@ interface Assignment {
         name: string;
         order: number;
     };
+    competition_category: {
+        id: number;
+        name: string;
+    };
     creator: {
         id: number;
         name: string;
@@ -94,14 +98,22 @@ interface CompetitionStage {
     order: number;
 }
 
+interface CompetitionCategory {
+    id: number;
+    name: string;
+    is_active: boolean;
+}
+
 interface AssignmentIndexProps {
     assignments: {
         data: Assignment[];
         links: Array<{ url: string | null; label: string; active: boolean }>;
     };
     stages: CompetitionStage[];
+    categories: CompetitionCategory[];
     filters: {
         stage_id: string;
+        category_id: string;
         status: string;
         search: string;
     };
@@ -144,6 +156,7 @@ const getDeadlineStatus = (deadline: string): {
 export default function Assignment({
     assignments: initialAssignments,
     stages,
+    categories,
     filters: initialFilters,
     stats = { // Default values if stats is undefined
         total: 0,
@@ -158,6 +171,7 @@ export default function Assignment({
     const [isTogglingStatus, setIsTogglingStatus] = useState<string | null>(null);
     const [filters, setFilters] = useState({
         stage_id: initialFilters.stage_id || "all",
+        category_id: initialFilters.category_id || "all",
         status: initialFilters.status || "all",
         search: initialFilters.search || "",
     });
@@ -372,6 +386,26 @@ export default function Assignment({
                                 </SelectContent>
                             </Select>
                             <Select
+                                value={filters.category_id}
+                                onValueChange={(value) => handleFilterChange("category_id", value)}
+                            >
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <Filter className="mr-2 h-4 w-4" />
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Category</SelectItem>
+                                    {categories.map((category) => (
+                                        <SelectItem key={category.id} value={category.id.toString()}>
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${category.name === 'BPC' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                                                {category.name === 'BPC' ? 'Business Plan Competition' : 'Business Case Competition'}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select
                                 value={filters.status}
                                 onValueChange={(value) => handleFilterChange("status", value)}
                             >
@@ -499,13 +533,25 @@ export default function Assignment({
 
                                         <CardContent className="space-y-4">
                                             {/* Assignment Meta Info */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                                 <div className="space-y-1">
                                                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                         Competition Stage
                                                     </div>
                                                     <Badge variant="outline" className="text-xs">
                                                         {assignment.competition_stage.name}
+                                                    </Badge>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                                        Category
+                                                    </div>
+                                                    <Badge 
+                                                        variant="outline" 
+                                                        className={`text-xs ${assignment.competition_category.name === 'BPC' ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-green-500 text-green-700 bg-green-50'}`}
+                                                    >
+                                                        <div className={`w-2 h-2 rounded-full mr-1 ${assignment.competition_category.name === 'BPC' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                                                        {assignment.competition_category.name}
                                                     </Badge>
                                                 </div>
                                                 <div className="space-y-1">
@@ -657,6 +703,20 @@ export default function Assignment({
                                             <p className="text-sm sm:text-base">
                                                 {selectedAssignment.competition_stage.name}
                                             </p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-muted-foreground">
+                                                Category
+                                            </label>
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${selectedAssignment.competition_category.name === 'BPC' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                                                <span className="text-sm sm:text-base font-medium">
+                                                    {selectedAssignment.competition_category.name === 'BPC' ? 'Business Plan Competition' : 'Business Case Competition'}
+                                                </span>
+                                                <Badge variant="outline" className="text-xs">
+                                                    {selectedAssignment.competition_category.name}
+                                                </Badge>
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">
