@@ -20,6 +20,9 @@ class BCCRegistrationController extends Controller
      */
     public function create()
     {
+        // Check registration deadline
+        $this->checkRegistrationDeadline();
+
         $category = CompetitionCategory::where('name', 'BCC')->firstOrFail();
 
         $existingRegistration = TeamRegistration::where('user_id', Auth::id())
@@ -36,7 +39,8 @@ class BCCRegistrationController extends Controller
         return Inertia::render('Competition/BCCRegistration', [
             'category' => $category,
             'existingRegistration' => null,
-            'auth' => ['user' => Auth::user()]
+            'auth' => ['user' => Auth::user()],
+            'deadline_expired' => session('deadline_expired')
         ]);
     }
 
@@ -45,6 +49,9 @@ class BCCRegistrationController extends Controller
      */
     public function store(Request $request)
     {
+        // Check registration deadline before processing
+        $this->checkRegistrationDeadline();
+
         Log::info('BCC Registration attempt', ['user_id' => Auth::id()]);
 
         $category = CompetitionCategory::where('name', 'BCC')->firstOrFail();
@@ -323,5 +330,46 @@ class BCCRegistrationController extends Controller
 
             return $registrationNumber;
         });
+    }
+
+    /**
+     * Check if registration deadline has passed
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    private function checkRegistrationDeadline()
+    {
+        $registrationStage = CompetitionStage::where('name', 'Registration')
+            ->where('order', 1)
+            ->first();
+
+        if (!$registrationStage) {
+            // If no registration stage found, log warning but allow (fallback)
+            Log::warning('No registration stage found with name "Registration" and order 1');
+            return;
+        }
+
+        $now = \Carbon\Carbon::now();
+        $deadline = \Carbon\Carbon::parse($registrationStage->end_date);
+
+        if ($now->greaterThan($deadline)) {
+            Log::info('Registration deadline passed', [
+                'deadline' => $deadline->toDateTimeString(),
+                'current_time' => $now->toDateTimeString(),
+                'user_id' => Auth::id()
+            ]);
+
+            if (request()->expectsJson()) {
+                abort(403, "Registration deadline has passed on {$deadline->format('d M Y, H:i')}");
+            }
+
+            // For web requests, redirect with error
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                redirect()->route('business-case-competition')->with('deadline_expired', [
+                    'deadline' => $deadline->format('d M Y, H:i'),
+                    'current_time' => $now->format('d M Y, H:i'),
+                    'message' => 'Registration deadline has passed'
+                ])
+            );
+        }
     }
 }
