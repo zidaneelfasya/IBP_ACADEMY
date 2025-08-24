@@ -193,7 +193,7 @@ export default function CourseShow({ course }: Props) {
                                             <a
                                                 key={f.id}
                                                 href={f.url}
-                                                download
+                                                download={`${course.title} - ${f.name}`}
                                                 className="flex items-center gap-4 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group"
                                             >
                                                 <div className="flex-shrink-0 p-3 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
