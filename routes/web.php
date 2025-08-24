@@ -73,10 +73,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', function () {
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
-     Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
-            ->name('export.team-registrations');
-        Route::get('/export/team-registrations-simple', [ExportController::class, 'exportTeamRegistrationsSimple'])
-            ->name('export.team-registrations-simple');
+    Route::get('/export/team-registrations', [ExportController::class, 'exportTeamRegistrations'])
+        ->name('export.team-registrations');
+    Route::get('/export/team-registrations-simple', [ExportController::class, 'exportTeamRegistrationsSimple'])
+        ->name('export.team-registrations-simple');
     Route::prefix('/admin/dashboard')->group(function () {
         Route::get('/', [AllParticipantController::class, 'index'])->name('team.index');
 
@@ -113,14 +113,13 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
 
 
-    Route::controller(CompetitionStageController::class)->group(function () {
-    Route::get('/competition-stages', 'index')->name('admin.stages.dashboard');
-    Route::post('/competition-stages', 'store')->name('admin.stages.store');
-    Route::put('/competition-stages/{stage}', 'update')->name('admin.stages.update');
-    Route::delete('/admin/competition-stages/{stage}', 'destroy')->name('admin.stages.destroy');
-});
-});
-
+        Route::controller(CompetitionStageController::class)->group(function () {
+            Route::get('/competition-stages', 'index')->name('admin.stages.dashboard');
+            Route::post('/competition-stages', 'store')->name('admin.stages.store');
+            Route::put('/competition-stages/{stage}', 'update')->name('admin.stages.update');
+            Route::delete('/admin/competition-stages/{stage}', 'destroy')->name('admin.stages.destroy');
+        });
+    });
 });
 
 
@@ -129,6 +128,24 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 Route::get('/business-plan-competition', function (Request $request) {
     $data = [];
 
+    // Get registration deadline info
+    $registrationStage = \App\Models\CompetitionStage::where('name', 'Registration')
+        ->where('order', 1)
+        ->first();
+
+    if ($registrationStage) {
+        $now = \Carbon\Carbon::now();
+        $deadline = \Carbon\Carbon::parse($registrationStage->end_date);
+
+        $data['registrationInfo'] = [
+            'deadline' => $deadline->format('Y-m-d H:i:s'),
+            'deadline_formatted' => $deadline->format('d M Y, H:i'),
+            'is_open' => $now->lessThanOrEqualTo($deadline),
+            'time_remaining' => $now->lessThanOrEqualTo($deadline) ? $deadline->diffForHumans($now) : 'Closed',
+            'days_remaining' => $now->lessThanOrEqualTo($deadline) ? $now->diffInDays($deadline) : 0
+        ];
+    }
+
     // Check if modal should be shown
     if ($request->get('showModal') === 'true' && $request->get('regId')) {
         $registration = \App\Models\TeamRegistration::with('category')
@@ -144,6 +161,9 @@ Route::get('/business-plan-competition', function (Request $request) {
             ];
         }
     }
+
+    // Pass deadline_expired session data to view
+    $data['deadline_expired'] = session('deadline_expired');
 
     return Inertia::render('BusinessPlanCompetition', $data);
 })->name('business-plan-competition');
@@ -151,6 +171,24 @@ Route::get('/business-plan-competition', function (Request $request) {
 Route::get('/business-case-competition', function (Request $request) {
     $data = [];
 
+    // Get registration deadline info
+    $registrationStage = \App\Models\CompetitionStage::where('name', 'Registration')
+        ->where('order', 1)
+        ->first();
+
+    if ($registrationStage) {
+        $now = \Carbon\Carbon::now();
+        $deadline = \Carbon\Carbon::parse($registrationStage->end_date);
+
+        $data['registrationInfo'] = [
+            'deadline' => $deadline->format('Y-m-d H:i:s'),
+            'deadline_formatted' => $deadline->format('d M Y, H:i'),
+            'is_open' => $now->lessThanOrEqualTo($deadline),
+            'time_remaining' => $now->lessThanOrEqualTo($deadline) ? $deadline->diffForHumans($now) : 'Closed',
+            'days_remaining' => $now->lessThanOrEqualTo($deadline) ? $now->diffInDays($deadline) : 0
+        ];
+    }
+
     // Check if modal should be shown
     if ($request->get('showModal') === 'true' && $request->get('regId')) {
         $registration = \App\Models\TeamRegistration::with('category')
@@ -166,6 +204,9 @@ Route::get('/business-case-competition', function (Request $request) {
             ];
         }
     }
+
+    // Pass deadline_expired session data to view
+    $data['deadline_expired'] = session('deadline_expired');
 
     return Inertia::render('BusinessCaseCompetition', $data);
 })->name('business-case-competition');
@@ -199,7 +240,7 @@ Route::middleware('auth')->group(function () {
 
 
 
-Route::middleware(['auth', 'verified', 'user', 'no-registration'])->group(function () {
+Route::middleware(['auth', 'verified', 'user', 'no-registration', 'check.registration.deadline'])->group(function () {
     // Team Registration Routes
     Route::prefix('competition/bpc')->name('competition.bpc.')->group(function () {
         Route::get('/register', [BPCRegistrationController::class, 'create'])->name('register.create');
@@ -239,9 +280,8 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
     Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
-     Route::get('/material/{slug}', [UserCourseController::class, 'show'])
-         ->name('user.material.show');
-
+    Route::get('/material/{slug}', [UserCourseController::class, 'show'])
+        ->name('user.material.show');
 });
 
 Route::fallback(function () {

@@ -7,6 +7,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import Modal from "@/Components/Modal";
 import RegistrationExistsModal from "@/Components/RegistrationExistsModal";
+import DeadlineExpiredModal from "@/Components/DeadlineExpiredModal";
 
 interface CompetitionCategory {
     id: number;
@@ -50,6 +51,11 @@ interface Props {
     auth: {
         user: AuthUser;
     };
+    deadline_expired?: {
+        deadline: string;
+        current_time: string;
+        message: string;
+    };
 }
 
 interface FormData {
@@ -69,10 +75,12 @@ export default function BCCRegistration({
     category,
     existingRegistration,
     auth,
+    deadline_expired,
 }: Props) {
     const [currentStep, setCurrentStep] = useState(1);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showExistingModal, setShowExistingModal] = useState(false);
+    const [showDeadlineModal, setShowDeadlineModal] = useState(false);
     const [stepValidationErrors, setStepValidationErrors] = useState<string[]>(
         []
     );
@@ -84,6 +92,12 @@ export default function BCCRegistration({
             setShowExistingModal(true);
         }
     }, [existingRegistration]);
+
+    useEffect(() => {
+        if (deadline_expired) {
+            setShowDeadlineModal(true);
+        }
+    }, [deadline_expired]);
 
     const { data, setData, post, processing, errors } = useForm<FormData>({
         tim_name: "",
@@ -1475,6 +1489,14 @@ export default function BCCRegistration({
                                 category={category}
                             />
                         )}
+
+                        {/* Deadline Expired Modal */}
+                        <DeadlineExpiredModal
+                            isOpen={showDeadlineModal}
+                            onClose={() => setShowDeadlineModal(false)}
+                            deadline={deadline_expired?.deadline}
+                            currentTime={deadline_expired?.current_time}
+                        />
                     </div>
                 </div>
             </div>

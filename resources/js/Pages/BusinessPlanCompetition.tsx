@@ -3,10 +3,22 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Head, usePage } from "@inertiajs/react";
-import { CheckCircle, Clock, FileText, Target, Trophy, UserPlus, Users, Lightbulb, GitBranch, Briefcase } from "lucide-react";
+import {
+    CheckCircle,
+    Clock,
+    FileText,
+    Target,
+    Trophy,
+    UserPlus,
+    Users,
+    Lightbulb,
+    GitBranch,
+    Briefcase,
+} from "lucide-react";
 import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
 import RegistrationExistsModal from "@/Components/RegistrationExistsModal";
+import DeadlineExpiredModal from "@/Components/DeadlineExpiredModal";
 
 // Import sections
 import HeroSection from "@/Components/sections/bpc-sections/HeroSection";
@@ -48,11 +60,14 @@ interface FlashData {
 const BusinessPlanCompetition: React.FC = () => {
     const page = usePage();
     const flash = page.props.flash as FlashData | undefined;
+    const deadline_expired = page.props.deadline_expired as any;
     const [showModal, setShowModal] = useState(false);
+    const [showDeadlineModal, setShowDeadlineModal] = useState(false);
 
     useEffect(() => {
         console.log("All props:", page.props);
         console.log("Flash data:", flash);
+        console.log("Deadline expired:", deadline_expired);
 
         const urlParams = new URLSearchParams(window.location.search);
         const showModalParam = urlParams.get("showModal") === "true";
@@ -67,7 +82,11 @@ const BusinessPlanCompetition: React.FC = () => {
             );
             setShowModal(true);
         }
-    }, [flash, page.props]);
+
+        if (deadline_expired) {
+            setShowDeadlineModal(true);
+        }
+    }, [flash, page.props, deadline_expired]);
 
     useEffect(() => {
         if (flash) {
@@ -230,12 +249,12 @@ const BusinessPlanCompetition: React.FC = () => {
         {
             name: "Tiara Ramadhani",
             whatsapp: "+62 821-6702-7236",
-            role: "BPC Coordinator"
+            role: "BPC Coordinator",
         },
         {
             name: "Najwa Laili",
             whatsapp: "+62 813-3338-4548",
-            role: "Technical Support"
+            role: "Technical Support",
         },
     ];
 
@@ -244,7 +263,7 @@ const BusinessPlanCompetition: React.FC = () => {
 
         "Participants gain access to the IBP Academy LMS platform featuring business and technology modules, expert mentoring, and networking opportunities with industry practitioners and investors. The competition emphasizes practical implementation, with finalists presenting at IBP International Day.",
 
-        "Beyond competition, BPC serves as an incubation platform where participants continue developing their projects post-event through IBP Academy's learning management system and professional network."
+        "Beyond competition, BPC serves as an incubation platform where participants continue developing their projects post-event through IBP Academy's learning management system and professional network.",
     ];
 
     return (
@@ -253,10 +272,7 @@ const BusinessPlanCompetition: React.FC = () => {
             <Head title="Business Plan Competition - IBP Academy 2025" />
 
             <div className="relative min-h-screen py-20 overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-                <HeroSection
-                    title="Business Plan Competition"
-                    backUrl="/"
-                />
+                <HeroSection title="Business Plan Competition" backUrl="/" />
 
                 <VisualSection
                     images={{
@@ -304,9 +320,7 @@ const BusinessPlanCompetition: React.FC = () => {
                     specialAwards={specialAwards}
                 />
 
-                <CTASection
-                    buttons={ctaButtons}
-                />
+                <CTASection buttons={ctaButtons} />
 
                 <ContactSection
                     title="Our Team"
@@ -344,6 +358,13 @@ const BusinessPlanCompetition: React.FC = () => {
                     }}
                 />
             ) : null}
+
+            <DeadlineExpiredModal
+                isOpen={showDeadlineModal}
+                onClose={() => setShowDeadlineModal(false)}
+                deadline={deadline_expired?.deadline}
+                currentTime={deadline_expired?.current_time}
+            />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
