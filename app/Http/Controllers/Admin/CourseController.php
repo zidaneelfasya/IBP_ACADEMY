@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 
-class CourseController extends Controller
+class CourseController extends Controller   
 {
     /**
      * Display a listing of the resource.
@@ -207,6 +207,7 @@ class CourseController extends Controller
             'competition_category_id' => 'required|exists:competition_categories,id',
             'video_url' => 'nullable|url',
             'cover_image' => 'nullable|image|max:102400',
+
             'files.*' => 'nullable|file|max:102400',
             'is_semifinal' => 'boolean',
             'is_active' => 'boolean'

@@ -24,7 +24,9 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
+
 use App\Http\Controllers\CompetitionStageController;
+
 use App\Http\Controllers\UserCourseController;
 
 /*
@@ -343,6 +345,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 
 
+use Spatie\Sitemap\Sitemap;
+use Spatie\Sitemap\Tags\Url;
+
+Route::get('/sitemap.xml', function () {
+    return Sitemap::create()
+        ->add(Url::create('/'))
+        ->add(Url::create('/about'))
+        ->add(Url::create('/courses'))
+        ->toResponse(request());
+});
 
 
 

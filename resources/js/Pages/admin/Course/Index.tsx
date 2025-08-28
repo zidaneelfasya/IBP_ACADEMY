@@ -33,6 +33,11 @@ import {
     AlertDialogTitle,
 } from "@/Components/ui/alert-dialog";
 import {
+    Alert,
+    AlertDescription,
+    AlertTitle,
+} from "@/Components/ui/alert";
+import {
     ArrowLeft,
     Upload,
     FileText,
@@ -48,6 +53,8 @@ import {
     DeleteIcon as Cancel,
     Play,
     Tag,
+    AlertTriangle,
+    XCircle,
 } from "lucide-react";
 import { toast } from 'sonner';
 import { router } from "@inertiajs/react";
@@ -106,6 +113,12 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const [files, setFiles] = useState<File[]>([]);
     const [dragActive, setDragActive] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    
+    // Enhanced error handling states
+    const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [serverError, setServerError] = useState<string | null>(null);
+    
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editTitle, setEditTitle] = useState("");
     const [editDescription, setEditDescription] = useState("");
@@ -129,6 +142,24 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         }
     };
 
+    const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files);
+            
+            // Validate file sizes (max 100MB per file)
+            const invalidFiles = newFiles.filter(file => file.size > 100 * 1024 * 1024);
+            if (invalidFiles.length > 0) {
+                setFormErrors(prev => ({
+                    ...prev, 
+                    files: `File terlalu besar: ${invalidFiles.map(f => f.name).join(', ')}. Maksimal 100MB per file`
+                }));
+                return;
+            }
+            
+            setFiles((prev) => [...prev, ...newFiles]);
+        }
+    };
+
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -136,19 +167,31 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
 
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             const newFiles = Array.from(e.dataTransfer.files);
-            setFiles((prev) => [...prev, ...newFiles]);
-        }
-    };
-
-    const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const newFiles = Array.from(e.target.files);
+            
+            // Validate file sizes (max 100MB per file)
+            const invalidFiles = newFiles.filter(file => file.size > 100 * 1024 * 1024);
+            if (invalidFiles.length > 0) {
+                setFormErrors(prev => ({
+                    ...prev, 
+                    files: `File terlalu besar: ${invalidFiles.map(f => f.name).join(', ')}. Maksimal 100MB per file`
+                }));
+                return;
+            }
+            
             setFiles((prev) => [...prev, ...newFiles]);
         }
     };
 
     const removeFile = (index: number) => {
         setFiles((prev) => prev.filter((_, i) => i !== index));
+        // Clear file errors if no files remain or if files are valid after removal
+        if (formErrors.files) {
+            const remainingFiles = files.filter((_, i) => i !== index);
+            const invalidFiles = remainingFiles.filter(file => file.size > 100 * 1024 * 1024);
+            if (invalidFiles.length === 0) {
+                setFormErrors(prev => ({...prev, files: ''}));
+            }
+        }
     };
 
     const getFileIcon = (file: File) => {
@@ -164,6 +207,10 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const removeCoverImage = () => {
         setCoverImage(null);
         setCoverImagePreview("");
+        // Clear any cover image errors
+        if (formErrors.coverImage) {
+            setFormErrors(prev => ({...prev, coverImage: ''}));
+        }
     };
 
     const getEmbedUrl = (url: string) => {
@@ -190,22 +237,80 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         );
     };
 
+    // Client-side validation function
+    const validateForm = () => {
+        const errors: {[key: string]: string} = {};
+        
+        if (!title.trim()) {
+            errors.title = 'Judul materi wajib diisi';
+        } else if (title.trim().length < 3) {
+            errors.title = 'Judul materi minimal 3 karakter';
+        } else if (title.trim().length > 255) {
+            errors.title = 'Judul materi maksimal 255 karakter';
+        }
+        
+        if (!description.trim()) {
+            errors.description = 'Deskripsi wajib diisi';
+        } else if (description.trim().length < 10) {
+            errors.description = 'Deskripsi minimal 10 karakter';
+        } else if (description.trim().length > 1000) {
+            errors.description = 'Deskripsi maksimal 1000 karakter';
+        }
+        
+        if (!content.trim()) {
+            errors.content = 'Konten lengkap wajib diisi';
+        } else if (content.trim().length < 50) {
+            errors.content = 'Konten minimal 50 karakter';
+        }
+        
+        if (!categoryId) {
+            errors.category = 'Kategori lomba wajib dipilih';
+        }
+        
+        if (videoUrl && !isValidVideoUrl(videoUrl)) {
+            errors.videoUrl = 'URL video tidak valid. Gunakan link YouTube atau Vimeo';
+        }
+        
+        if (coverImage && coverImage.size > 5 * 1024 * 1024) {
+            errors.coverImage = 'Ukuran gambar cover maksimal 5MB';
+        }
+        
+        // Validate files
+        const invalidFiles = files.filter(file => file.size > 100 * 1024 * 1024);
+        if (invalidFiles.length > 0) {
+            errors.files = `File terlalu besar: ${invalidFiles.map(f => f.name).join(', ')}. Maksimal 100MB per file`;
+        }
+        
+        return errors;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!title.trim() || !description.trim() || !content.trim() || !categoryId) {
-            toast.error('Harap isi semua field yang wajib diisi');
+        
+        // Clear previous errors
+        setFormErrors({});
+        setServerError(null);
+        setShowErrorAlert(false);
+
+        // Client-side validation
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setFormErrors(validationErrors);
+            setServerError('Harap perbaiki kesalahan pada form sebelum melanjutkan');
+            setShowErrorAlert(true);
+            toast.error('Harap perbaiki kesalahan pada form');
             return;
         }
 
         setIsUploading(true);
 
         const formData = new FormData();
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("content", content);
-        formData.append("competition_category_id", categoryId.toString());
+        formData.append("title", title.trim());
+        formData.append("description", description.trim());
+        formData.append("content", content.trim());
+        formData.append("competition_category_id", categoryId!.toString());
         formData.append("is_semifinal", isSemifinal ? "1" : "0");
-        if (videoUrl) formData.append("video_url", videoUrl);
+        if (videoUrl.trim()) formData.append("video_url", videoUrl.trim());
         if (coverImage) formData.append("cover_image", coverImage);
         files.forEach((file) => formData.append("files[]", file));
 
@@ -222,7 +327,7 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                 withCredentials: true,
             });
 
-            // Reset form on success
+            // Reset form and errors on success
             setTitle("");
             setDescription("");
             setContent("");
@@ -232,17 +337,55 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
             setCoverImage(null);
             setCoverImagePreview("");
             setFiles([]);
+            setFormErrors({});
+            setServerError(null);
+            setShowErrorAlert(false);
 
             toast.success('Materi berhasil diupload!');
             
             // Use Inertia's router to reload the page properly
             window.location.href = route('admin.courses.index');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating course:', error);
-            toast.error('Terjadi kesalahan saat menyimpan materi: ' +
-                ((error as any).response?.data?.message ||
-                (error as any).message ||
-                'Unknown error'));
+            
+            // Handle validation errors from backend
+            if (error.response?.status === 422 && error.response?.data?.errors) {
+                const backendErrors: {[key: string]: string} = {};
+                const errorData = error.response.data.errors;
+                
+                // Map backend field names to frontend field names
+                Object.keys(errorData).forEach(key => {
+                    const fieldMap: {[key: string]: string} = {
+                        'title': 'title',
+                        'description': 'description', 
+                        'content': 'content',
+                        'competition_category_id': 'category',
+                        'video_url': 'videoUrl',
+                        'cover_image': 'coverImage',
+                        'files': 'files',
+                        'files.*': 'files'
+                    };
+                    
+                    const mappedKey = fieldMap[key] || key;
+                    backendErrors[mappedKey] = Array.isArray(errorData[key]) 
+                        ? errorData[key][0] 
+                        : errorData[key];
+                });
+                
+                setFormErrors(backendErrors);
+                setServerError('Terdapat kesalahan dalam pengisian form. Silakan periksa dan perbaiki field yang ditandai.');
+                setShowErrorAlert(true);
+                toast.error('Validasi form gagal. Silakan periksa kembali input Anda.');
+            } else {
+                // Handle other types of errors
+                const errorMessage = error.response?.data?.message || 
+                                   error.message || 
+                                   'Terjadi kesalahan tidak terduga saat menyimpan materi';
+                                   
+                setServerError(errorMessage);
+                setShowErrorAlert(true);
+                toast.error(errorMessage);
+            }
         } finally {
             setIsUploading(false);
         }
@@ -338,6 +481,25 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setFormErrors(prev => ({
+                    ...prev, 
+                    coverImage: 'Ukuran gambar cover maksimal 5MB'
+                }));
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                setFormErrors(prev => ({
+                    ...prev, 
+                    coverImage: 'File harus berupa gambar (JPG, PNG, GIF, dll.)'
+                }));
+                return;
+            }
+            
             setCoverImage(file);
             setCoverImagePreview(URL.createObjectURL(file));
         }
@@ -387,6 +549,34 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex-1">
+                                {/* Error Alert */}
+                                {showErrorAlert && serverError && (
+                                    <Alert variant="destructive" className="mb-6">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        <AlertTitle>Terjadi Kesalahan</AlertTitle>
+                                        <AlertDescription>
+                                            {serverError}
+                                            {Object.keys(formErrors).length > 0 && (
+                                                <ul className="mt-2 list-disc list-inside">
+                                                    {Object.entries(formErrors).map(([field, error]) => (
+                                                        <li key={field} className="text-sm">
+                                                            <span className="font-medium">
+                                                                {field === 'title' && 'Judul Materi'}
+                                                                {field === 'description' && 'Deskripsi'}
+                                                                {field === 'content' && 'Konten'}
+                                                                {field === 'category' && 'Kategori'}
+                                                                {field === 'videoUrl' && 'URL Video'}
+                                                                {field === 'coverImage' && 'Gambar Cover'}
+                                                                {field === 'files' && 'File Lampiran'}
+                                                            </span>: {error}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+
                                 <form
                                     onSubmit={handleSubmit}
                                     className="space-y-6"
@@ -399,13 +589,25 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                             id="title"
                                             name="title"
                                             value={title}
-                                            onChange={(e) =>
-                                                setTitle(e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                setTitle(e.target.value);
+                                                // Clear error when user starts typing
+                                                if (formErrors.title) {
+                                                    setFormErrors(prev => ({...prev, title: ''}));
+                                                }
+                                            }}
                                             placeholder="Masukkan judul materi..."
-                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                            className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+                                                formErrors.title ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                            }`}
                                             required
                                         />
+                                        {formErrors.title && (
+                                            <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <XCircle className="h-4 w-4" />
+                                                <span>{formErrors.title}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-2">
@@ -416,14 +618,26 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                             id="description"
                                             name="description"
                                             value={description}
-                                            onChange={(e) =>
-                                                setDescription(e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                setDescription(e.target.value);
+                                                // Clear error when user starts typing
+                                                if (formErrors.description) {
+                                                    setFormErrors(prev => ({...prev, description: ''}));
+                                                }
+                                            }}
                                             placeholder="Deskripsi singkat tentang materi ini..."
                                             rows={3}
-                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                            className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+                                                formErrors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                            }`}
                                             required
                                         />
+                                        {formErrors.description && (
+                                            <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <XCircle className="h-4 w-4" />
+                                                <span>{formErrors.description}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-2">
@@ -434,10 +648,16 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                             id="category"
                                             name="category"
                                             value={categoryId || ""}
-                                            onChange={(e) =>
-                                                setCategoryId(e.target.value ? parseInt(e.target.value) : null)
-                                            }
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                            onChange={(e) => {
+                                                setCategoryId(e.target.value ? parseInt(e.target.value) : null);
+                                                // Clear error when user selects a category
+                                                if (formErrors.category) {
+                                                    setFormErrors(prev => ({...prev, category: ''}));
+                                                }
+                                            }}
+                                            className={`w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+                                                formErrors.category ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                            }`}
                                             required
                                         >
                                             <option value="">
@@ -449,6 +669,12 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 </option>
                                             ))}
                                         </select>
+                                        {formErrors.category && (
+                                            <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <XCircle className="h-4 w-4" />
+                                                <span>{formErrors.category}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-2">
@@ -476,9 +702,13 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                     name="cover-upload"
                                                     type="file"
                                                     accept="image/*"
-                                                    onChange={
-                                                        handleCoverImageUpload
-                                                    }
+                                                    onChange={(e) => {
+                                                        handleCoverImageUpload(e);
+                                                        // Clear error when user selects a new image
+                                                        if (formErrors.coverImage) {
+                                                            setFormErrors(prev => ({...prev, coverImage: ''}));
+                                                        }
+                                                    }}
                                                     className="hidden"
                                                 />
                                                 {coverImage && (
@@ -495,6 +725,12 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                     </Button>
                                                 )}
                                             </div>
+                                            {formErrors.coverImage && (
+                                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <XCircle className="h-4 w-4" />
+                                                    <span>{formErrors.coverImage}</span>
+                                                </div>
+                                            )}
                                             {coverImagePreview && (
                                                 <div className="relative inline-block p-1 bg-gray-50 rounded-lg border border-gray-200">
                                                     <img
@@ -518,14 +754,26 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                             id="content"
                                             name="content"
                                             value={content}
-                                            onChange={(e) =>
-                                                setContent(e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                setContent(e.target.value);
+                                                // Clear error when user starts typing
+                                                if (formErrors.content) {
+                                                    setFormErrors(prev => ({...prev, content: ''}));
+                                                }
+                                            }}
                                             placeholder="Tulis konten materi lengkap di sini..."
                                             rows={8}
-                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                            className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+                                                formErrors.content ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                            }`}
                                             required
                                         />
+                                        {formErrors.content && (
+                                            <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <XCircle className="h-4 w-4" />
+                                                <span>{formErrors.content}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-2">
@@ -536,12 +784,24 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                             id="videoUrl"
                                             name="videoUrl"
                                             value={videoUrl}
-                                            onChange={(e) =>
-                                                setVideoUrl(e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                setVideoUrl(e.target.value);
+                                                // Clear error when user starts typing
+                                                if (formErrors.videoUrl) {
+                                                    setFormErrors(prev => ({...prev, videoUrl: ''}));
+                                                }
+                                            }}
                                             placeholder="https://youtube.com/watch?v=... atau https://vimeo.com/..."
-                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                            className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+                                                formErrors.videoUrl ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                            }`}
                                         />
+                                        {formErrors.videoUrl && (
+                                            <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <XCircle className="h-4 w-4" />
+                                                <span>{formErrors.videoUrl}</span>
+                                            </div>
+                                        )}
                                         {videoUrl &&
                                             isValidVideoUrl(videoUrl) && (
                                                 <div className="mt-3">
@@ -607,6 +867,8 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 dragActive
                                                     ? "border-blue-400 bg-blue-50/50 border-solid shadow-md"
                                                     : "border-gray-300 hover:border-blue-300 hover:bg-gray-50/50"
+                                            } ${
+                                                formErrors.files ? 'border-red-300' : ''
                                             }`}
                                             onDragEnter={handleDrag}
                                             onDragLeave={handleDrag}
@@ -632,18 +894,31 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 </label>
                                             </Button>
                                             <p className="text-xs text-gray-500 mt-2">
-                                                PDF, DOC, DOCX, PPT, PPTX, JPG, PNG, MP4, MP3
+                                                PDF, DOC, DOCX, PPT, PPTX, JPG, PNG, MP4, MP3 (Maksimal 100MB per file)
                                             </p>
                                             <input
                                                 id="file-upload"
                                                 name="file-upload"
                                                 type="file"
                                                 multiple
-                                                onChange={handleFileInput}
+                                                onChange={(e) => {
+                                                    handleFileInput(e);
+                                                    // Clear error when user selects files
+                                                    if (formErrors.files) {
+                                                        setFormErrors(prev => ({...prev, files: ''}));
+                                                    }
+                                                }}
                                                 className="hidden"
                                                 accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.mp4,.mp3"
                                             />
                                         </div>
+
+                                        {formErrors.files && (
+                                            <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <XCircle className="h-4 w-4" />
+                                                <span>{formErrors.files}</span>
+                                            </div>
+                                        )}
 
                                         {files.length > 0 && (
                                             <div className="space-y-2 mt-4">
