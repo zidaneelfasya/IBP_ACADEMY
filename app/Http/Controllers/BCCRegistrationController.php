@@ -18,8 +18,11 @@ class BCCRegistrationController extends Controller
     /**
      * Show BCC registration form
      */
-     public function create()
+    public function create()
     {
+        // Check registration deadline
+        $this->checkRegistrationDeadline();
+
         $category = CompetitionCategory::where('name', 'BCC')->firstOrFail();
 
         $existingRegistration = TeamRegistration::where('user_id', Auth::id())
@@ -33,10 +36,11 @@ class BCCRegistrationController extends Controller
             ]);
         }
 
-       return Inertia::render('Competition/BCCRegistration', [
+        return Inertia::render('Competition/BCCRegistration', [
             'category' => $category,
             'existingRegistration' => null,
-            'auth' => ['user' => Auth::user()]
+            'auth' => ['user' => Auth::user()],
+            'deadline_expired' => session('deadline_expired')
         ]);
     }
 
@@ -45,7 +49,10 @@ class BCCRegistrationController extends Controller
      */
     public function store(Request $request)
     {
-          Log::info('BCC Registration attempt', ['user_id' => Auth::id()]);
+        // Check registration deadline before processing
+        $this->checkRegistrationDeadline();
+
+        Log::info('BCC Registration attempt', ['user_id' => Auth::id()]);
 
         $category = CompetitionCategory::where('name', 'BCC')->firstOrFail();
         $bccCategory = CompetitionCategory::where('name', 'BCC')->firstOrFail();
@@ -53,15 +60,15 @@ class BCCRegistrationController extends Controller
 
         // Check if user already registered
         $existingRegistration = TeamRegistration::where('user_id', Auth::id())
-        ->whereIn('competition_category_id', [$bccCategory->id, $bpcCategory->id])
-        ->first();
+            ->whereIn('competition_category_id', [$bccCategory->id, $bpcCategory->id])
+            ->first();
 
-    if ($existingRegistration) {
-        $competitionName = $existingRegistration->competitionCategory->name;
-        return back()->withErrors([
-            'general' => "You are already registered for $competitionName and cannot register for both BCC and BPC"
-        ]);
-    }
+        if ($existingRegistration) {
+            $competitionName = $existingRegistration->competitionCategory->name;
+            return back()->withErrors([
+                'general' => "You are already registered for $competitionName and cannot register for both BCC and BPC"
+            ]);
+        }
 
         // Validation rules matching frontend structure
         $validationRules = [
@@ -143,13 +150,33 @@ class BCCRegistrationController extends Controller
 
         // Custom error messages
         $customMessages = [
-            'tim_name.unique' => 'Team name already used for BPC competition',
+            'tim_name.unique' => 'Team name already used for BCC competition',
+            'tim_name.max' => 'Team name cannot exceed 100 characters',
+            'leader_name.max' => 'Leader name cannot exceed 100 characters',
             'leader_nim.unique' => 'Leader NIM already registered',
+            'leader_nim.max' => 'Leader NIM cannot exceed 20 characters',
             'leader_email.unique' => 'Leader email already registered',
+            'leader_email.max' => 'Leader email cannot exceed 100 characters',
+            'leader_phone.max' => 'Leader phone number cannot exceed 15 digits',
+            'leader_univ.max' => 'Leader university cannot exceed 200 characters',
+            'leader_fakultas.max' => 'Leader faculty cannot exceed 200 characters',
+            'member1.name.max' => 'Member 1 name cannot exceed 100 characters',
             'member1.nim.unique' => 'Member 1 NIM already registered',
+            'member1.nim.max' => 'Member 1 NIM cannot exceed 20 characters',
             'member1.email.unique' => 'Member 1 email already registered',
+            'member1.email.max' => 'Member 1 email cannot exceed 100 characters',
+            'member1.phone.max' => 'Member 1 phone number cannot exceed 15 digits',
+            'member1.univ.max' => 'Member 1 university cannot exceed 200 characters',
+            'member1.fakultas.max' => 'Member 1 faculty cannot exceed 200 characters',
+            'member2.name.max' => 'Member 2 name cannot exceed 100 characters',
             'member2.nim.unique' => 'Member 2 NIM already registered',
+            'member2.nim.max' => 'Member 2 NIM cannot exceed 20 characters',
             'member2.email.unique' => 'Member 2 email already registered',
+            'member2.email.max' => 'Member 2 email cannot exceed 100 characters',
+            'member2.phone.max' => 'Member 2 phone number cannot exceed 15 digits',
+            'member2.univ.max' => 'Member 2 university cannot exceed 200 characters',
+            'member2.fakultas.max' => 'Member 2 faculty cannot exceed 200 characters',
+            'link_berkas.max' => 'Document URL cannot exceed 500 characters',
         ];
 
         // Validate input
@@ -255,7 +282,6 @@ class BCCRegistrationController extends Controller
 
             return redirect()->route('competition.success', $registration->uuid)
                 ->with('success', 'Registration successful! Your registration number: ' . $registrationNumber);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('BPC Registration failed', [
@@ -272,15 +298,15 @@ class BCCRegistrationController extends Controller
     /**
      * Generate unique registration number
      */
-     private function generateRegistrationNumber($categoryId)
+    private function generateRegistrationNumber($categoryId)
     {
         return DB::transaction(function () use ($categoryId) {
             $year = date('Y');
             $month = date('m');
-            $prefix = 'BPC'.$year.$month;
+            $prefix = 'BCC' . $year . $month;
 
             // Dapatkan nomor terakhir dengan LOCK
-            $lastRegistration = TeamRegistration::where('registration_number', 'like', $prefix.'%')
+            $lastRegistration = TeamRegistration::where('registration_number', 'like', $prefix . '%')
                 ->lockForUpdate()
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -293,17 +319,57 @@ class BCCRegistrationController extends Controller
                 $nextNumber = 1;
             }
 
-            $registrationNumber = $prefix.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            $registrationNumber = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             // Double check uniqueness
             $exists = TeamRegistration::where('registration_number', $registrationNumber)->exists();
             if ($exists) {
                 // Fallback mechanism
-                $registrationNumber = $prefix.str_pad($nextNumber + 1, 4, '0', STR_PAD_LEFT);
+                $registrationNumber = $prefix . str_pad($nextNumber + 1, 4, '0', STR_PAD_LEFT);
             }
 
             return $registrationNumber;
         });
     }
-}
 
+    /**
+     * Check if registration deadline has passed
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    private function checkRegistrationDeadline()
+    {
+        $registrationStage = CompetitionStage::where('name', 'Registration')
+            ->where('order', 1)
+            ->first();
+
+        if (!$registrationStage) {
+            // If no registration stage found, log warning but allow (fallback)
+            Log::warning('No registration stage found with name "Registration" and order 1');
+            return;
+        }
+
+        $now = \Carbon\Carbon::now();
+        $deadline = \Carbon\Carbon::parse($registrationStage->end_date);
+
+        if ($now->greaterThan($deadline)) {
+            Log::info('Registration deadline passed', [
+                'deadline' => $deadline->toDateTimeString(),
+                'current_time' => $now->toDateTimeString(),
+                'user_id' => Auth::id()
+            ]);
+
+            if (request()->expectsJson()) {
+                abort(403, "Registration deadline has passed on {$deadline->format('d M Y, H:i')}");
+            }
+
+            // For web requests, redirect with error
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                redirect()->route('business-case-competition')->with('deadline_expired', [
+                    'deadline' => $deadline->format('d M Y, H:i'),
+                    'current_time' => $now->format('d M Y, H:i'),
+                    'message' => 'Registration deadline has passed'
+                ])
+            );
+        }
+    }
+}

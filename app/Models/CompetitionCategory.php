@@ -30,6 +30,14 @@ class CompetitionCategory extends Model
     }
 
     /**
+     * Get all assignments for this category
+     */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
+    /**
      * Scope for active categories only
      */
     public function scopeActive($query)

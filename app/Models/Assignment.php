@@ -14,6 +14,7 @@ class Assignment extends Model
     protected $fillable = [
         'uuid',
         'competition_stage_id',
+        'competition_category_id',
         'title',
         'description',
         'instructions',
@@ -67,11 +68,27 @@ class Assignment extends Model
     }
 
     /**
+     * Get the competition category that owns the assignment
+     */
+    public function competitionCategory()
+    {
+        return $this->belongsTo(CompetitionCategory::class, 'competition_category_id');
+    }
+
+    /**
      * Alias for competitionStage for consistency
      */
     public function competition_stage()
     {
         return $this->competitionStage();
+    }
+
+    /**
+     * Alias for competitionCategory for consistency
+     */
+    public function competition_category()
+    {
+        return $this->competitionCategory();
     }
 
     /**
@@ -127,10 +144,24 @@ class Assignment extends Model
     }
 
     /**
-     * Scope for assignments by stage
+     * Scope for assignments by stage and category
      */
-    public function scopeByStage($query, $stageId)
+    public function scopeByStageAndCategory($query, $stageId, $categoryId = null)
     {
-        return $query->where('competition_stage_id', $stageId);
+        $query->where('competition_stage_id', $stageId);
+        
+        if ($categoryId) {
+            $query->where('competition_category_id', $categoryId);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Scope for assignments by category
+     */
+    public function scopeByCategory($query, $categoryId)
+    {
+        return $query->where('competition_category_id', $categoryId);
     }
 }

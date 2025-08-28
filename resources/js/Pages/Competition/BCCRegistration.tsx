@@ -7,6 +7,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import Modal from "@/Components/Modal";
 import RegistrationExistsModal from "@/Components/RegistrationExistsModal";
+import DeadlineExpiredModal from "@/Components/DeadlineExpiredModal";
 
 interface CompetitionCategory {
     id: number;
@@ -50,6 +51,11 @@ interface Props {
     auth: {
         user: AuthUser;
     };
+    deadline_expired?: {
+        deadline: string;
+        current_time: string;
+        message: string;
+    };
 }
 
 interface FormData {
@@ -69,10 +75,12 @@ export default function BCCRegistration({
     category,
     existingRegistration,
     auth,
+    deadline_expired,
 }: Props) {
     const [currentStep, setCurrentStep] = useState(1);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showExistingModal, setShowExistingModal] = useState(false);
+    const [showDeadlineModal, setShowDeadlineModal] = useState(false);
     const [stepValidationErrors, setStepValidationErrors] = useState<string[]>(
         []
     );
@@ -84,6 +92,12 @@ export default function BCCRegistration({
             setShowExistingModal(true);
         }
     }, [existingRegistration]);
+
+    useEffect(() => {
+        if (deadline_expired) {
+            setShowDeadlineModal(true);
+        }
+    }, [deadline_expired]);
 
     const { data, setData, post, processing, errors } = useForm<FormData>({
         tim_name: "",
@@ -112,6 +126,46 @@ export default function BCCRegistration({
         link_berkas: "",
     });
 
+    // Handle server validation errors
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            const serverErrors: string[] = [];
+
+            // Convert server errors to array format for modal display
+            Object.entries(errors).forEach(([field, message]) => {
+                if (typeof message === "string") {
+                    serverErrors.push(message);
+                } else if (Array.isArray(message)) {
+                    serverErrors.push(...(message as string[]));
+                }
+            });
+
+            console.log("Server Errors:", {
+                errors,
+                serverErrors,
+                serverErrorsLength: serverErrors.length,
+            });
+
+            if (serverErrors.length > 0) {
+                setStepValidationErrors(serverErrors);
+                setShowErrorModal(true);
+            }
+        } else {
+            // Clear modal when no server errors
+            setShowErrorModal(false);
+            setStepValidationErrors([]);
+        }
+    }, [errors]);
+
+    // Debug effect to track modal state
+    useEffect(() => {
+        console.log("Modal State Changed:", {
+            showErrorModal,
+            stepValidationErrors,
+            stepValidationErrorsLength: stepValidationErrors.length,
+        });
+    }, [showErrorModal, stepValidationErrors]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -126,6 +180,11 @@ export default function BCCRegistration({
             allErrors = [...allErrors, ...stepErrors];
         }
 
+        console.log("Submit Validation:", {
+            allErrors,
+            allErrorsLength: allErrors.length,
+        });
+
         if (allErrors.length > 0) {
             setStepValidationErrors(allErrors);
             setShowErrorModal(true);
@@ -138,6 +197,12 @@ export default function BCCRegistration({
     const nextStep = () => {
         // Validate current step before proceeding
         const stepErrors = validateStep(currentStep);
+
+        console.log("Next Step Validation:", {
+            currentStep,
+            stepErrors,
+            stepErrorsLength: stepErrors.length,
+        });
 
         if (stepErrors.length > 0) {
             setStepValidationErrors(stepErrors);
@@ -180,6 +245,8 @@ export default function BCCRegistration({
                     errors.push("Team name must be filled");
                 } else if (data.tim_name.length < 3) {
                     errors.push("Team name must be at least 3 characters");
+                } else if (data.tim_name.length > 100) {
+                    errors.push("Team name cannot exceed 100 characters");
                 }
                 break;
 
@@ -188,12 +255,16 @@ export default function BCCRegistration({
                     errors.push("Leader name must be filled");
                 } else if (data.leader_name.length < 3) {
                     errors.push("Leader name must be at least 3 characters");
+                } else if (data.leader_name.length > 100) {
+                    errors.push("Leader name cannot exceed 100 characters");
                 }
 
                 if (!data.leader_nim.trim()) {
                     errors.push("Leader NIM must be filled");
                 } else if (data.leader_nim.length < 5) {
                     errors.push("Leader NIM must be at least 5 characters");
+                } else if (data.leader_nim.length > 20) {
+                    errors.push("Leader NIM cannot exceed 20 characters");
                 }
 
                 if (!data.leader_email.trim()) {
@@ -202,6 +273,8 @@ export default function BCCRegistration({
                     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.leader_email)
                 ) {
                     errors.push("Invalid leader email format");
+                } else if (data.leader_email.length > 100) {
+                    errors.push("Leader email cannot exceed 100 characters");
                 }
 
                 if (!data.leader_phone.trim()) {
@@ -210,6 +283,8 @@ export default function BCCRegistration({
                     errors.push(
                         "Leader phone number must be at least 10 digits"
                     );
+                } else if (data.leader_phone.length > 15) {
+                    errors.push("Leader phone number cannot exceed 15 digits");
                 }
 
                 if (!data.leader_univ.trim()) {
@@ -218,12 +293,18 @@ export default function BCCRegistration({
                     errors.push(
                         "Leader university must be at least 5 characters"
                     );
+                } else if (data.leader_univ.length > 200) {
+                    errors.push(
+                        "Leader university cannot exceed 200 characters"
+                    );
                 }
 
                 if (!data.leader_fakultas.trim()) {
                     errors.push("Leader faculty must be filled");
                 } else if (data.leader_fakultas.length < 3) {
                     errors.push("Leader faculty must be at least 3 characters");
+                } else if (data.leader_fakultas.length > 200) {
+                    errors.push("Leader faculty cannot exceed 200 characters");
                 }
                 break;
 
@@ -233,12 +314,16 @@ export default function BCCRegistration({
                     errors.push("Member 1 name must be filled");
                 } else if (data.member1.name.length < 3) {
                     errors.push("Member 1 name must be at least 3 characters");
+                } else if (data.member1.name.length > 100) {
+                    errors.push("Member 1 name cannot exceed 100 characters");
                 }
 
                 if (!data.member1.nim.trim()) {
                     errors.push("Member 1 NIM must be filled");
                 } else if (data.member1.nim.length < 5) {
                     errors.push("Member 1 NIM must be at least 5 characters");
+                } else if (data.member1.nim.length > 20) {
+                    errors.push("Member 1 NIM cannot exceed 20 characters");
                 } else if (data.member1.nim === data.leader_nim) {
                     errors.push("Member 1 NIM cannot be same as leader");
                 }
@@ -249,6 +334,8 @@ export default function BCCRegistration({
                     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member1.email)
                 ) {
                     errors.push("Invalid member 1 email format");
+                } else if (data.member1.email.length > 100) {
+                    errors.push("Member 1 email cannot exceed 100 characters");
                 } else if (data.member1.email === data.leader_email) {
                     errors.push("Member 1 email cannot be same as leader");
                 }
@@ -258,6 +345,10 @@ export default function BCCRegistration({
                 } else if (data.member1.phone.length < 10) {
                     errors.push(
                         "Member 1 phone number must be at least 10 digits"
+                    );
+                } else if (data.member1.phone.length > 15) {
+                    errors.push(
+                        "Member 1 phone number cannot exceed 15 digits"
                     );
                 } else if (data.member1.phone === data.leader_phone) {
                     errors.push("Member 1 phone cannot be same as leader");
@@ -269,6 +360,10 @@ export default function BCCRegistration({
                     errors.push(
                         "Member 1 university must be at least 5 characters"
                     );
+                } else if (data.member1.univ.length > 200) {
+                    errors.push(
+                        "Member 1 university cannot exceed 200 characters"
+                    );
                 }
 
                 if (!data.member1.fakultas.trim()) {
@@ -277,6 +372,10 @@ export default function BCCRegistration({
                     errors.push(
                         "Member 1 faculty must be at least 3 characters"
                     );
+                } else if (data.member1.fakultas.length > 200) {
+                    errors.push(
+                        "Member 1 faculty cannot exceed 200 characters"
+                    );
                 }
 
                 // Member 2 validation
@@ -284,12 +383,16 @@ export default function BCCRegistration({
                     errors.push("Member 2 name must be filled");
                 } else if (data.member2.name.length < 3) {
                     errors.push("Member 2 name must be at least 3 characters");
+                } else if (data.member2.name.length > 100) {
+                    errors.push("Member 2 name cannot exceed 100 characters");
                 }
 
                 if (!data.member2.nim.trim()) {
                     errors.push("Member 2 NIM must be filled");
                 } else if (data.member2.nim.length < 5) {
                     errors.push("Member 2 NIM must be at least 5 characters");
+                } else if (data.member2.nim.length > 20) {
+                    errors.push("Member 2 NIM cannot exceed 20 characters");
                 } else if (data.member2.nim === data.leader_nim) {
                     errors.push("Member 2 NIM cannot be same as leader");
                 } else if (data.member2.nim === data.member1.nim) {
@@ -302,6 +405,8 @@ export default function BCCRegistration({
                     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.member2.email)
                 ) {
                     errors.push("Invalid member 2 email format");
+                } else if (data.member2.email.length > 100) {
+                    errors.push("Member 2 email cannot exceed 100 characters");
                 } else if (data.member2.email === data.leader_email) {
                     errors.push("Member 2 email cannot be same as leader");
                 } else if (data.member2.email === data.member1.email) {
@@ -313,6 +418,10 @@ export default function BCCRegistration({
                 } else if (data.member2.phone.length < 10) {
                     errors.push(
                         "Member 2 phone number must be at least 10 digits"
+                    );
+                } else if (data.member2.phone.length > 15) {
+                    errors.push(
+                        "Member 2 phone number cannot exceed 15 digits"
                     );
                 } else if (data.member2.phone === data.leader_phone) {
                     errors.push("Member 2 phone cannot be same as leader");
@@ -326,6 +435,10 @@ export default function BCCRegistration({
                     errors.push(
                         "Member 2 university must be at least 5 characters"
                     );
+                } else if (data.member2.univ.length > 200) {
+                    errors.push(
+                        "Member 2 university cannot exceed 200 characters"
+                    );
                 }
 
                 if (!data.member2.fakultas.trim()) {
@@ -333,6 +446,10 @@ export default function BCCRegistration({
                 } else if (data.member2.fakultas.length < 3) {
                     errors.push(
                         "Member 2 faculty must be at least 3 characters"
+                    );
+                } else if (data.member2.fakultas.length > 200) {
+                    errors.push(
+                        "Member 2 faculty cannot exceed 200 characters"
                     );
                 }
                 break;
@@ -344,6 +461,8 @@ export default function BCCRegistration({
                     errors.push(
                         "Invalid document URL format (must start with http:// or https://)"
                     );
+                } else if (data.link_berkas.length > 500) {
+                    errors.push("Document URL cannot exceed 500 characters");
                 }
                 break;
         }
@@ -881,7 +1000,7 @@ export default function BCCRegistration({
                             Requirements Documents
                         </h2>
 
-                        <div className="mb-6 p-4 border rounded-lg bg-blue-50 border-blue-200">
+                        <div className="p-4 mb-6 border border-blue-200 rounded-lg bg-blue-50">
                             <h3 className="mb-3 font-medium text-blue-800">
                                 Download Twibbon
                             </h3>
@@ -892,7 +1011,7 @@ export default function BCCRegistration({
                             <a
                                 href="https://drive.google.com/uc?export=download&id=1SrKwNzLZuPtwj0kcgsRoryw9WuLpKxTS"
                                 download="Twibbon_BCC_IBP_Academy_2025.jpg"
-                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
                             >
                                 <svg
                                     className="w-4 h-4 mr-2"
@@ -962,13 +1081,13 @@ export default function BCCRegistration({
                                     • Combine multiple files into a single
                                     folder if needed
                                 </li>
-                                 <li>
+                                <li>
                                     • For Twibbon Caption, please visit:{" "}
                                     <a
                                         href="https://drive.google.com/drive/folders/1JCV9lxHaA6OAP1pl8pUy7oR5WMM-8Bo2?usp=drive_link"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-blue-600 underline hover:text-blue-800 transition-colors"
+                                        className="text-blue-600 underline transition-colors hover:text-blue-800"
                                     >
                                         View Caption
                                     </a>
@@ -1009,7 +1128,7 @@ export default function BCCRegistration({
 
                     <div className="flex items-start max-w-6xl gap-4 mx-auto">
                         {/* Back Button - Desktop Only */}
-                        <div className="flex-shrink-0 pt-2 hidden md:block">
+                        <div className="flex-shrink-0 hidden pt-2 md:block">
                             <button
                                 onClick={() => window.history.back()}
                                 className="flex items-center px-4 py-2 text-sm font-medium transition-all duration-200 bg-white rounded-lg shadow-md text-ibp-primary hover:shadow-lg hover:bg-ibp-neutral/10"
@@ -1288,7 +1407,10 @@ export default function BCCRegistration({
                         {/* Modal Error Validasi */}
                         <Modal
                             show={showErrorModal}
-                            onClose={() => setShowErrorModal(false)}
+                            onClose={() => {
+                                setShowErrorModal(false);
+                                setStepValidationErrors([]);
+                            }}
                             maxWidth="md"
                         >
                             <div className="p-4 sm:p-6">
@@ -1345,9 +1467,10 @@ export default function BCCRegistration({
                                     <div className="flex justify-center">
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                setShowErrorModal(false)
-                                            }
+                                            onClick={() => {
+                                                setShowErrorModal(false);
+                                                setStepValidationErrors([]);
+                                            }}
                                             className="px-4 py-2 rounded-lg sm:px-6 text-ibp-white bg-ibp-primary hover:bg-ibp-primary/90 focus:outline-none focus:ring-2 focus:ring-ibp-primary/50 focus:ring-offset-2"
                                         >
                                             Close
@@ -1366,6 +1489,14 @@ export default function BCCRegistration({
                                 category={category}
                             />
                         )}
+
+                        {/* Deadline Expired Modal */}
+                        <DeadlineExpiredModal
+                            isOpen={showDeadlineModal}
+                            onClose={() => setShowDeadlineModal(false)}
+                            deadline={deadline_expired?.deadline}
+                            currentTime={deadline_expired?.current_time}
+                        />
                     </div>
                 </div>
             </div>

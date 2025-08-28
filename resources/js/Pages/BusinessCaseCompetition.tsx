@@ -16,6 +16,7 @@ import {
 import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
 import RegistrationExistsModal from "@/Components/RegistrationExistsModal";
+import DeadlineExpiredModal from "@/Components/DeadlineExpiredModal";
 
 // Import sections
 import HeroSection from "@/Components/sections/bpc-sections/HeroSection";
@@ -57,11 +58,14 @@ interface FlashData {
 const BusinessCaseCompetition: React.FC = () => {
     const page = usePage();
     const flash = page.props.flash as FlashData | undefined;
+    const deadline_expired = page.props.deadline_expired as any;
     const [showModal, setShowModal] = useState(false);
+    const [showDeadlineModal, setShowDeadlineModal] = useState(false);
 
     useEffect(() => {
         console.log("All props:", page.props);
         console.log("Flash data:", flash);
+        console.log("Deadline expired:", deadline_expired);
 
         const urlParams = new URLSearchParams(window.location.search);
         const showModalParam = urlParams.get("showModal") === "true";
@@ -76,7 +80,11 @@ const BusinessCaseCompetition: React.FC = () => {
             );
             setShowModal(true);
         }
-    }, [flash, page.props]);
+
+        if (deadline_expired) {
+            setShowDeadlineModal(true);
+        }
+    }, [flash, page.props, deadline_expired]);
 
     useEffect(() => {
         if (flash) {
@@ -173,8 +181,7 @@ const BusinessCaseCompetition: React.FC = () => {
         {
             date: "August 8 - 21, 2025",
             phase: "Participant Registration",
-            description:
-                "Team registration period and document verification",
+            description: "Team registration period and document verification",
         },
         {
             date: "August 15 - 31, 2025",
@@ -222,7 +229,6 @@ const BusinessCaseCompetition: React.FC = () => {
         "🎯 Special Awards: Best Pitch and Best Deck",
         "💼 Business opportunities through IBP Academy",
         "🌟 Exclusive access to mentor and company practitioner",
-
     ];
 
     // Updated CTA buttons
@@ -268,10 +274,7 @@ const BusinessCaseCompetition: React.FC = () => {
             <Head title="Business Case Competition - IBP Academy 2025" />
 
             <div className="relative min-h-screen py-20 overflow-hidden bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-                <HeroSection
-                    title="Business Case Competition"
-                    backUrl="/"
-                />
+                <HeroSection title="Business Case Competition" backUrl="/" />
 
                 <VisualSection
                     images={{
@@ -313,9 +316,7 @@ const BusinessCaseCompetition: React.FC = () => {
                     specialAwards={specialAwards}
                 />
 
-                <CTASection
-                    buttons={ctaButtons}
-                />
+                <CTASection buttons={ctaButtons} />
 
                 <ContactSection
                     title="Contact Us"
@@ -333,6 +334,13 @@ const BusinessCaseCompetition: React.FC = () => {
                     category={flash.category}
                 />
             )}
+
+            <DeadlineExpiredModal
+                isOpen={showDeadlineModal}
+                onClose={() => setShowDeadlineModal(false)}
+                deadline={deadline_expired?.deadline}
+                currentTime={deadline_expired?.current_time}
+            />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 

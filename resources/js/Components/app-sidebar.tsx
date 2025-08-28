@@ -66,6 +66,12 @@ const data = {
             url: "/admin/dashboard/courses",
             icon: ListIcon,
         },
+        {
+            title: "Competition Stage",
+            url: "/admin/dashboard/competition-stages",
+            icon: UsersIcon,
+        },
+
 
     ],
     navClouds: [
