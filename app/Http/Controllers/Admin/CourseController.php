@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 
-class CourseController extends Controller
+class CourseController extends Controller   
 {
     /**
      * Display a listing of the resource.
@@ -84,7 +84,7 @@ class CourseController extends Controller
         'video_url' => 'nullable|url',
         'cover_image' => 'nullable|image|max:2048',
         'is_semifinal' => 'required|boolean',
-        'files.*' => 'nullable|file|max:10240'
+        'files.*' => 'nullable|file|max:102400'
     ], [
             'title.required' => 'Judul materi harus diisi',
             'title.max' => 'Judul materi maksimal 255 karakter',
@@ -95,7 +95,7 @@ class CourseController extends Controller
             'video_url.url' => 'URL video harus valid',
             'cover_image.image' => 'File cover harus berupa gambar',
             'cover_image.max' => 'Ukuran cover maksimal 2MB',
-            'files.*.max' => 'Ukuran file maksimal 10MB',
+            'files.*.max' => 'Ukuran file maksimal 100MB',
         ]);
 
         // Log::debug('Validated data:', $validated);
@@ -207,7 +207,7 @@ class CourseController extends Controller
             'competition_category_id' => 'required|exists:competition_categories,id',
             'video_url' => 'nullable|url',
             'cover_image' => 'nullable|image|max:2048',
-            'files.*' => 'nullable|file|max:10240',
+            'files.*' => 'nullable|file|max:102400',
             'is_semifinal' => 'boolean',
             'is_active' => 'boolean'
         ], [
@@ -220,7 +220,7 @@ class CourseController extends Controller
             'video_url.url' => 'URL video harus valid',
             'cover_image.image' => 'File cover harus berupa gambar',
             'cover_image.max' => 'Ukuran cover maksimal 2MB',
-            'files.*.max' => 'Ukuran file maksimal 10MB',
+            'files.*.max' => 'Ukuran file maksimal 100MB',
         ]);
 
         Log::info('Course update validation passed', ['validated_data' => $validated]);
