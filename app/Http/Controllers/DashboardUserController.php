@@ -103,7 +103,7 @@ class DashboardUserController extends Controller
                 ],
             ];
 
-            // ➕ Load active assignments for the current stage/category
+
             $assignments = Assignment::where('is_active', true)
                 ->where('competition_stage_id', $currentStage->id)
                 ->get()
@@ -114,6 +114,7 @@ class DashboardUserController extends Controller
                     'description'           => $a->description,
                     'instructions'          => $a->instructions,
                     'deadline'              => $a->deadline,
+                     'deadline_formatted'    => $a->deadline->format('M d, Y H:i'), 
                     'is_active'             => $a->is_active,
                 ]);
 

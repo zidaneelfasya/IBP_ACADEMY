@@ -30,6 +30,7 @@ interface Assignment {
     instructions: string;
     deadline: string;
     is_active: boolean;
+    deadline_formatted: string;
 }
 
 interface ParticipantProgress {
@@ -161,6 +162,12 @@ export default function Dashboard({
             return <XCircle className="h-4 w-4 text-red-500" />;
         if (isCurrent) return <Target className="h-4 w-4 text-blue-500" />;
         return <Clock className="h-4 w-4 text-gray-400" />;
+    };
+
+    const convertUtcToWib = (utcString: string): Date => {
+        const utcDate = new Date(utcString);
+        const wibOffset = 7 * 60 * 60 * 1000;
+        return new Date(utcDate.getTime() + wibOffset);
     };
 
     // Render stage-specific rejection modal
@@ -443,7 +450,8 @@ export default function Dashboard({
                     </div>
 
                     {/* Urgent Notifications */}
-                    {urgentSubmissions.length > 0 && (
+                    {urgentSubmissions.filter((stage) => stage.days_left > 0)
+                        .length > 0 && (
                         <div className="mb-6 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 p-4 rounded-r-lg">
                             <div className="flex items-start">
                                 <Bell className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
@@ -453,30 +461,34 @@ export default function Dashboard({
                                         Approaching!
                                     </h3>
                                     <div className="mt-2 space-y-2">
-                                        {urgentSubmissions.map((stage) => (
-                                            <div
-                                                key={stage.id}
-                                                className="pl-1"
-                                            >
-                                                <p className="text-red-700 font-medium">
-                                                    {stage.name} deadline in{" "}
-                                                    {stage.days_left} days
-                                                </p>
-                                                <p className="text-sm text-red-600">
-                                                    Due date:{" "}
-                                                    {new Date(
-                                                        stage.end_date
-                                                    ).toLocaleDateString(
-                                                        "en-US",
-                                                        {
-                                                            day: "numeric",
-                                                            month: "long",
-                                                            year: "numeric",
-                                                        }
-                                                    )}
-                                                </p>
-                                            </div>
-                                        ))}
+                                        {urgentSubmissions
+                                            .filter(
+                                                (stage) => stage.days_left > 0
+                                            )
+                                            .map((stage) => (
+                                                <div
+                                                    key={stage.id}
+                                                    className="pl-1"
+                                                >
+                                                    <p className="text-red-700 font-medium">
+                                                        {stage.name} deadline in{" "}
+                                                        {stage.days_left} days
+                                                    </p>
+                                                    <p className="text-sm text-red-600">
+                                                        Due date:{" "}
+                                                        {new Date(
+                                                            stage.end_date
+                                                        ).toLocaleDateString(
+                                                            "en-US",
+                                                            {
+                                                                day: "numeric",
+                                                                month: "long",
+                                                                year: "numeric",
+                                                            }
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            ))}
                                     </div>
                                 </div>
                             </div>
@@ -566,19 +578,8 @@ export default function Dashboard({
                                                         Deadline:
                                                     </p>
                                                     <p className="text-sm text-gray-600">
-                                                        {new Date(
-                                                            currentAssignment.deadline
-                                                        ).toLocaleDateString(
-                                                            "en-US",
-                                                            {
-                                                                weekday: "long",
-                                                                year: "numeric",
-                                                                month: "long",
-                                                                day: "numeric",
-                                                                hour: "2-digit",
-                                                                minute: "2-digit",
-                                                            }
-                                                        )}
+                                                        {currentAssignment.deadline_formatted}
+
                                                     </p>
                                                     <p className="text-sm font-medium text-orange-600 mt-1">
                                                         {(() => {
@@ -595,19 +596,19 @@ export default function Dashboard({
                                                 <a
                                                     href="/user/assignments"
                                                     className="
-        inline-flex items-center justify-center
-        gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
-        text-sm font-semibold leading-none
-        text-white
-        bg-gradient-to-r from-blue-600 to-indigo-600
-        rounded-xl shadow-md
-        hover:from-blue-700 hover:to-indigo-700
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-        transition-all duration-200 ease-in-out
-        transform hover:-translate-y-0.5 hover:shadow-lg
-        active:scale-95
-        w-full max-w-[240px] sm:w-auto
-    "
+                            inline-flex items-center justify-center
+                            gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
+                            text-sm font-semibold leading-none
+                            text-white
+                            bg-gradient-to-r from-blue-600 to-indigo-600
+                            rounded-xl shadow-md
+                            hover:from-blue-700 hover:to-indigo-700
+                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                            transition-all duration-200 ease-in-out
+                            transform hover:-translate-y-0.5 hover:shadow-lg
+                            active:scale-95
+                            w-full max-w-[240px] sm:w-auto
+                        "
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
