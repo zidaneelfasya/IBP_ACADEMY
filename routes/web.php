@@ -122,6 +122,9 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             Route::delete('/admin/competition-stages/{stage}', 'destroy')->name('admin.stages.destroy');
         });
     });
+
+    // Team Progress Status Update Route (outside dashboard prefix)
+    Route::patch('/admin/teams/{team}/progress-status', [ParticipantProgressController::class, 'updateTeamStatus'])->name('team.update-progress-status');
 });
 
 
