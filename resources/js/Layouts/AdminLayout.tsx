@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider } from "@/Components/ui/sidebar";
 import { SiteHeader } from "@/Components/site-header";
 import { ReactNode } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Toaster } from "sonner";
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -14,7 +15,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return (
         <SidebarProvider>
             <div className="flex min-h-screen w-full">
-                
+
                 <div className={isMobile ? "fixed inset-0 z-40" : "relative"}>
                     <AppSidebar variant="inset" />
                 </div>
@@ -27,6 +28,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     </SidebarInset>
                 </div>
             </div>
+            <Toaster position="top-right" richColors />
         </SidebarProvider>
     );
 }
