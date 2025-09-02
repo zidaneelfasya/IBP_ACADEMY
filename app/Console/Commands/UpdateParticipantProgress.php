@@ -38,22 +38,22 @@ class UpdateParticipantProgress extends Command
         }
         
         // Handle stages that have passed their end date
-        $expiredStages = CompetitionStage::where('end_date', '<', $now)->get();
+        // $expiredStages = CompetitionStage::where('end_date', '<', $now)->get();
         
         
         
-        foreach ($expiredStages as $stage) {
-            // Update progresses that are still 'in_progress' to 'rejected' if not submitted
-            $rejected = ParticipantProgress::where('competition_stage_id', $stage->id)
-                ->where('status', 'in_progress')
-                ->update(['status' => 'rejected']);
+        // foreach ($expiredStages as $stage) {
+        //     // Update progresses that are still 'in_progress' to 'rejected' if not submitted
+        //     $rejected = ParticipantProgress::where('competition_stage_id', $stage->id)
+        //         ->where('status', 'in_progress')
+        //         ->update(['status' => 'rejected']);
                 
-            $rejectedCount += $rejected;
+        //     $rejectedCount += $rejected;
             
-        }
+        // }
         
-        $message = "Participant progress statuses updated successfully. Updated: {$updatedCount}, Rejected: {$rejectedCount}";
-        $this->info($message);
+        // $message = "Participant progress statuses updated successfully. Updated: {$updatedCount}, Rejected: {$rejectedCount}";
+        // $this->info($message);
         
     }
 }
