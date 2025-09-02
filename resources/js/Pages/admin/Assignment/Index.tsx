@@ -127,17 +127,17 @@
 
 const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    // Tambah 7 jam untuk konversi ke WIB
-    date.setHours(date.getHours() + 5);
     
-    return date.toLocaleDateString("id-ID", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    // Jangan tambah offset timezone, langsung ambil nilai UTC
+    const year = date.getUTCFullYear();
+    const month = date.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+    const day = date.getUTCDate();
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    
+    return `${day} ${month} ${year}, ${hours}.${minutes}`;
 };
+
     const getDeadlineStatus = (deadline: string): { 
         status: 'active' | 'warning' | 'overdue'; 
         label: string; 
