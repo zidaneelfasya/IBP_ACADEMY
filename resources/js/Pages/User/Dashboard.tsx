@@ -31,6 +31,8 @@ interface Assignment {
     deadline: string;
     is_active: boolean;
     deadline_formatted: string;
+    competition_category_id?: number;
+    is_submitted?: boolean;
 }
 
 interface ParticipantProgress {
@@ -562,6 +564,21 @@ export default function Dashboard({
                                             <p className="text-gray-600 mb-2">
                                                 {currentAssignment.description}
                                             </p>
+
+                                            {/* Status Submitted */}
+                                            <div className="mb-3">
+                                                {currentAssignment.is_submitted ? (
+                                                    <span className="inline-flex items-center text-sm text-green-600 font-medium">
+                                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                                        Submitted
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-sm text-gray-500">
+                                                        Not submitted yet
+                                                    </span>
+                                                )}
+                                            </div>
+
                                             <div className="bg-gray-50 rounded-lg p-3 mb-3">
                                                 <h4 className="font-medium text-gray-900 mb-1">
                                                     Instructions:
@@ -572,14 +589,16 @@ export default function Dashboard({
                                                     }
                                                 </p>
                                             </div>
+
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className="text-sm font-medium text-gray-900">
                                                         Deadline:
                                                     </p>
                                                     <p className="text-sm text-gray-600">
-                                                        {currentAssignment.deadline_formatted}
-
+                                                        {
+                                                            currentAssignment.deadline_formatted
+                                                        }
                                                     </p>
                                                     <p className="text-sm font-medium text-orange-600 mt-1">
                                                         {(() => {
@@ -593,22 +612,24 @@ export default function Dashboard({
                                                         })()}
                                                     </p>
                                                 </div>
+
+                                                {/* Tombol: tetap muncul, tapi bisa dikustom */}
                                                 <a
                                                     href="/user/assignments"
                                                     className="
-                            inline-flex items-center justify-center
-                            gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
-                            text-sm font-semibold leading-none
-                            text-white
-                            bg-gradient-to-r from-blue-600 to-indigo-600
-                            rounded-xl shadow-md
-                            hover:from-blue-700 hover:to-indigo-700
-                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-                            transition-all duration-200 ease-in-out
-                            transform hover:-translate-y-0.5 hover:shadow-lg
-                            active:scale-95
-                            w-full max-w-[240px] sm:w-auto
-                        "
+        inline-flex items-center justify-center
+        gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
+        text-sm font-semibold leading-none
+        text-white
+        bg-gradient-to-r from-blue-600 to-indigo-600
+        rounded-xl shadow-md
+        hover:from-blue-700 hover:to-indigo-700
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+        transition-all duration-200 ease-in-out
+        transform hover:-translate-y-0.5 hover:shadow-lg
+        active:scale-95
+        w-full max-w-[240px] sm:w-auto
+    "
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
@@ -625,10 +646,14 @@ export default function Dashboard({
                                                         />
                                                     </svg>
                                                     <span className="hidden xs:inline">
-                                                        Go to Assignment
+                                                        {currentAssignment.is_submitted
+                                                            ? "View Submission"
+                                                            : "Go to Assignment"}
                                                     </span>
                                                     <span className="xs:hidden">
-                                                        Assignment
+                                                        {currentAssignment.is_submitted
+                                                            ? "View"
+                                                            : "Assignment"}
                                                     </span>
                                                 </a>
                                             </div>

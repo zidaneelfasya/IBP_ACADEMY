@@ -104,41 +104,50 @@ class DashboardUserController extends Controller
             ];
 
 
-            $assignments = Assignment::where('is_active', true)
-                ->where('competition_stage_id', $currentStage->id)
-                ->get()
-                ->map(fn ($a) => [
-                    'id'                    => $a->id,
-                    'competition_stage_id'  => $a->competition_stage_id,
-                    'title'                 => $a->title,
-                    'description'           => $a->description,
-                    'instructions'          => $a->instructions,
-                    'deadline'              => $a->deadline,
-                     'deadline_formatted'    => $a->deadline->format('M d, Y H:i'), 
-                    'is_active'             => $a->is_active,
-                ]);
+      $submittedAssignmentIds = \App\Models\AssignmentSubmission::where('team_registration_id', $team->id)
+    ->pluck('assignment_id')
+    ->toArray();
 
-            return Inertia::render('User/Dashboard', [
-                'stages'            => $processedStages,
-                'currentProgress'   => $team->progress,
-                'team'              => [
-                    'id'              => $team->id,
-                    'name'            => $team->team_name,
-                    'category_id'     => $team->competition_category_id,
-                    'category_name'   => $team->competitionCategory?->name ?? 'Unknown Category',
-                    'rejected_stages' => $rejectedStages,
-                    'approved_stages' => $approvedStages,
-                    'current_stage_id'=> $currentStage->id,
-                ],
-                'urgentSubmissions' => $processedStages->filter(fn($s) => $s['is_urgent'])->values(),
-                'whatsapp_groups'   => $whatsappGroups,
-                'assignments'       => $assignments, // ➕ new
-            ]);
+$assignments = Assignment::where('is_active', true)
+    ->where('competition_stage_id', $currentStage->id)
+    ->where(function ($q) use ($team) {
+        $q->where('competition_category_id', $team->competition_category_id)
+          ->orWhereNull('competition_category_id');
+    })
+    ->get()
+    ->map(fn ($a) => [
+        'id'                    => $a->id,
+        'competition_stage_id'  => $a->competition_stage_id,
+        'competition_category_id' => $a->competition_category_id,
+        'title'                 => $a->title,
+        'description'           => $a->description,
+        'instructions'          => $a->instructions,
+        'deadline'              => $a->deadline,
+        'deadline_formatted'    => $a->deadline->format('M d, Y H:i'),
+        'is_active'             => $a->is_active,
+        'is_submitted'          => in_array($a->id, $submittedAssignmentIds),
+    ]);
 
+return Inertia::render('User/Dashboard', [
+    'stages'            => $processedStages,
+    'currentProgress'   => $team->progress,
+    'team'              => [
+        'id'              => $team->id,
+        'name'            => $team->team_name,
+        'category_id'     => $team->competition_category_id,
+        'category_name'   => $team->competitionCategory?->name ?? 'Unknown Category',
+        'rejected_stages' => $rejectedStages,
+        'approved_stages' => $approvedStages,
+        'current_stage_id'=> $currentStage->id,
+    ],
+    'urgentSubmissions' => $processedStages->filter(fn($s) => $s['is_urgent'])->values(),
+    'whatsapp_groups'   => $whatsappGroups,
+    'assignments'       => $assignments,
+]);
         } catch (\Exception $e) {
-            Log::error('Dashboard Error: ' . $e->getMessage());
+            Log::error('Error loading dashboard: ' . $e->getMessage());
             return Inertia::render('Error', [
-                'message' => 'An error occurred while loading the dashboard',
+                'message' => 'An error occurred while loading your dashboard. Please try again later.'
             ]);
         }
     }
