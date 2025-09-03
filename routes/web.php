@@ -287,6 +287,8 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
     Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
     Route::get('/material/{slug}', [UserCourseController::class, 'show'])
         ->name('user.material.show');
+    
+
 });
 
 Route::fallback(function () {
