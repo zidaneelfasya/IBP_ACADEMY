@@ -1,450 +1,282 @@
-// "use client";
+"use client";
 
-// import { useForm } from "@inertiajs/react";
-// import type React from "react";
-// import { useState } from "react";
-// import { Button } from "@/Components/ui/button";
-// import {
-//     Card,
-//     CardContent,
-//     CardDescription,
-//     CardHeader,
-//     CardTitle,
-// } from "@/Components/ui/card";
-// import { Input } from "@/Components/ui/input";
-// import { Label } from "@/Components/ui/label";
-// import { Checkbox } from "@/Components/ui/checkbox";
-// import {
-//     Dialog,
-//     DialogContent,
-//     DialogHeader,
-//     DialogTitle,
-// } from "@/Components/ui/dialog";
-// import {
-//     Upload,
-//     CreditCard,
-//     Users,
-//     CheckCircle,
-//     AlertCircle,
-//     ArrowLeft,
-// } from "lucide-react";
-// import { route } from "inertiajs";
+import { useForm } from "@inertiajs/react";
+import { useState } from "react";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/Components/ui/card";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
+import { Upload, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
 
-// interface Props {
-//     flash?: {
-//         success?: string;
-//         error?: string;
-//     };
-// }
+interface Props {
+    team: {
+        id: number;
+        tim_name: string;
+        competition_category: { name: string };
+        leader_name: string;
+        leader_nim: string;
+        leader_email: string;
+        leader_phone: string;
+        leader_univ: string;
+        leader_fakultas: string;
+        member1_name?: string;
+        member1_nim?: string;
+        member1_email?: string;
+        member1_phone?: string;
+        member1_univ?: string;
+        member1_fakultas?: string;
+        member2_name?: string;
+        member2_nim?: string;
+        member2_email?: string;
+        member2_phone?: string;
+        member2_univ?: string;
+        member2_fakultas?: string;
+    };
+    bankOptions: Array<{
+        id: string;
+        name: string;
+        account_number: string;
+        account_holder: string;
+    }>;
+    fixedAmount: number;
+}
 
-// export default function SemifinalRegistration({ flash }: Props) {
-//     const [file, setFile] = useState<File | null>(null);
-//     const [showModal, setShowModal] = useState(false);
-//     const [modalType, setModalType] = useState<"success" | "error">("success");
-//     const [errorMessage, setErrorMessage] = useState("");
+export default function SemifinalRegistration({
+    team,
+    bankOptions,
+    fixedAmount,
+}: Props) {
+    const [file, setFile] = useState<File | null>(null);
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState<"success" | "error">("success");
+    const [errorMessage, setErrorMessage] = useState("");
 
-//     const { data, setData, post, processing, errors } = useForm({
-//         teamName: "",
-//         paymentMethod: [] as string[],
-//         paymentProof: null as File | null,
-//     });
+    const { data, setData, post, processing, errors } = useForm({
+        team_id: team.id.toString(),
+        bank_name: "",
+        account_number: "",
+        account_holder: "",
+        amount: fixedAmount.toString(),
+        payment_proof: null as File | null,
+    });
 
-//     const bankOptions = [
-//         { id: "bca", label: "1662614763 BCA A/N MOCHAMMAD ARYASATYA" },
-//         {
-//             id: "mandiri",
-//             label: "1290013105313 MANDIRI A/N MOCHAMMAD ARYASATYA",
-//         },
-//         { id: "bni", label: "1765217609 BNI A/N MOCHAMMAD ARYASATYA NUGRAHA" },
-//     ];
+    const handleBankChange = (value: string) => {
+        if (value === "manual") {
+            setData("bank_name", "");
+            setData("account_number", "");
+            setData("account_holder", "");
+        } else {
+            const bank = bankOptions.find((b) => b.id === value);
+            if (bank) {
+                setData("bank_name", bank.name);
+                setData("account_number", bank.account_number);
+                setData("account_holder", bank.account_holder);
+            }
+        }
+    };
 
-//     const handleCheckboxChange = (bankId: string, checked: boolean) => {
-//         if (checked) {
-//             setData("paymentMethod", [...data.paymentMethod, bankId]);
-//         } else {
-//             setData(
-//                 "paymentMethod",
-//                 data.paymentMethod.filter((id) => id !== bankId)
-//             );
-//         }
-//     };
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const f = e.target.files[0];
+            const max = 10 * 1024 * 1024;
+            const allowed = ["image/jpeg", "image/png", "application/pdf"];
 
-//     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         if (e.target.files && e.target.files[0]) {
-//             const selectedFile = e.target.files[0];
-//             const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (f.size > max) {
+                setErrorMessage("Max 10 MB.");
+                setModalType("error");
+                setShowModal(true);
+                e.target.value = "";
+                return;
+            }
+            if (!allowed.includes(f.type)) {
+                setErrorMessage("Format JPG, PNG, PDF.");
+                setModalType("error");
+                setShowModal(true);
+                e.target.value = "";
+                return;
+            }
+            setFile(f);
+            setData("payment_proof", f);
+        }
+    };
 
-//             if (selectedFile.size > maxSize) {
-//                 setErrorMessage(
-//                     "File size exceeds 10MB limit. Please choose a smaller file."
-//                 );
-//                 setModalType("error");
-//                 setShowModal(true);
-//                 e.target.value = ""; // Clear the input
-//                 return;
-//             }
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!data.bank_name || !data.account_number || !data.account_holder) {
+            setErrorMessage("Complete bank details.");
+            setModalType("error");
+            setShowModal(true);
+            return;
+        }
+        if (!data.payment_proof) {
+            setErrorMessage("Upload proof.");
+            setModalType("error");
+            setShowModal(true);
+            return;
+        }
 
-//             const allowedTypes = [
-//                 "image/jpeg",
-//                 "image/jpg",
-//                 "image/png",
-//                 "application/pdf",
-//             ];
+        post(route("semifinal.registration.store"), {
+            onSuccess: () => {
+                setModalType("success");
+                setShowModal(true);
+            },
+            onError: (errs) => {
+                setErrorMessage(Object.values(errs).join(" "));
+                setModalType("error");
+                setShowModal(true);
+            },
+            forceFormData: true,
+        });
+    };
 
-//             if (!allowedTypes.includes(selectedFile.type)) {
-//                 setErrorMessage(
-//                     "Invalid file type. Please upload JPG, PNG, or PDF files only."
-//                 );
-//                 setModalType("error");
-//                 setShowModal(true);
-//                 e.target.value = ""; // Clear the input
-//                 return;
-//             }
+    return (
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+            <h1 className="text-3xl font-bold mb-6">Semifinal Registration</h1>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Team: {team.tim_name}</CardTitle>
+                    <CardDescription>
+                        Category: {team.competition_category.name}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Bank Select */}
+                        <div>
+                            <Label>Payment Method</Label>
+                            <Select onValueChange={handleBankChange} required>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Choose bank..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {bankOptions.map((b) => (
+                                        <SelectItem key={b.id} value={b.id}>
+                                            {b.name} - {b.account_number}
+                                        </SelectItem>
+                                    ))}
+                                    <SelectItem value="manual">
+                                        Manual / Other Bank
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-//             setFile(selectedFile);
-//             setData("paymentProof", selectedFile);
-//         }
-//     };
+                        {/* Manual Input (jika manual) */}
+                        {data.bank_name === "" && (
+                            <>
+                                <Input
+                                    placeholder="Bank Name"
+                                    value={data.bank_name}
+                                    onChange={(e) =>
+                                        setData("bank_name", e.target.value)
+                                    }
+                                />
+                                <Input
+                                    placeholder="Account Number"
+                                    value={data.account_number}
+                                    onChange={(e) =>
+                                        setData(
+                                            "account_number",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <Input
+                                    placeholder="Account Holder"
+                                    value={data.account_holder}
+                                    onChange={(e) =>
+                                        setData(
+                                            "account_holder",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                            </>
+                        )}
 
-//     const handleSubmit = (e: React.FormEvent) => {
-//         e.preventDefault();
+                        {/* Amount */}
+                        <div>
+                            <Label>Amount</Label>
+                            <Input
+                                value={`IDR ${fixedAmount.toLocaleString()}`}
+                                readOnly
+                            />
+                        </div>
 
-//         if (!data.teamName.trim()) {
-//             setErrorMessage("Team name is required.");
-//             setModalType("error");
-//             setShowModal(true);
-//             return;
-//         }
+                        {/* Upload */}
+                        <div>
+                            <Label>Payment Proof</Label>
+                            <Input
+                                type="file"
+                                accept="image/jpeg,image/png,application/pdf"
+                                onChange={handleFileChange}
+                            />
+                            {file && (
+                                <p className="text-sm mt-1">{file.name}</p>
+                            )}
+                        </div>
 
-//         if (data.paymentMethod.length === 0) {
-//             setErrorMessage("Please select at least one payment method.");
-//             setModalType("error");
-//             setShowModal(true);
-//             return;
-//         }
+                        <Button type="submit" disabled={processing}>
+                            {processing
+                                ? "Processing..."
+                                : "Register for Semifinal"}
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
 
-//         if (!data.paymentProof) {
-//             setErrorMessage("Payment proof is required.");
-//             setModalType("error");
-//             setShowModal(true);
-//             return;
-//         }
+            {/* Modal */}
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {modalType === "success" ? (
+                                <>
+                                    <CheckCircle className="inline mr-2 text-green-500" />
+                                    Success
+                                </>
+                            ) : (
+                                <>
+                                    <AlertCircle className="inline mr-2 text-red-500" />
+                                    Error
+                                </>
+                            )}
+                        </DialogTitle>
+                        <p>{errorMessage}</p>
+                    </DialogHeader>
+                    <Button
+                        onClick={() =>
+                            modalType === "success"
+                                ? (window.location.href = "/dashboard")
+                                : setShowModal(false)
+                        }
+                    >
+                        {modalType === "success"
+                            ? "Back to Dashboard"
+                            : "Try Again"}
+                    </Button>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}
 
-//         post(route("semifinal.registration.store"), {
-//             onSuccess: () => {
-//                 setModalType("success");
-//                 setShowModal(true);
-//             },
-//             onError: (errors) => {
-//                 setErrorMessage(Object.values(errors).join("\n"));
-//                 setModalType("error");
-//                 setShowModal(true);
-//             },
-//         });
-//     };
-
-//     const handleBackToDashboard = () => {
-//         window.location.href = "/dashboard"; // Ganti dengan route dashboard Anda
-//     };
-
-//     return (
-//         <div className="container mx-auto px-4 py-8 max-w-4xl">
-//             <div className="text-center mb-8">
-//                 <h1 className="text-4xl font-bold text-primary mb-2">
-//                     Semifinal Registration
-//                 </h1>
-//                 <p className="text-lg text-accent">
-//                     Secure your team's spot by completing the form below
-//                 </p>
-//             </div>
-
-//             <div className="grid md:grid-cols-2 gap-8">
-//                 <Card>
-//                     <CardHeader>
-//                         <CardTitle className="flex items-center gap-2">
-//                             <Users className="h-5 w-5" />
-//                             Registration Form
-//                         </CardTitle>
-//                         <CardDescription>
-//                             Complete team details and upload payment proof
-//                         </CardDescription>
-//                     </CardHeader>
-//                     <CardContent>
-//                         <form
-//                             onSubmit={handleSubmit}
-//                             className="space-y-6"
-//                             encType="multipart/form-data"
-//                         >
-//                             <div className="space-y-2">
-//                                 <Label htmlFor="teamName">Team Name</Label>
-//                                 <Input
-//                                     id="teamName"
-//                                     type="text"
-//                                     placeholder="Enter your team name"
-//                                     value={data.teamName}
-//                                     onChange={(e) =>
-//                                         setData("teamName", e.target.value)
-//                                     }
-//                                     required
-//                                     className="bg-input"
-//                                 />
-//                                 {errors.teamName && (
-//                                     <p className="text-red-500 text-sm">
-//                                         {errors.teamName}
-//                                     </p>
-//                                 )}
-//                             </div>
-
-//                             <div className="space-y-2">
-//                                 <Label>Payment Method</Label>
-//                                 <div className="space-y-3">
-//                                     {bankOptions.map((bank) => (
-//                                         <div
-//                                             key={bank.id}
-//                                             className="flex items-center space-x-2"
-//                                         >
-//                                             <Checkbox
-//                                                 id={bank.id}
-//                                                 checked={data.paymentMethod.includes(
-//                                                     bank.id
-//                                                 )}
-//                                                 onCheckedChange={(checked) =>
-//                                                     handleCheckboxChange(
-//                                                         bank.id,
-//                                                         checked as boolean
-//                                                     )
-//                                                 }
-//                                             />
-//                                             <Label
-//                                                 htmlFor={bank.id}
-//                                                 className="text-sm font-normal cursor-pointer"
-//                                             >
-//                                                 {bank.label}
-//                                             </Label>
-//                                         </div>
-//                                     ))}
-//                                 </div>
-//                                 {errors.paymentMethod && (
-//                                     <p className="text-red-500 text-sm">
-//                                         {errors.paymentMethod}
-//                                     </p>
-//                                 )}
-//                             </div>
-
-//                             <div className="space-y-2">
-//                                 <Label htmlFor="paymentProof">
-//                                     Upload Payment Proof
-//                                 </Label>
-//                                 <div className="border-2 border-dashed border-border rounded-lg p-6 text-center bg-card">
-//                                     <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-//                                     <div className="space-y-2">
-//                                         <p className="text-sm text-foreground">
-//                                             Click to upload or drag & drop file
-//                                         </p>
-//                                         <p className="text-xs text-muted-foreground">
-//                                             Format: JPG, PNG, PDF (Max. 10MB)
-//                                         </p>
-//                                     </div>
-//                                     <Input
-//                                         id="paymentProof"
-//                                         name="paymentProof"
-//                                         type="file"
-//                                         accept="image/*,.pdf"
-//                                         onChange={handleFileChange}
-//                                         required
-//                                         className="mt-4"
-//                                     />
-//                                     {file && (
-//                                         <p className="mt-2 text-sm text-primary">
-//                                             Selected file: {file.name}
-//                                         </p>
-//                                     )}
-//                                     {errors.paymentProof && (
-//                                         <p className="text-red-500 text-sm">
-//                                             {errors.paymentProof}
-//                                         </p>
-//                                     )}
-//                                 </div>
-//                             </div>
-
-//                             <Button
-//                                 type="submit"
-//                                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-//                                 disabled={
-//                                     processing ||
-//                                     !data.teamName ||
-//                                     data.paymentMethod.length === 0 ||
-//                                     !data.paymentProof
-//                                 }
-//                             >
-//                                 {processing
-//                                     ? "Processing..."
-//                                     : "Register for Semifinal"}
-//                             </Button>
-//                         </form>
-//                     </CardContent>
-//                 </Card>
-
-//                 <Card>
-//                     <CardHeader>
-//                         <CardTitle className="flex items-center gap-2">
-//                             <CreditCard className="h-5 w-5" />
-//                             Admin Account Information
-//                         </CardTitle>
-//                         <CardDescription>
-//                             Transfer registration fee to one of the following
-//                             accounts
-//                         </CardDescription>
-//                     </CardHeader>
-//                     <CardContent className="space-y-6">
-//                         <div className="p-4 bg-muted rounded-lg">
-//                             <h3 className="font-semibold text-foreground mb-2">
-//                                 BCA Bank
-//                             </h3>
-//                             <p className="text-sm text-muted-foreground mb-1">
-//                                 Account Number:
-//                             </p>
-//                             <p className="font-mono text-lg font-bold text-primary">
-//                                 1662614763
-//                             </p>
-//                             <p className="text-sm text-muted-foreground mb-1">
-//                                 Account Name:
-//                             </p>
-//                             <p className="font-semibold text-foreground">
-//                                 MOCHAMMAD ARYASATYA
-//                             </p>
-//                         </div>
-
-//                         <div className="p-4 bg-muted rounded-lg">
-//                             <h3 className="font-semibold text-foreground mb-2">
-//                                 Mandiri Bank
-//                             </h3>
-//                             <p className="text-sm text-muted-foreground mb-1">
-//                                 Account Number:
-//                             </p>
-//                             <p className="font-mono text-lg font-bold text-primary">
-//                                 1290013105313
-//                             </p>
-//                             <p className="text-sm text-muted-foreground mb-1">
-//                                 Account Name:
-//                             </p>
-//                             <p className="font-semibold text-foreground">
-//                                 MOCHAMMAD ARYASATYA
-//                             </p>
-//                         </div>
-
-//                         <div className="p-4 bg-muted rounded-lg">
-//                             <h3 className="font-semibold text-foreground mb-2">
-//                                 BNI Bank
-//                             </h3>
-//                             <p className="text-sm text-muted-foreground mb-1">
-//                                 Account Number:
-//                             </p>
-//                             <p className="font-mono text-lg font-bold text-primary">
-//                                 1765217609
-//                             </p>
-//                             <p className="text-sm text-muted-foreground mb-1">
-//                                 Account Name:
-//                             </p>
-//                             <p className="font-semibold text-foreground">
-//                                 MOCHAMMAD ARYASATYA NUGRAHA
-//                             </p>
-//                         </div>
-
-//                         <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg">
-//                             <h4 className="font-semibold text-accent mb-2">
-//                                 Payment Instructions:
-//                             </h4>
-//                             <ul className="text-sm text-foreground space-y-1">
-//                                 <li>
-//                                     • Registration fee:{" "}
-//                                     <strong>IDR 150,000</strong>
-//                                 </li>
-//                                 <li>• Transfer the exact amount as stated</li>
-//                                 <li>
-//                                     • Take a screenshot of the transfer receipt
-//                                 </li>
-//                                 <li>
-//                                     • Upload the proof in the registration form
-//                                 </li>
-//                             </ul>
-//                         </div>
-//                     </CardContent>
-//                 </Card>
-//             </div>
-
-//             <div className="mt-12 text-center">
-//                 <p className="text-sm text-muted-foreground">
-//                     Need help? Contact admin at{" "}
-//                     <a
-//                         href="https://wa.me/6281234567890"
-//                         className="text-primary hover:underline"
-//                         target="_blank"
-//                         rel="noopener noreferrer"
-//                     >
-//                         WhatsApp: 081234567890
-//                     </a>
-//                 </p>
-//             </div>
-
-//             <Dialog open={showModal} onOpenChange={setShowModal}>
-//                 <DialogContent className="sm:max-w-md">
-//                     <DialogHeader>
-//                         <DialogTitle className="flex items-center gap-2">
-//                             {modalType === "success" ? (
-//                                 <>
-//                                     <CheckCircle className="h-5 w-5 text-green-500" />
-//                                     Registration Successful!
-//                                 </>
-//                             ) : (
-//                                 <>
-//                                     <AlertCircle className="h-5 w-5 text-red-500" />
-//                                     Registration Error
-//                                 </>
-//                             )}
-//                         </DialogTitle>
-//                         <div className="text-left text-muted-foreground text-sm">
-//                             {modalType === "success" ? (
-//                                 <div className="space-y-3">
-//                                     <div>
-//                                         Team <strong>{data.teamName}</strong>{" "}
-//                                         has been successfully registered for the
-//                                         semifinal.
-//                                     </div>
-//                                     <div className="text-sm text-muted-foreground">
-//                                         Your registration will be reviewed and
-//                                         verified by IBP Academy within 24 hours.
-//                                         You will receive a confirmation email
-//                                         once the verification is complete.
-//                                     </div>
-//                                 </div>
-//                             ) : (
-//                                 <div className="text-red-600">
-//                                     {errorMessage}
-//                                 </div>
-//                             )}
-//                         </div>
-//                     </DialogHeader>
-//                     <div className="flex justify-end gap-2 mt-4">
-//                         {modalType === "success" ? (
-//                             <Button
-//                                 onClick={handleBackToDashboard}
-//                                 className="flex items-center gap-2"
-//                             >
-//                                 <ArrowLeft className="h-4 w-4" />
-//                                 Back to Dashboard
-//                             </Button>
-//                         ) : (
-//                             <Button
-//                                 onClick={() => setShowModal(false)}
-//                                 variant="outline"
-//                             >
-//                                 Try Again
-//                             </Button>
-//                         )}
-//                     </div>
-//                 </DialogContent>
-//             </Dialog>
-//         </div>
-//     );
-// }

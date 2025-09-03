@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
+use App\Http\Controllers\SemifinalRegistrationController;
 
 use App\Http\Controllers\CompetitionStageController;
 
@@ -287,7 +288,11 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
     Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
     Route::get('/material/{slug}', [UserCourseController::class, 'show'])
         ->name('user.material.show');
-    
+     Route::get('/semifinal-registration', [SemifinalRegistrationController::class, 'create'])
+        ->name('semifinal.registration.create');
+    Route::post('/semifinal-registration', [SemifinalRegistrationController::class, 'store'])
+        ->name('semifinal.registration.store');
+
 
 });
 
