@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
 use App\Http\Controllers\SemifinalRegistrationController;
+use App\Http\Controllers\PaymentManagementController;
 
 use App\Http\Controllers\CompetitionStageController;
 
@@ -307,6 +308,12 @@ Route::fallback(function () {
 //route assignment
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Assignment Management - Individual CRUD Routes
+    Route::get('/payments', [PaymentManagementController::class, 'index'])->name('admin.payments.index');
+    Route::get('/payments/{id}/proof', [PaymentManagementController::class, 'showProof'])->name('admin.payments.proof');
+        Route::get('/payments/{id}/download', [PaymentManagementController::class, 'downloadProof'])->name('admin.payments.download');
+        Route::post('/payments/{id}/approve', [PaymentManagementController::class, 'approve'])->name('payments.approve');
+        Route::post('/payments/{id}/reject', [PaymentManagementController::class, 'reject'])->name('payments.reject');
+        Route::put('/payments/{id}/status', [PaymentManagementController::class, 'updateStatus'])->name('admin.payments.status');
     Route::get('assignments', [AdminAssignmentController::class, 'index'])
         ->name('assignments.index');
     Route::get('assignments/create', [AdminAssignmentController::class, 'create'])
@@ -338,6 +345,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
             ->name('submissions.bulk-grade');
         Route::get('submissions/export', [AssignmentSubmissionController::class, 'export'])
             ->name('submissions.export');
+
+
     });
 });
 
