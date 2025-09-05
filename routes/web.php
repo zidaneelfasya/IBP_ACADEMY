@@ -274,21 +274,23 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->name('dashboard.user');
     Route::get('/dashboard', [DashboardUserController::class, 'index'])
         ->name('dashboard.user.dashboard');
-    Route::get('/assignments', [\App\Http\Controllers\User\AssignmentController::class, 'index'])
-        ->name('dashboard.user.tugas');
-    Route::get('/assignments/{uuid}', [\App\Http\Controllers\User\AssignmentController::class, 'show'])
-        ->name('dashboard.user.assignment.show')
-        ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
-    Route::post('/assignments/{uuid}/submit', [\App\Http\Controllers\User\AssignmentController::class, 'submitAssignment'])
-        ->name('dashboard.user.assignment.submit')
-        ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
-    Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
-    Route::get('/material/{slug}', [UserCourseController::class, 'show'])
-        ->name('user.material.show');
-    
 
+    // Routes yang perlu dibatasi untuk peserta yang gagal
+    Route::middleware(['check.participant.status'])->group(function () {
+        Route::get('/assignments', [\App\Http\Controllers\User\AssignmentController::class, 'index'])
+            ->name('dashboard.user.tugas');
+        Route::get('/assignments/{uuid}', [\App\Http\Controllers\User\AssignmentController::class, 'show'])
+            ->name('dashboard.user.assignment.show')
+            ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
+        Route::post('/assignments/{uuid}/submit', [\App\Http\Controllers\User\AssignmentController::class, 'submitAssignment'])
+            ->name('dashboard.user.assignment.submit')
+            ->where('uuid', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
+        Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
+        Route::get('/material/{slug}', [UserCourseController::class, 'show'])
+            ->name('user.material.show');
+    });
 });
 
 Route::fallback(function () {
