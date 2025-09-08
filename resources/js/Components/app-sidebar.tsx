@@ -71,6 +71,11 @@ const data = {
             url: "/admin/dashboard/competition-stages",
             icon: UsersIcon,
         },
+        {
+            title: "Payments",
+            url: "/admin/payments",
+            icon: ArrowUpCircleIcon,
+        },
 
 
     ],

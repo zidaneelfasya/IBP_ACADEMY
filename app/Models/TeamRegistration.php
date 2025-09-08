@@ -167,4 +167,6 @@ class TeamRegistration extends Model
     {
         return $query->where('competition_category_id', $categoryId);
     }
+
+
 }

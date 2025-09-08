@@ -24,6 +24,8 @@ use App\Http\Controllers\Admin\ParticipantProgressController;
 use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
 use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
+use App\Http\Controllers\SemifinalRegistrationController;
+use App\Http\Controllers\PaymentManagementController;
 
 use App\Http\Controllers\CompetitionStageController;
 
@@ -276,6 +278,14 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->name('dashboard.user.dashboard');
     Route::get('/profile', [ParticipantProfileController::class, 'show'])
         ->name('dashboard.user.profile');
+    Route::get('/course', [UserCourseController::class, 'index'])->name('user.courses.index');
+    Route::get('/material/{slug}', [UserCourseController::class, 'show'])
+        ->name('user.material.show');
+     Route::get('/semifinal-registration', [SemifinalRegistrationController::class, 'create'])
+        ->name('semifinal.registration.create');
+    Route::post('/semifinal-registration', [SemifinalRegistrationController::class, 'store'])
+        ->name('semifinal.registration.store');
+
 
     // Routes yang perlu dibatasi untuk peserta yang gagal
     Route::middleware(['check.participant.status'])->group(function () {
@@ -304,6 +314,12 @@ Route::fallback(function () {
 //route assignment
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Assignment Management - Individual CRUD Routes
+    Route::get('/payments', [PaymentManagementController::class, 'index'])->name('admin.payments.index');
+    Route::get('/payments/{id}/proof', [PaymentManagementController::class, 'showProof'])->name('admin.payments.proof');
+        Route::get('/payments/{id}/download', [PaymentManagementController::class, 'downloadProof'])->name('admin.payments.download');
+        Route::post('/payments/{id}/approve', [PaymentManagementController::class, 'approve'])->name('payments.approve');
+        Route::post('/payments/{id}/reject', [PaymentManagementController::class, 'reject'])->name('payments.reject');
+        Route::put('/payments/{id}/status', [PaymentManagementController::class, 'updateStatus'])->name('admin.payments.status');
     Route::get('assignments', [AdminAssignmentController::class, 'index'])
         ->name('assignments.index');
     Route::get('assignments/create', [AdminAssignmentController::class, 'create'])
@@ -335,6 +351,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
             ->name('submissions.bulk-grade');
         Route::get('submissions/export', [AssignmentSubmissionController::class, 'export'])
             ->name('submissions.export');
+
+
     });
 });
 
