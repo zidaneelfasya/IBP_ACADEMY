@@ -40,6 +40,7 @@ class AssignmentController extends Controller
             ->where('competition_stage_id', $preliminaryStage->id)
             ->first();
 
+        // User has not reached preliminary stage
         if (!$progress) {
             return $this->renderLockedPage(
                 'You have not reached the preliminary stage yet. Complete the registration process first.',
@@ -47,9 +48,19 @@ class AssignmentController extends Controller
             );
         }
 
-        // User has access, get assignments for preliminary stage and user's category
+        // Get user's latest/current competition stage from participant_progress
+        $latestProgress = ParticipantProgress::where('participant_id', $teamRegistration->id)
+            ->join('competition_stages', 'participant_progress.competition_stage_id', '=', 'competition_stages.id')
+            ->orderBy('competition_stages.order', 'desc')
+            ->select('participant_progress.*', 'competition_stages.name as current_stage_name')
+            ->first();
+
+        // Use the latest stage for assignments, fallback to preliminary if no latest stage found
+        $currentStageId = $latestProgress ? $latestProgress->competition_stage_id : $progress->competition_stage_id;
+
+        // User has access, get assignments for current stage and user's category
         $assignments = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
-            ->where('competition_stage_id', $preliminaryStage->id)
+            ->where('competition_stage_id', $currentStageId)
             ->where('competition_category_id', $teamRegistration->competition_category_id)
             ->where('is_active', true)
             ->orderBy('deadline', 'asc')
@@ -85,8 +96,9 @@ class AssignmentController extends Controller
                 'registration_number' => $teamRegistration->registration_number,
             ],
             'stage' => [
-                'id' => $preliminaryStage->id,
-                'name' => $preliminaryStage->name,
+                'id' => $currentStageId,
+                'name' => $latestProgress ? $latestProgress->current_stage_name : $preliminaryStage->name,
+                'is_latest' => $latestProgress ? true : false,
             ]
         ]);
     }
@@ -128,14 +140,26 @@ class AssignmentController extends Controller
             return redirect()->route('dashboard.user.tugas')->with('error', 'Access denied.');
         }
 
+        // Get user's latest competition stage from participant_progress
+        $latestProgress = ParticipantProgress::where('participant_id', $teamRegistration->id)
+            ->join('competition_stages', 'participant_progress.competition_stage_id', '=', 'competition_stages.id')
+            ->orderBy('competition_stages.order', 'desc')
+            ->select('participant_progress.*')
+            ->first();
+
+        // Use the latest stage for assignment validation, fallback to preliminary
+        $currentStageId = $latestProgress ? $latestProgress->competition_stage_id : $progress->competition_stage_id;
+
         // Get assignment details by UUID
         $assignment = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
             ->where('uuid', $uuid)
             ->firstOrFail();
 
-        // Check if assignment belongs to preliminary stage and user's category
-        if ($assignment->competition_stage_id !== $preliminaryStage->id || 
-            $assignment->competition_category_id !== $teamRegistration->competition_category_id) {
+        // Check if assignment belongs to user's current stage and category
+        if (
+            $assignment->competition_stage_id !== $currentStageId ||
+            $assignment->competition_category_id !== $teamRegistration->competition_category_id
+        ) {
             return redirect()->route('dashboard.user.tugas')->with('error', 'Assignment not found.');
         }
 
@@ -195,8 +219,21 @@ class AssignmentController extends Controller
         // Get assignment
         $assignment = Assignment::where('uuid', $uuid)->firstOrFail();
 
-        // Verify assignment belongs to user's category
-        if ($assignment->competition_category_id !== $teamRegistration->competition_category_id) {
+        // Get user's latest competition stage from participant_progress for validation
+        $latestProgress = ParticipantProgress::where('participant_id', $teamRegistration->id)
+            ->join('competition_stages', 'participant_progress.competition_stage_id', '=', 'competition_stages.id')
+            ->orderBy('competition_stages.order', 'desc')
+            ->select('participant_progress.*')
+            ->first();
+
+        // Verify assignment belongs to user's current stage and category
+        $currentStageId = $latestProgress ? $latestProgress->competition_stage_id : null;
+
+        if (
+            !$currentStageId ||
+            $assignment->competition_stage_id !== $currentStageId ||
+            $assignment->competition_category_id !== $teamRegistration->competition_category_id
+        ) {
             return response()->json(['error' => 'Assignment not found.'], 404);
         }
 
