@@ -518,7 +518,7 @@ export default function Dashboard({
                                 <div className="mt-5">
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-gray-500">
-                                            Deadline:
+                                            End Date:
                                         </span>
                                         <span className="text-sm font-medium text-gray-700">
                                             {new Date(
@@ -530,6 +530,45 @@ export default function Dashboard({
                                             })}
                                         </span>
                                     </div>
+                                    {currentStage.name === "Semifinal Round" && (
+                                        <div className="mt-4">
+                                            <a
+                                                href={route(
+                                                    "semifinal.registration.create"
+                                                )}
+                                                className="
+                inline-flex items-center justify-center
+                gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
+                text-sm font-semibold leading-none
+                text-white
+                bg-gradient-to-r from-green-600 to-emerald-600
+                rounded-xl shadow-md
+                hover:from-green-700 hover:to-emerald-700
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500
+                transition-all duration-200 ease-in-out
+                transform hover:-translate-y-0.5 hover:shadow-lg
+                active:scale-95
+                w-full max-w-[240px] sm:w-auto
+            "
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M9 5l7 7-7 7"
+                                                    />
+                                                </svg>
+                                                Payment for Semifinal
+                                            </a>
+                                        </div>
+                                    )}
                                     <div className="mt-3 flex items-center">
                                         <span className="text-3xl font-bold text-blue-600 mr-2">
                                             {currentStage.days_left}
@@ -543,133 +582,108 @@ export default function Dashboard({
                             </div>
                         </div>
 
-                        {/* Requirements Card - Updated */}
-                        <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
-                            <div className="p-5">
-                                <div className="flex items-center mb-4">
-                                    <div className="bg-green-100 p-2 rounded-lg mr-3">
-                                        <ClipboardList className="h-5 w-5 text-green-600" />
-                                    </div>
-                                    <h2 className="text-lg font-semibold text-gray-900">
-                                        Submission Requirements
-                                    </h2>
-                                </div>
-
-                                {currentAssignment ? (
-                                    <div>
-                                        <div className="mb-4">
-                                            <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                                {currentAssignment.title}
-                                            </h3>
-                                            <p className="text-gray-600 mb-2">
-                                                {currentAssignment.description}
-                                            </p>
-
-                                            {/* Status Submitted */}
-                                            <div className="mb-3">
-                                                {currentAssignment.is_submitted ? (
-                                                    <span className="inline-flex items-center text-sm text-green-600 font-medium">
-                                                        <CheckCircle className="w-4 h-4 mr-1" />
-                                                        Submitted
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-sm text-gray-500">
-                                                        Not submitted yet
-                                                    </span>
-                                                )}
+                        {currentAssignment &&
+                            !currentAssignment.is_submitted && (
+                                <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
+                                    <div className="p-5">
+                                        <div className="flex items-center mb-4">
+                                            <div className="bg-green-100 p-2 rounded-lg mr-3">
+                                                <ClipboardList className="h-5 w-5 text-green-600" />
                                             </div>
+                                            <h2 className="text-lg font-semibold text-gray-900">
+                                                Submission Requirements
+                                            </h2>
+                                        </div>
 
-                                            <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                                                <h4 className="font-medium text-gray-900 mb-1">
-                                                    Instructions:
-                                                </h4>
-                                                <p className="text-sm text-gray-600 whitespace-pre-line">
+                                        <div>
+                                            <div className="mb-4">
+                                                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                    {currentAssignment.title}
+                                                </h3>
+                                                <p className="text-gray-600 mb-2">
                                                     {
-                                                        currentAssignment.instructions
+                                                        currentAssignment.description
                                                     }
                                                 </p>
-                                            </div>
 
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-900">
-                                                        Deadline:
-                                                    </p>
-                                                    <p className="text-sm text-gray-600">
+                                                <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                                                    <h4 className="font-medium text-gray-900 mb-1">
+                                                        Instructions:
+                                                    </h4>
+                                                    <p className="text-sm text-gray-600 whitespace-pre-line">
                                                         {
-                                                            currentAssignment.deadline_formatted
+                                                            currentAssignment.instructions
                                                         }
-                                                    </p>
-                                                    <p className="text-sm font-medium text-orange-600 mt-1">
-                                                        {(() => {
-                                                            const time =
-                                                                calculateTimeRemaining(
-                                                                    currentAssignment.deadline
-                                                                );
-                                                            return time.expired
-                                                                ? "Assignment has expired"
-                                                                : `${time.days}d ${time.hours}h ${time.minutes}m remaining`;
-                                                        })()}
                                                     </p>
                                                 </div>
 
-                                                {/* Tombol: tetap muncul, tapi bisa dikustom */}
-                                                <a
-                                                    href="/user/assignments"
-                                                    className="
-        inline-flex items-center justify-center
-        gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
-        text-sm font-semibold leading-none
-        text-white
-        bg-gradient-to-r from-blue-600 to-indigo-600
-        rounded-xl shadow-md
-        hover:from-blue-700 hover:to-indigo-700
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-        transition-all duration-200 ease-in-out
-        transform hover:-translate-y-0.5 hover:shadow-lg
-        active:scale-95
-        w-full max-w-[240px] sm:w-auto
-    "
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-4 w-4 sm:h-5 sm:w-5"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-gray-900">
+                                                            Deadline:
+                                                        </p>
+                                                        <p className="text-sm text-gray-600">
+                                                            {
+                                                                currentAssignment.deadline_formatted
+                                                            }
+                                                        </p>
+                                                        <p className="text-sm font-medium text-orange-600 mt-1">
+                                                            {(() => {
+                                                                const time =
+                                                                    calculateTimeRemaining(
+                                                                        currentAssignment.deadline
+                                                                    );
+                                                                return time.expired
+                                                                    ? "Assignment has expired"
+                                                                    : `${time.days}d ${time.hours}h ${time.minutes}m remaining`;
+                                                            })()}
+                                                        </p>
+                                                    </div>
+
+                                                    <a
+                                                        href="/user/assignments"
+                                                        className="
+                                inline-flex items-center justify-center
+                                gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
+                                text-sm font-semibold leading-none
+                                text-white
+                                bg-gradient-to-r from-blue-600 to-indigo-600
+                                rounded-xl shadow-md
+                                hover:from-blue-700 hover:to-indigo-700
+                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                                transition-all duration-200 ease-in-out
+                                transform hover:-translate-y-0.5 hover:shadow-lg
+                                active:scale-95
+                                w-full max-w-[240px] sm:w-auto
+                            "
                                                     >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M9 5l7 7-7 7"
-                                                        />
-                                                    </svg>
-                                                    <span className="hidden xs:inline">
-                                                        {currentAssignment.is_submitted
-                                                            ? "View Submission"
-                                                            : "Go to Assignment"}
-                                                    </span>
-                                                    <span className="xs:hidden">
-                                                        {currentAssignment.is_submitted
-                                                            ? "View"
-                                                            : "Assignment"}
-                                                    </span>
-                                                </a>
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            className="h-4 w-4 sm:h-5 sm:w-5"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M9 5l7 7-7 7"
+                                                            />
+                                                        </svg>
+                                                        <span className="hidden xs:inline">
+                                                            Go to Assignment
+                                                        </span>
+                                                        <span className="xs:hidden">
+                                                            Assignment
+                                                        </span>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100 text-center">
-                                        <ClipboardList className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                        <p className="text-gray-500">
-                                            Submission requirements are not yet
-                                            available for this stage.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                                </div>
+                            )}
                     </div>
 
                     {/* Timeline Section */}
