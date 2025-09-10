@@ -212,19 +212,23 @@ export default function Assignments({
                                                 </span>
                                             </div>
 
-                                            {/* Time Remaining */}
+                                            {/* Time Remaining / Submitted */}
                                             <div className="flex items-center gap-2 text-sm">
                                                 <Clock className="w-4 h-4 text-gray-500" />
                                                 <span
                                                     className={`font-medium ${
-                                                        assignment.is_overdue
+                                                        assignment.is_submitted
+                                                            ? "text-green-600"
+                                                            : assignment.is_overdue
                                                             ? "text-red-600"
                                                             : assignment.is_open
                                                             ? "text-green-600"
                                                             : "text-gray-600"
                                                     }`}
                                                 >
-                                                    {assignment.time_remaining}
+                                                    {assignment.is_submitted
+                                                        ? "Submitted"
+                                                        : assignment.time_remaining}
                                                 </span>
                                             </div>
 
