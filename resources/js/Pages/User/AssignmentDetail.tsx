@@ -131,7 +131,17 @@ export default function AssignmentDetail({
         }
     };
     const getStatusBadge = (assignment: Assignment) => {
-        if (assignment.is_overdue) {
+        if (submission) {
+            return (
+                <Badge
+                    variant="default"
+                    className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600"
+                >
+                    <CheckCircle className="w-3 h-3" />
+                    Submitted
+                </Badge>
+            );
+        } else if (assignment.is_overdue) {
             return (
                 <Badge
                     variant="destructive"
@@ -648,28 +658,36 @@ export default function AssignmentDetail({
                                             </div>
                                             <div
                                                 className={`text-sm font-medium ${
-                                                    assignment.is_overdue
+                                                    submission
+                                                        ? "text-green-600"
+                                                        : assignment.is_overdue
                                                         ? "text-red-600"
                                                         : assignment.is_open
                                                         ? "text-green-600"
                                                         : "text-gray-600"
                                                 }`}
                                             >
-                                                {assignment.time_remaining}
+                                                {submission
+                                                    ? "Submitted"
+                                                    : assignment.time_remaining}
                                             </div>
                                         </div>
 
                                         <div className="w-full h-2 bg-gray-200 rounded-full">
                                             <div
                                                 className={`h-2 rounded-full ${
-                                                    assignment.is_overdue
+                                                    submission
+                                                        ? "bg-blue-500"
+                                                        : assignment.is_overdue
                                                         ? "bg-red-500"
                                                         : assignment.is_open
                                                         ? "bg-green-500"
                                                         : "bg-gray-500"
                                                 }`}
                                                 style={{
-                                                    width: assignment.is_overdue
+                                                    width: submission
+                                                        ? "100%"
+                                                        : assignment.is_overdue
                                                         ? "100%"
                                                         : assignment.is_open
                                                         ? "60%"
