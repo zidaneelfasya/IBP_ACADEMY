@@ -95,6 +95,7 @@ class DashboardUserController extends Controller
             if (!$paymentVerified) {
                 unset($whatsappGroups[2]);
             }
+            
 
             /* 4. tugas yang aktif di stage berjalan */
             $submittedIds = \App\Models\AssignmentSubmission::where('team_registration_id', $team->id)
