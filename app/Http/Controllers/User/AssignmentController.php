@@ -58,34 +58,51 @@ class AssignmentController extends Controller
         // Use the latest stage for assignments, fallback to preliminary if no latest stage found
         $currentStageId = $latestProgress ? $latestProgress->competition_stage_id : $progress->competition_stage_id;
 
-        // User has access, get assignments for current stage and user's category
-        $assignments = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
-            ->where('competition_stage_id', $currentStageId)
-            ->where('competition_category_id', $teamRegistration->competition_category_id)
-            ->where('is_active', true)
-            ->orderBy('deadline', 'asc')
-            ->get()
-            ->map(function ($assignment) use ($teamRegistration) {
-                $userSubmission = $assignment->submissions()
-                    ->where('team_registration_id', $teamRegistration->id)
-                    ->first();
+        // Check if current stage is semifinal (competition_stage_id = 3) and validate payment
+        if ($currentStageId == 3) {
+            $payment = \App\Models\Payment::where('team_registration_id', $teamRegistration->id)
+                ->where('status', 'verified')
+                ->first();
 
-                return [
-                    'uuid' => $assignment->uuid,
-                    'title' => $assignment->title,
-                    'description' => $assignment->description,
-                    'instructions' => $assignment->instructions,
-                    'deadline' => $assignment->deadline,
-                    'deadline_formatted' => $assignment->deadline->format('M d, Y H:i'),
-                    'time_remaining' => $assignment->time_remaining,
-                    'is_overdue' => $assignment->isOverdue(),
-                    'is_open' => $assignment->isOpen(),
-                    'stage_name' => $assignment->competitionStage->name,
-                    'created_by' => $assignment->creator->name ?? 'System',
-                    'is_submitted' => $userSubmission ? true : false,
-                    'submission_date' => $userSubmission ? $userSubmission->submitted_at->format('M d, Y H:i') : null,
-                ];
-            });
+            if (!$payment) {
+                $assignments = [];
+                // return $this->renderLockedPage(
+                //     'Payment verification is required to access semifinal assignments.',
+                //     $teamRegistration
+                // );
+            } else {
+                // User has access to semifinal assignments
+                $assignments = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
+                    ->where('competition_stage_id', $currentStageId)
+                    ->where('competition_category_id', $teamRegistration->competition_category_id)
+                    ->where('is_active', true)
+                    ->orderBy('deadline', 'asc')
+                    ->get()
+                    ->map(function ($assignment) use ($teamRegistration) {
+                        $userSubmission = $assignment->submissions()
+                            ->where('team_registration_id', $teamRegistration->id)
+                            ->first();
+        
+                        return [
+                            'uuid' => $assignment->uuid,
+                            'title' => $assignment->title,
+                            'description' => $assignment->description,
+                            'instructions' => $assignment->instructions,
+                            'deadline' => $assignment->deadline,
+                            'deadline_formatted' => $assignment->deadline->format('M d, Y H:i'),
+                            'time_remaining' => $assignment->time_remaining,
+                            'is_overdue' => $assignment->isOverdue(),
+                            'is_open' => $assignment->isOpen(),
+                            'stage_name' => $assignment->competitionStage->name,
+                            'created_by' => $assignment->creator->name ?? 'System',
+                            'is_submitted' => $userSubmission ? true : false,
+                            'submission_date' => $userSubmission ? $userSubmission->submitted_at->format('M d, Y H:i') : null,
+                        ];
+                    });
+            }
+        }
+
+        // User has access, get assignments for current stage and user's category
 
         return Inertia::render('User/Assignments', [
             'assignments' => $assignments,
@@ -150,6 +167,17 @@ class AssignmentController extends Controller
         // Use the latest stage for assignment validation, fallback to preliminary
         $currentStageId = $latestProgress ? $latestProgress->competition_stage_id : $progress->competition_stage_id;
 
+        // Check if current stage is semifinal (competition_stage_id = 3) and validate payment
+        if ($currentStageId == 3) {
+            $payment = \App\Models\Payment::where('team_registration_id', $teamRegistration->id)
+                ->where('status', 'verified')
+                ->first();
+
+            if (!$payment) {
+                return redirect()->route('dashboard.user.tugas')->with('error', 'Payment verification required to access semifinal assignments.');
+            }
+        }
+
         // Get assignment details by UUID
         $assignment = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
             ->where('uuid', $uuid)
@@ -197,6 +225,7 @@ class AssignmentController extends Controller
         ]);
     }
 
+
     public function submitAssignment(Request $request, $uuid)
     {
         $user = $request->user();
@@ -235,6 +264,17 @@ class AssignmentController extends Controller
             $assignment->competition_category_id !== $teamRegistration->competition_category_id
         ) {
             return response()->json(['error' => 'Assignment not found.'], 404);
+        }
+
+        // Check if current stage is semifinal (competition_stage_id = 3) and validate payment
+        if ($currentStageId == 3) {
+            $payment = \App\Models\Payment::where('team_registration_id', $teamRegistration->id)
+                ->where('status', 'verified')
+                ->first();
+
+            if (!$payment) {
+                return response()->json(['error' => 'Payment verification required to submit semifinal assignments.'], 403);
+            }
         }
 
         // Check if assignment is still open
