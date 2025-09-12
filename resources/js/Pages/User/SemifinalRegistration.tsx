@@ -1,10 +1,10 @@
 "use client";
 
+import type React from "react";
+
 import { useForm } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
 import {
     Card,
     CardContent,
@@ -13,78 +13,167 @@ import {
     CardTitle,
 } from "@/Components/ui/card";
 import {
+    CheckCircle,
+    Clock,
+    AlertCircle,
+    ArrowLeft,
+    Upload,
+    Users,
+    CreditCard,
+    FileText,
+} from "lucide-react";
+import UserLayout from "@/Layouts/UserLayout";
+import { Label } from "@/Components/ui/label";
+import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/Components/ui/dialog";
-import {
-    CheckCircle,
-    AlertCircle,
-    ArrowLeft,
-    Clock,
-    CheckSquare,
-} from "lucide-react";
-import { Progress } from "@/Components/ui/progress";
+import { Input } from "@/Components/ui/input";
+import { route } from "ziggy-js"; // Import route from ziggy-js
 
-interface Props {
-    team: {
-        id: number;
-        tim_name: string;
-        competition_category: { name: string };
-        leader_name: string;
-        leader_nim: string;
-        leader_email: string;
-        leader_phone: string;
-        leader_univ: string;
-        leader_fakultas: string;
-        member1_name?: string;
-        member1_nim?: string;
-        member1_email?: string;
-        member1_phone?: string;
-        member1_univ?: string;
-        member1_fakultas?: string;
-        member2_name?: string;
-        member2_nim?: string;
-        member2_email?: string;
-        member2_phone?: string;
-        member2_univ?: string;
-        member2_fakultas?: string;
-    };
-    bankOptions: Array<{
-        id: string;
-        name: string;
-        account_number: string;
-        account_holder: string;
-    }>;
-    fixedAmount: number;
-    paymentExists: boolean;
-    paymentStatus?: string;
-    semifinalStatus?: string; // Add semifinal status
+/* ----------  TYPES  ---------- */
+interface Bank {
+    id: string;
+    name: string;
+    account_number: string;
+    account_holder: string;
+}
+interface Team {
+    id: number;
+    tim_name: string;
+    competition_category: { name: string };
+    leader_name: string;
+    leader_nim: string;
+    leader_email: string;
+    leader_phone: string;
+    leader_univ: string;
+    leader_fakultas: string;
+    member1_name?: string;
+    member1_nim?: string;
+    member1_email?: string;
+    member1_phone?: string;
+    member1_univ?: string;
+    member1_fakultas?: string;
+    member2_name?: string;
+    member2_nim?: string;
+    member2_email?: string;
+    member2_phone?: string;
+    member2_univ?: string;
+    member2_fakultas?: string;
 }
 
+interface Props {
+    team: Team;
+    bankOptions: Bank[];
+    fixedAmount: number;
+    payment: {
+        status: "pending" | "verified" | "rejected";
+        admin_notes?: string;
+    } | null;
+    semifinalOpen: boolean;
+}
+
+/* ----------  EARLY-BLOCK STATUS  ---------- */
+const StatusBlock = ({
+    icon,
+    title,
+    desc,
+    children,
+    bgColor,
+    iconColor,
+}: any) => (
+    <UserLayout>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+            <div className="max-w-md w-full">
+                <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
+                    <CardContent className="p-8 text-center">
+                        <div
+                            className={`mx-auto mb-6 w-20 h-20 rounded-full ${bgColor} flex items-center justify-center shadow-lg`}
+                        >
+                            <div className={iconColor}>{icon}</div>
+                        </div>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-3">
+                            {title}
+                        </h1>
+                        <p className="text-gray-600 mb-6 leading-relaxed">
+                            {desc}
+                        </p>
+                        {children}
+                        <Button
+                            variant="outline"
+                            className="mt-6 border-2 hover:bg-gray-50 transition-all duration-200 bg-transparent"
+                            onClick={() =>
+                                (window.location.href = "/user/dashboard")
+                            }
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to
+                            Dashboard
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    </UserLayout>
+);
+
+/* ----------  MAIN COMPONENT  ---------- */
 export default function SemifinalRegistration({
     team,
     bankOptions,
     fixedAmount,
-    paymentExists,
-    paymentStatus,
-    semifinalStatus, // Receive semifinal status
+    payment,
+    semifinalOpen,
 }: Props) {
-    const [file, setFile] = useState<File | null>(null);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [modalMsg, setModalMsg] = useState("");
-    const [modalSuccess, setModalSuccess] = useState(true);
-    const [selectedBank, setSelectedBank] = useState<string>("");
+    /* 1. PENDING ➜ tidak bisa upload */
+    if (payment?.status === "pending")
+        return (
+            <StatusBlock
+                icon={<Clock className="h-10 w-10" />}
+                title="Payment Under Review"
+                desc="Your payment proof is being reviewed by our admin team. We'll notify you once it's processed."
+                bgColor="bg-amber-100"
+                iconColor="text-amber-600"
+            />
+        );
 
-    const { data, setData, post, processing, errors } = useForm({
+    /* 2. VERIFIED ➜ tidak bisa upload */
+    if (payment?.status === "verified")
+        return (
+            <StatusBlock
+                icon={<CheckCircle className="h-10 w-10" />}
+                title="Payment Verified"
+                desc="Congratulations! You are successfully registered for the semifinal. Good luck with your competition!"
+                bgColor="bg-emerald-100"
+                iconColor="text-emerald-600"
+            />
+        );
+
+    /* 3. REJECTED ➜ bisa re-upload */
+    /* 4. BELUM BAYAR (null) ➜ bisa upload */
+
+    /* ----------  FORM UNTUK REJECTED & NULL ---------- */
+    return (
+        <UploadForm
+            {...{ team, bankOptions, fixedAmount, payment, semifinalOpen }}
+        />
+    );
+}
+
+/* ----------  FORM COMPONENT (REJECTED / NULL) ---------- */
+function UploadForm({
+    team,
+    bankOptions,
+    fixedAmount,
+    payment,
+    semifinalOpen,
+}: any) {
+    const [file, setFile] = useState<File | null>(null);
+    const [selectedBank, setSelectedBank] = useState<any>(null);
+
+    const { data, setData, post, processing, reset } = useForm({
         team_id: team.id.toString(),
         bank_name: "",
         account_number: "",
@@ -95,431 +184,347 @@ export default function SemifinalRegistration({
         payment_proof: null as File | null,
     });
 
-    useEffect(() => {
-        // If there's already a payment or semifinal progress, show appropriate modal
-        if (paymentExists || semifinalStatus) {
-            let message = "";
+    const fmt = (v: number) =>
+        new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(v);
 
-            if (semifinalStatus === "not_started") {
-                message =
-                    "Your payment is being verified by admin. Please wait for further confirmation.";
-            } else if (semifinalStatus === "in_progress") {
-                message =
-                    "Your team has successfully registered for the semifinal round.";
-            } else if (paymentStatus === "pending") {
-                message =
-                    "Your payment is being verified by admin. Please wait for further confirmation.";
-            } else if (paymentStatus === "approved") {
-                message =
-                    "Your team has successfully registered for the semifinal round.";
-            }
-
-            setModalMsg(message);
-            setModalSuccess(true);
-            setModalOpen(true);
-        }
-    }, [paymentExists, paymentStatus, semifinalStatus]);
-
-    const handleBankChange = (value: string) => {
-        setSelectedBank(value);
-        const bank = bankOptions.find((b) => b.id === value);
-        if (bank) {
+    const handleBank = (val: string) => {
+        const b = bankOptions.find((i: any) => i.id === val);
+        setSelectedBank(b);
+        if (b)
             setData({
                 ...data,
-                bank_name: bank.name,
-                account_number: bank.account_number,
-                account_holder: bank.account_holder,
+                bank_name: b.name,
+                account_number: b.account_number,
+                account_holder: b.account_holder,
             });
-        }
     };
 
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0];
+        const f = e.target.files?.[0] || null;
         if (!f) return;
-
         const max = 10 * 1024 * 1024;
-        const allowed = [
-            "image/jpeg",
-            "image/png",
-            "image/jpg",
-            "application/pdf",
-        ];
-
-        if (f.size > max || !allowed.includes(f.type)) {
-            setModalMsg("File max 10 MB, format JPG/PNG/PDF.");
-            setModalSuccess(false);
-            setModalOpen(true);
+        const ok = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+        if (f.size > max || !ok.includes(f.type)) {
+            alert("Max 10 MB, JPG/PNG/PDF only.");
             e.target.value = "";
             return;
         }
-
         setFile(f);
         setData("payment_proof", f);
     };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (
-            !data.bank_name ||
-            !data.account_number ||
-            !data.account_holder ||
-            !data.sender_account_number ||
-            !data.sender_account_holder
-        ) {
-            setModalMsg(
-                "Please complete all bank and sender account information."
-            );
-            setModalSuccess(false);
-            setModalOpen(true);
+        if (semifinalOpen) {
+            alert("Semifinal already started.");
             return;
         }
-
-        if (!data.payment_proof) {
-            setModalMsg("Please upload payment proof.");
-            setModalSuccess(false);
-            setModalOpen(true);
-            return;
-        }
-
         post(route("semifinal.registration.store"), {
             onSuccess: () => {
-                setModalMsg(
-                    "Semifinal registration successful! Waiting for admin verification."
-                );
-                setModalSuccess(true);
-                setModalOpen(true);
-            },
-            onError: (errs) => {
-                // Handle errors from Laravel validation
-                const errorMessage =
-                    typeof errs === "string"
-                        ? errs
-                        : Object.values(errs).join(" ");
-                setModalMsg(errorMessage);
-                setModalSuccess(false);
-                setModalOpen(true);
+                reset();
+                setFile(null);
+                setSelectedBank(null);
             },
             forceFormData: true,
         });
     };
 
-    const MemberCard = ({
-        title,
-        name,
-        nim,
-        email,
-        phone,
-        univ,
-        fakultas,
-    }: any) =>
-        name ? (
-            <div className="p-3 bg-muted rounded-md">
-                <h4 className="font-semibold text-primary">{title}</h4>
-                <p>
-                    {name} ({nim})
-                </p>
-                <p className="text-sm">
-                    {univ} - {fakultas}
-                </p>
-                <p className="text-sm">
-                    {email} | {phone}
-                </p>
-            </div>
-        ) : null;
+    return (
+        <UserLayout>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+                <div className="container mx-auto px-4 py-8 max-w-6xl">
+                    <div className="mb-8">
+                        <Button
+                            variant="outline"
+                            className="mb-6 border-2 hover:bg-white/80 transition-all duration-200 shadow-sm bg-transparent"
+                            onClick={() =>
+                                (window.location.href = "/user/dashboard")
+                            }
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to
+                            Dashboard
+                        </Button>
 
-    // If there's already a payment or semifinal progress, show status
-    if (paymentExists || semifinalStatus) {
-        let statusText = "";
-        let statusDescription = "";
-        let icon = <Clock className="h-12 w-12" />;
-
-        if (semifinalStatus === "not_started" || paymentStatus === "pending") {
-            statusText = "Waiting for Payment Verification";
-            statusDescription =
-                "Your payment is being verified by admin. Please wait for further confirmation.";
-        } else if (
-            semifinalStatus === "in_progress" ||
-            paymentStatus === "approved"
-        ) {
-            statusText = "Payment Verified";
-            statusDescription =
-                "Your payment has been verified. Your team is registered for the semifinal.";
-            icon = <CheckSquare className="h-12 w-12" />;
-        }
-
-        return (
-            <div className="container mx-auto px-4 py-8 max-w-4xl">
-                <Button
-                    variant="outline"
-                    className="mb-6"
-                    onClick={() => (window.location.href = "/dashboard/user")}
-                >
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-                </Button>
-
-                <div className="flex flex-col items-center justify-center space-y-6 text-center">
-                    <div
-                        className={`rounded-full p-4 ${
-                            semifinalStatus === "not_started" ||
-                            paymentStatus === "pending"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-green-100 text-green-800"
-                        }`}
-                    >
-                        {icon}
-                    </div>
-
-                    <div className="space-y-2">
-                        <h1 className="text-3xl font-bold">{statusText}</h1>
-                        <p className="text-muted-foreground">
-                            {statusDescription}
-                        </p>
-                    </div>
-
-                    {(semifinalStatus === "not_started" ||
-                        paymentStatus === "pending") && (
-                        <div className="w-full max-w-md space-y-2">
-                            <Progress value={50} className="h-2" />
-                            <p className="text-sm text-muted-foreground">
-                                Admin verification process
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+                                Semifinal Registration
+                            </h1>
+                            <p className="text-gray-600 text-lg">
+                                Complete your payment to secure your spot in the
+                                semifinal
                             </p>
+                        </div>
+                    </div>
+
+                    {payment?.status === "rejected" && (
+                        <div className="mb-8 rounded-xl border-2 border-red-200 bg-gradient-to-r from-red-50 to-pink-50 p-6 shadow-lg">
+                            <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0">
+                                    <AlertCircle className="h-6 w-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-red-800 mb-1">
+                                        Payment Rejected
+                                    </h3>
+                                    <p className="text-red-700">
+                                        {payment.admin_notes ||
+                                            "No reason given"}{" "}
+                                        – you may re-upload your payment proof
+                                        below.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     )}
 
-                    <Card className="w-full max-w-md">
-                        <CardHeader>
-                            <CardTitle>Team Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <p>
-                                <strong>Team Name:</strong> {team.tim_name}
-                            </p>
-                            <p>
-                                <strong>Category:</strong>{" "}
-                                {team.competition_category.name}
-                            </p>
-                            <p>
-                                <strong>Status:</strong>
-                                <span
-                                    className={`ml-2 px-2 py-1 rounded-full text-xs ${
-                                        semifinalStatus === "not_started" ||
-                                        paymentStatus === "pending"
-                                            ? "bg-amber-100 text-amber-800"
-                                            : "bg-green-100 text-green-800"
-                                    }`}
-                                >
-                                    {semifinalStatus === "not_started" ||
-                                    paymentStatus === "pending"
-                                        ? "Waiting Verification"
-                                        : "Verified"}
-                                </span>
-                            </p>
-                        </CardContent>
-                    </Card>
+                    <div className="grid gap-8 lg:grid-cols-2">
+                        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+                            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+                                <div className="flex items-center space-x-3">
+                                    <Users className="h-6 w-6" />
+                                    <div>
+                                        <CardTitle className="text-xl">
+                                            {team.tim_name}
+                                        </CardTitle>
+                                        <CardDescription className="text-blue-100">
+                                            Category:{" "}
+                                            {team.competition_category.name}
+                                        </CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-6 space-y-4">
+                                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <h4 className="font-semibold text-blue-900">
+                                            Team Leader
+                                        </h4>
+                                    </div>
+                                    <p className="font-medium text-gray-900">
+                                        {team.leader_name}
+                                    </p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                        {team.leader_univ} -{" "}
+                                        {team.leader_fakultas}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        {team.leader_email} |{" "}
+                                        {team.leader_phone}
+                                    </p>
+                                </div>
 
-                    <Button
-                        onClick={() =>
-                            (window.location.href = "/dashboard/user")
-                        }
-                    >
-                        Back to Dashboard
-                    </Button>
+                                {team.member1_name && (
+                                    <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                                        <div className="flex items-center space-x-2 mb-2">
+                                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                            <h4 className="font-semibold text-green-900">
+                                                Member 1
+                                            </h4>
+                                        </div>
+                                        <p className="font-medium text-gray-900">
+                                            {team.member1_name}
+                                        </p>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            {team.member1_univ} -{" "}
+                                            {team.member1_fakultas}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            {team.member1_email} |{" "}
+                                            {team.member1_phone}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {team.member2_name && (
+                                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-100">
+                                        <div className="flex items-center space-x-2 mb-2">
+                                            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                            <h4 className="font-semibold text-purple-900">
+                                                Member 2
+                                            </h4>
+                                        </div>
+                                        <p className="font-medium text-gray-900">
+                                            {team.member2_name}
+                                        </p>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            {team.member2_univ} -{" "}
+                                            {team.member2_fakultas}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            {team.member2_email} |{" "}
+                                            {team.member2_phone}
+                                        </p>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+                            <CardHeader className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-t-lg">
+                                <div className="flex items-center space-x-3">
+                                    <CreditCard className="h-6 w-6" />
+                                    <div>
+                                        <CardTitle className="text-xl">
+                                            Payment Proof
+                                        </CardTitle>
+                                        <CardDescription className="text-emerald-100">
+                                            Upload your transfer proof (max 10
+                                            MB, JPG/PNG/PDF)
+                                        </CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <form onSubmit={submit} className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-gray-700">
+                                            Destination Bank
+                                        </Label>
+                                        <Select
+                                            onValueChange={handleBank}
+                                            value={selectedBank?.id || ""}
+                                            required
+                                        >
+                                            <SelectTrigger className="border-2 focus:border-blue-500 transition-colors">
+                                                <SelectValue placeholder="Select destination bank..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {bankOptions.map((b: any) => (
+                                                    <SelectItem
+                                                        key={b.id}
+                                                        value={b.id}
+                                                    >
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">
+                                                                {b.name}
+                                                            </span>
+                                                            <span className="text-sm text-gray-500">
+                                                                {
+                                                                    b.account_number
+                                                                }{" "}
+                                                                -{" "}
+                                                                {
+                                                                    b.account_holder
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-semibold text-gray-700">
+                                                Sender Account Number
+                                            </Label>
+                                            <Input
+                                                placeholder="Your account number"
+                                                value={
+                                                    data.sender_account_number
+                                                }
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "sender_account_number",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="border-2 focus:border-blue-500 transition-colors"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-semibold text-gray-700">
+                                                Sender Account Name
+                                            </Label>
+                                            <Input
+                                                placeholder="Your account name"
+                                                value={
+                                                    data.sender_account_holder
+                                                }
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "sender_account_holder",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="border-2 focus:border-blue-500 transition-colors"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-gray-700">
+                                            Payment Amount
+                                        </Label>
+                                        <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                                            <div className="text-2xl font-bold text-green-700">
+                                                {fmt(fixedAmount)}
+                                            </div>
+                                            <div className="text-sm text-green-600">
+                                                Registration fee for semifinal
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-gray-700">
+                                            Payment Proof
+                                        </Label>
+                                        <div className="relative">
+                                            <Input
+                                                type="file"
+                                                accept=".jpg,.jpeg,.png,.pdf"
+                                                onChange={handleFile}
+                                                className="border-2 border-dashed border-gray-300 hover:border-blue-400 focus:border-blue-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                                required
+                                            />
+                                            <FileText className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                                        </div>
+                                        {file && (
+                                            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                                <div className="flex items-center space-x-2">
+                                                    <FileText className="h-4 w-4 text-blue-600" />
+                                                    <span className="text-sm text-blue-700 font-medium">
+                                                        {file.name}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <Button
+                                        type="submit"
+                                        disabled={processing || semifinalOpen}
+                                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                                    >
+                                        {processing ? (
+                                            <div className="flex items-center space-x-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                <span>Uploading...</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center space-x-2">
+                                                <Upload className="h-5 w-5" />
+                                                <span>
+                                                    Upload Payment Proof
+                                                </span>
+                                            </div>
+                                        )}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
-        );
-    }
-
-    return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <Button
-                variant="outline"
-                className="mb-6"
-                onClick={() => (window.location.href = "/dashboard/user")}
-            >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-            </Button>
-
-            <h1 className="text-3xl font-bold mb-6">Semifinal Registration</h1>
-
-            {/* TEAM DETAIL */}
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle>Team: {team.tim_name}</CardTitle>
-                    <CardDescription>
-                        Category: {team.competition_category.name}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {/* Leader Info */}
-                    <div className="p-3 bg-muted rounded-md">
-                        <h4 className="font-semibold text-primary">Leader</h4>
-                        <p>
-                            {team.leader_name} ({team.leader_nim})
-                        </p>
-                        <p className="text-sm">
-                            {team.leader_univ} - {team.leader_fakultas}
-                        </p>
-                        <p className="text-sm">
-                            {team.leader_email} | {team.leader_phone}
-                        </p>
-                    </div>
-
-                    <MemberCard
-                        title="Member 1"
-                        name={team.member1_name}
-                        nim={team.member1_nim}
-                        email={team.member1_email}
-                        phone={team.member1_phone}
-                        univ={team.member1_univ}
-                        fakultas={team.member1_fakultas}
-                    />
-                    <MemberCard
-                        title="Member 2"
-                        name={team.member2_name}
-                        nim={team.member2_nim}
-                        email={team.member2_email}
-                        phone={team.member2_phone}
-                        univ={team.member2_univ}
-                        fakultas={team.member2_fakultas}
-                    />
-                </CardContent>
-            </Card>
-
-            {/* PAYMENT FORM */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Payment Form</CardTitle>
-                    <CardDescription>
-                        Complete payment information to register for the
-                        semifinal
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={submit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="bank">
-                                Select Destination Bank
-                            </Label>
-                            <Select
-                                onValueChange={handleBankChange}
-                                value={selectedBank}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select destination bank..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {bankOptions.map((b) => (
-                                        <SelectItem key={b.id} value={b.id}>
-                                            {b.name} - {b.account_number} (
-                                            {b.account_holder})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {selectedBank && (
-                            <div className="p-3 bg-muted rounded-md">
-                                <h4 className="font-semibold">
-                                    Destination Bank:
-                                </h4>
-                                <p>
-                                    {data.bank_name} - {data.account_number}
-                                </p>
-                                <p>Account Holder: {data.account_holder}</p>
-                            </div>
-                        )}
-
-                        <div className="space-y-2">
-                            <Label htmlFor="sender_account_number">
-                                Sender Account Information
-                            </Label>
-                            <Input
-                                placeholder="Your Account Number (sender)"
-                                value={data.sender_account_number}
-                                onChange={(e) =>
-                                    setData(
-                                        "sender_account_number",
-                                        e.target.value
-                                    )
-                                }
-                                required
-                            />
-                            <Input
-                                placeholder="Your Account Holder Name"
-                                value={data.sender_account_holder}
-                                onChange={(e) =>
-                                    setData(
-                                        "sender_account_holder",
-                                        e.target.value
-                                    )
-                                }
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="amount">Transfer Amount</Label>
-                            <Input
-                                value={`IDR ${fixedAmount.toLocaleString()}`}
-                                readOnly
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="payment_proof">Payment Proof</Label>
-                            <Input
-                                type="file"
-                                accept="image/jpeg,image/png,image/jpg,application/pdf"
-                                onChange={handleFile}
-                                required
-                            />
-                            <p className="text-sm text-muted-foreground">
-                                Format: JPG, PNG, PDF (Max. 10MB)
-                            </p>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            disabled={processing}
-                            className="w-full"
-                        >
-                            {processing ? "Processing..." : "Register"}
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-
-            {/* Modal */}
-            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            {modalSuccess ? (
-                                <CheckCircle className="text-green-500" />
-                            ) : (
-                                <AlertCircle className="text-red-500" />
-                            )}
-                            {modalSuccess ? "Success" : "Error"}
-                        </DialogTitle>
-                        <p className="mt-2">{modalMsg}</p>
-                        <div className="mt-4 flex justify-end">
-                            <Button
-                                onClick={() =>
-                                    modalSuccess
-                                        ? (window.location.href =
-                                              "/dashboard/user")
-                                        : setModalOpen(false)
-                                }
-                            >
-                                {modalSuccess ? "Back to Dashboard" : "Close"}
-                            </Button>
-                        </div>
-                    </DialogHeader>
-                </DialogContent>
-            </Dialog>
-        </div>
+        </UserLayout>
     );
 }

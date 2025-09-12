@@ -76,7 +76,11 @@ interface DashboardProps {
         }
     >;
     assignments: Assignment[];
+
+  payment?: { status: 'pending' | 'verified' | 'rejected'; admin_notes?: string } | null;
 }
+
+
 const calculateTimeRemaining = (deadline: string) => {
     const now = new Date();
     const deadlineDate = new Date(deadline);
@@ -101,7 +105,8 @@ export default function Dashboard({
     team,
     urgentSubmissions,
     whatsapp_groups,
-    assignments = [], // Tambahkan ini
+    assignments = [],
+    payment, // Tambahkan ini
 }: DashboardProps) {
     const [dismissedRejections, setDismissedRejections] = useState<number[]>(
         []
@@ -309,52 +314,120 @@ export default function Dashboard({
                                                         "Congratulations! You can proceed to the next stage."}
                                                 </p>
 
-                                                {/* WhatsApp Group Information */}
-                                                {whatsapp_groups[
-                                                    Number(stageId)
-                                                ] && (
-                                                    <div className="mt-3 bg-green-100 p-3 rounded-lg">
-                                                        <h4 className="font-medium text-green-800 mb-1">
-                                                            WhatsApp Group for
-                                                            Next Round
-                                                        </h4>
-                                                        <a
-                                                            href={
-                                                                team.category_id ===
-                                                                1
-                                                                    ? whatsapp_groups[
-                                                                          Number(
-                                                                              stageId
-                                                                          )
-                                                                      ].bcc
-                                                                    : whatsapp_groups[
-                                                                          Number(
-                                                                              stageId
-                                                                          )
-                                                                      ].bpc
-                                                            }
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-flex items-center px-3 py-1.5 bg-green-200 hover:bg-green-300 text-green-900 rounded text-sm font-medium"
-                                                        >
-                                                            Join WhatsApp Group
-                                                        </a>
-                                                        <p className="text-xs text-green-700 mt-2">
-                                                            {team.category_id ===
-                                                            1
-                                                                ? "For BCC Participants"
-                                                                : "For BPC Participants"}
-                                                        </p>
-                                                    </div>
-                                                )}
+                                                {/* ----------  WHATSAPP GROUP LOGIC  ---------- */}
+                                                {Number(stageId) ===
+                                                2 /* semifinal */
+                                                    ? /* stage-2 khusus – perlu payment verified */
+                                                      payment?.status ===
+                                                          "verified" &&
+                                                      whatsapp_groups[2] && (
+                                                          <div className="mt-3 bg-green-100 p-3 rounded-lg">
+                                                              <h4 className="font-medium text-green-800 mb-1">
+                                                                  WhatsApp Group
+                                                                  for Next Round
+                                                              </h4>
+                                                              <a
+                                                                  href={
+                                                                      team.category_id ===
+                                                                      1
+                                                                          ? whatsapp_groups[2]
+                                                                                .bcc
+                                                                          : whatsapp_groups[2]
+                                                                                .bpc
+                                                                  }
+                                                                  target="_blank"
+                                                                  rel="noopener noreferrer"
+                                                                  className="inline-flex items-center px-3 py-1.5 bg-green-200 hover:bg-green-300 text-green-900 rounded text-sm font-medium"
+                                                              >
+                                                                  Join WhatsApp
+                                                                  Group
+                                                              </a>
+                                                              <p className="text-xs text-green-700 mt-2">
+                                                                  {team.category_id ===
+                                                                  1
+                                                                      ? "For BCC Participants"
+                                                                      : "For BPC Participants"}
+                                                              </p>
+                                                          </div>
+                                                      )
+                                                    : /* stage selain 2 – langsung tampilkan jika ada */
+                                                      whatsapp_groups[
+                                                          Number(stageId)
+                                                      ] && (
+                                                          <div className="mt-3 bg-green-100 p-3 rounded-lg">
+                                                              <h4 className="font-medium text-green-800 mb-1">
+                                                                  WhatsApp Group
+                                                                  for Next Round
+                                                              </h4>
+                                                              <a
+                                                                  href={
+                                                                      team.category_id ===
+                                                                      1
+                                                                          ? whatsapp_groups[
+                                                                                Number(
+                                                                                    stageId
+                                                                                )
+                                                                            ]
+                                                                                .bcc
+                                                                          : whatsapp_groups[
+                                                                                Number(
+                                                                                    stageId
+                                                                                )
+                                                                            ]
+                                                                                .bpc
+                                                                  }
+                                                                  target="_blank"
+                                                                  rel="noopener noreferrer"
+                                                                  className="inline-flex items-center px-3 py-1.5 bg-green-200 hover:bg-green-300 text-green-900 rounded text-sm font-medium"
+                                                              >
+                                                                  Join WhatsApp
+                                                                  Group
+                                                              </a>
+                                                              <p className="text-xs text-green-700 mt-2">
+                                                                  {team.category_id ===
+                                                                  1
+                                                                      ? "For BCC Participants"
+                                                                      : "For BPC Participants"}
+                                                              </p>
+                                                          </div>
+                                                      )}
+
+                                                {/* ----------  CALL-TO-ACTION JIKA BELUM BAYAR  ---------- */}
+                                                {Number(stageId) === 2 &&
+                                                    payment?.status !==
+                                                        "verified" && (
+                                                        <div className="mt-3 bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                                                            <h4 className="font-medium text-amber-800 mb-1">
+                                                                Complete Your
+                                                                Payment
+                                                            </h4>
+                                                            <p className="text-sm text-amber-700">
+                                                                Finish your
+                                                                semifinal
+                                                                payment to
+                                                                unlock the
+                                                                WhatsApp group.
+                                                            </p>
+                                                            <a
+                                                                href={route(
+                                                                    "semifinal.registration.create"
+                                                                )}
+                                                                className="inline-flex items-center px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded text-sm font-medium mt-2"
+                                                            >
+                                                                Pay Now
+                                                            </a>
+                                                        </div>
+                                                    )}
                                             </div>
                                         </div>
                                         <button
                                             onClick={() =>
-                                                setDismissedApprovals([
-                                                    ...dismissedApprovals,
-                                                    Number(stageId),
-                                                ])
+                                                setDismissedApprovals(
+                                                    (prev: any) => [
+                                                        ...prev,
+                                                        Number(stageId),
+                                                    ]
+                                                )
                                             }
                                             className="text-green-500 hover:text-green-700"
                                         >
@@ -518,7 +591,7 @@ export default function Dashboard({
                                 <div className="mt-5">
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-gray-500">
-                                            End Date:
+                                            End Date:gi
                                         </span>
                                         <span className="text-sm font-medium text-gray-700">
                                             {new Date(
@@ -530,7 +603,8 @@ export default function Dashboard({
                                             })}
                                         </span>
                                     </div>
-                                    {currentStage.name === "Semifinal Round" && (
+                                    {currentStage.name ===
+                                        "Semifinal Round" && (
                                         <div className="mt-4">
                                             <a
                                                 href={route(

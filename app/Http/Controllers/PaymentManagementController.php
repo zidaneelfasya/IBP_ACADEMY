@@ -9,6 +9,7 @@ use Inertia\Inertia;
 
 class PaymentManagementController extends Controller
 {
+    /* ----------  LIST DATA  ---------- */
     public function index(Request $request)
     {
         $searchTerm = $request->input('search', '');
@@ -33,14 +34,19 @@ class PaymentManagementController extends Controller
                 'sender_account_holder' => $p->sender_account_holder,
                 'amount' => (int) $p->amount,
                 'payment_proof_path' => asset('storage/' . $p->payment_proof_path),
-                'progress_status' => optional($p->teamRegistration->progress()
-                    ->where('competition_stage_id', 3)->first())->status ?? 'not_started',
+                'status' => $p->status,
+                'admin_notes' => $p->admin_notes,
+                'verified_at' => $p->verified_at ?
+        (is_string($p->verified_at) ?
+            \Carbon\Carbon::parse($p->verified_at)->format('Y-m-d H:i') :
+            $p->verified_at->format('Y-m-d H:i')
+        ) : null
             ]);
 
         $stats = [
-            'need_review' => $payments->where('progress_status', 'not_started')->count(),
-            'in_progress' => $payments->where('progress_status', 'in_progress')->count(),
-            'rejected'    => $payments->where('progress_status', 'rejected')->count(),
+            'pending'  => $payments->where('status', 'pending')->count(),
+            'verified' => $payments->where('status', 'verified')->count(),
+            'rejected' => $payments->where('status', 'rejected')->count(),
         ];
 
         return Inertia::render('admin/Payment/Index', [
@@ -50,11 +56,19 @@ class PaymentManagementController extends Controller
         ]);
     }
 
+    /* ----------  VERIFIKASI  ---------- */
     public function approve($id)
     {
         $payment = Payment::findOrFail($id);
-        $payment->update(['status' => 'approved', 'verified_at' => now()]);
 
+        // 1. update payment
+        $payment->update([
+            'status'      => 'verified',
+            'verified_at' => now(),
+            'verified_by' => auth()->id(),
+        ]);
+
+        // 2. catat progress (supaya tahap tercatap)
         ParticipantProgress::updateOrCreate(
             [
                 'participant_id'       => $payment->teamRegistration->id,
@@ -67,29 +81,32 @@ class PaymentManagementController extends Controller
             ]
         );
 
-        return redirect()->back()->with('success', 'Pembayaran disetujui.');
+        return redirect()->back()->with('success', 'Pembayaran terverifikasi.');
     }
 
-    public function reject($id)
+    /* ----------  TOLAK  ---------- */
+    public function reject(Request $request, $id)
     {
-        $payment = Payment::findOrFail($id);
-        $payment->update(['status' => 'rejected', 'verified_at' => now()]);
+        $request->validate([
+            'admin_notes' => 'nullable|string|max:500',
+        ]);
 
-        ParticipantProgress::updateOrCreate(
-            [
-                'participant_id'       => $payment->teamRegistration->id,
-                'competition_stage_id' => 3,
-            ],
-            [
-                'status'      => 'rejected',
-                'submitted_at'=> null,
-                'approved_at' => null,
-            ]
-        );
+        $payment = Payment::findOrFail($id);
+
+        // 1. hanya update payment + catat alasan
+        $payment->update([
+            'status'      => 'rejected',
+            'admin_notes' => $request->admin_notes,
+            'verified_at' => now(),
+            'verified_by' => auth()->id(),
+        ]);
+
+
 
         return redirect()->back()->with('success', 'Pembayaran ditolak.');
     }
 
+    /* ----------  DOWNLOAD BUKTI  ---------- */
     public function downloadProof($id)
     {
         $payment = Payment::findOrFail($id);

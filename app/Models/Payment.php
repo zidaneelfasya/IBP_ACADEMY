@@ -34,25 +34,6 @@ class Payment extends Model
         return $this->belongsTo(User::class, 'verified_by');
     }
     // app/Models/Payment.php
-public function syncProgress()
-{
-    $statusMap = [
-        'approved' => 'in_progress',
-        'rejected' => 'rejected',
-        'pending'  => 'not_started',
-    ];
 
-    \App\Models\ParticipantProgress::updateOrCreate(
-        [
-            'participant_id'       => $this->teamRegistration->id,
-            'competition_stage_id' => 3,
-        ],
-        [
-            'status'      => $statusMap[$this->status],
-            'submitted_at'=> $this->status === 'pending' ? null : now(),
-            'approved_at' => $this->status === 'approved' ? now() : null,
-        ]
-    );
-}
 }
 

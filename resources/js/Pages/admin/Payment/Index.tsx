@@ -21,9 +21,11 @@ import {
     DialogDescription,
 } from "@/Components/ui/dialog";
 import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea"; // <- untuk admin_notes
 import { Eye, Download, Check, X, Search } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 
+// 1. Interface pakai status payments
 interface PaymentData {
     id: number;
     team_name: string;
@@ -35,116 +37,91 @@ interface PaymentData {
     sender_account_holder: string;
     amount: number;
     payment_proof_path: string;
-    progress_status: "not_started" | "in_progress" | "rejected";
+    status: "pending" | "verified" | "rejected";
+    admin_notes?: string;
 }
 
 interface PageProps {
     payments: PaymentData[];
     stats: {
-        need_review: number;
-        in_progress: number;
+        pending: number;
+        verified: number;
         rejected: number;
     };
-    filters: {
-        search: string;
-    };
-    [key: string]: any;
+    filters: { search: string };
+    [key: string]: unknown; // Add index signature to satisfy Inertia's PageProps constraint
 }
 
 export default function PaymentIndex() {
     const { payments, stats, filters } = usePage<PageProps>().props;
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState(filters.search || "");
-    const [actionDialog, setActionDialog] = useState<{
-        isOpen: boolean;
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+    // Dialog konfirmasi + notes untuk reject
+    const [dialog, setDialog] = useState<{
+        open: boolean;
         type: "approve" | "reject" | null;
-        paymentId: number | null;
-        teamName: string | null;
-    }>({
-        isOpen: false,
-        type: null,
-        paymentId: null,
-        teamName: null,
-    });
+        id: number | null;
+        teamName: string;
+        notes: string;
+    }>({ open: false, type: null, id: null, teamName: "", notes: "" });
 
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
+            minimumFractionDigits: 0,
         }).format(amount);
 
-    const handleSearch = (value: string) => {
-        setSearchTerm(value);
+    const handleSearch = (v: string) => {
+        setSearchTerm(v);
         router.get(
             route("admin.payments.index"),
-            { search: value },
+            { search: v },
             { preserveState: true }
         );
     };
 
-    const openActionDialog = (
+    const openDialog = (
         type: "approve" | "reject",
         id: number,
         teamName: string
     ) => {
-        setActionDialog({
-            isOpen: true,
-            type,
-            paymentId: id,
-            teamName,
-        });
+        setDialog({ open: true, type, id, teamName, notes: "" });
     };
-
-    const closeActionDialog = () => {
-        setActionDialog({
-            isOpen: false,
+    const closeDialog = () =>
+        setDialog({
+            open: false,
             type: null,
-            paymentId: null,
-            teamName: null,
+            id: null,
+            teamName: "",
+            notes: "",
         });
+
+    const confirm = () => {
+        if (!dialog.type || !dialog.id) return;
+        const url = route(
+            dialog.type === "approve"
+                ? "admin.payments.approve"
+                : "admin.payments.reject",
+            dialog.id
+        );
+        const data =
+            dialog.type === "reject" ? { admin_notes: dialog.notes } : {};
+        router.post(url, data, { onFinish: closeDialog });
     };
 
-    const handleConfirmAction = () => {
-        if (actionDialog.type && actionDialog.paymentId) {
-            const routeName =
-                actionDialog.type === "approve"
-                    ? "admin.payments.approve"
-                    : "admin.payments.reject";
-
-            router.post(route(routeName, actionDialog.paymentId));
-            closeActionDialog();
-        }
-    };
-
-    const badgeColor = (status: string) => {
-        switch (status) {
-            case "not_started":
-                return "bg-blue-100 text-blue-800";
-            case "in_progress":
+    const badgeColor = (st: string) => {
+        switch (st) {
+            case "pending":
+                return "bg-amber-100 text-amber-800";
+            case "verified":
                 return "bg-green-100 text-green-800";
             case "rejected":
                 return "bg-red-100 text-red-800";
             default:
                 return "bg-gray-100 text-gray-800";
         }
-    };
-
-    const getActionTitle = () => {
-        if (actionDialog.type === "approve") {
-            return "Konfirmasi Persetujuan Pembayaran";
-        } else if (actionDialog.type === "reject") {
-            return "Konfirmasi Penolakan Pembayaran";
-        }
-        return "";
-    };
-
-    const getActionDescription = () => {
-        if (actionDialog.type === "approve") {
-            return `Anda yakin ingin menyetujui pembayaran dari tim ${actionDialog.teamName}?`;
-        } else if (actionDialog.type === "reject") {
-            return `Anda yakin ingin menolak pembayaran dari tim ${actionDialog.teamName}?`;
-        }
-        return "";
     };
 
     return (
@@ -154,28 +131,31 @@ export default function PaymentIndex() {
                     Manajemen Pembayaran Semifinal
                 </h2>
 
-                <div className="flex items-center gap-4">
-                    <Badge className={badgeColor("not_started")}>
-                        {stats.need_review} Perlu Review
+                {/* Statistik */}
+                <div className="flex items-center gap-3">
+                    <Badge className={badgeColor("pending")}>
+                        {stats.pending} Pending
                     </Badge>
-                    <Badge className={badgeColor("in_progress")}>
-                        {stats.in_progress} Dalam Proses
+                    <Badge className={badgeColor("verified")}>
+                        {stats.verified} Terverifikasi
                     </Badge>
                     <Badge className={badgeColor("rejected")}>
                         {stats.rejected} Ditolak
                     </Badge>
                 </div>
 
+                {/* Search */}
                 <div className="relative max-w-sm">
                     <Search className="absolute left-3 top-1/2 w-4 h-4 text-gray-400 -translate-y-1/2" />
                     <Input
-                        placeholder="Cari..."
+                        placeholder="Cari tim, bank, atau pengirim..."
                         value={searchTerm}
                         onChange={(e) => handleSearch(e.target.value)}
                         className="pl-10"
                     />
                 </div>
 
+                {/* Tabel */}
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -235,22 +215,18 @@ export default function PaymentIndex() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge
-                                        className={badgeColor(
-                                            p.progress_status
-                                        )}
-                                    >
-                                        {p.progress_status}
+                                    <Badge className={badgeColor(p.status)}>
+                                        {p.status}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    {p.progress_status === "not_started" && (
+                                    {p.status === "pending" && (
                                         <div className="flex gap-1">
                                             <Button
                                                 size="sm"
                                                 variant="outline"
                                                 onClick={() =>
-                                                    openActionDialog(
+                                                    openDialog(
                                                         "approve",
                                                         p.id,
                                                         p.team_name
@@ -263,7 +239,7 @@ export default function PaymentIndex() {
                                                 size="sm"
                                                 variant="outline"
                                                 onClick={() =>
-                                                    openActionDialog(
+                                                    openDialog(
                                                         "reject",
                                                         p.id,
                                                         p.team_name
@@ -280,11 +256,9 @@ export default function PaymentIndex() {
                     </TableBody>
                 </Table>
 
+                {/* Lightbox bukti */}
                 {selectedImage && (
-                    <Dialog
-                        open={!!selectedImage}
-                        onOpenChange={() => setSelectedImage(null)}
-                    >
+                    <Dialog open onOpenChange={() => setSelectedImage(null)}>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Bukti Pembayaran</DialogTitle>
@@ -292,40 +266,60 @@ export default function PaymentIndex() {
                             <img
                                 src={selectedImage}
                                 alt="Bukti"
-                                className="w-full"
+                                className="w-full rounded"
                             />
                         </DialogContent>
                     </Dialog>
                 )}
 
-                {/* Dialog untuk konfirmasi aksi approve/reject */}
-                <Dialog
-                    open={actionDialog.isOpen}
-                    onOpenChange={closeActionDialog}
-                >
+                {/* Dialog approve / reject */}
+                <Dialog open={dialog.open} onOpenChange={closeDialog}>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>{getActionTitle()}</DialogTitle>
+                            <DialogTitle>
+                                {dialog.type === "approve"
+                                    ? "Setujui Pembayaran"
+                                    : "Tolak Pembayaran"}
+                            </DialogTitle>
                             <DialogDescription>
-                                {getActionDescription()}
+                                Tim:{" "}
+                                <span className="font-semibold">
+                                    {dialog.teamName}
+                                </span>
                             </DialogDescription>
                         </DialogHeader>
+
+                        {dialog.type === "reject" && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">
+                                    Alasan penolakan (opsional)
+                                </label>
+                                <Textarea
+                                    value={dialog.notes}
+                                    onChange={(e) =>
+                                        setDialog({
+                                            ...dialog,
+                                            notes: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Contoh: bukti transfer tidak jelas"
+                                />
+                            </div>
+                        )}
+
                         <DialogFooter>
-                            <Button
-                                variant="outline"
-                                onClick={closeActionDialog}
-                            >
+                            <Button variant="outline" onClick={closeDialog}>
                                 Batal
                             </Button>
                             <Button
-                                onClick={handleConfirmAction}
+                                onClick={confirm}
                                 variant={
-                                    actionDialog.type === "approve"
+                                    dialog.type === "approve"
                                         ? "default"
                                         : "destructive"
                                 }
                             >
-                                {actionDialog.type === "approve"
+                                {dialog.type === "approve"
                                     ? "Setujui"
                                     : "Tolak"}
                             </Button>
@@ -336,3 +330,4 @@ export default function PaymentIndex() {
         </AdminLayout>
     );
 }
+
