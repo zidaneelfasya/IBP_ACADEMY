@@ -641,6 +641,35 @@ export default function Dashboard({
                                                 </svg>
                                                 Payment for Semifinal
                                             </a>
+                                            <a
+                                                href={`/guidebook/GUIDEBOOK SEMIFINAL ${
+                                                    team.category_id === 1
+                                                        ? "BCC"
+                                                        : "BPC"
+                                                }.pdf`}
+                                                download
+                                                className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 border border-blue-300 rounded-lg hover:bg-blue-200 hover:text-blue-800 transition-colors mt-3"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                    />
+                                                </svg>
+                                                Download{" "}
+                                                {team.category_id === 1
+                                                    ? "BCC"
+                                                    : "BPC"}{" "}
+                                                Semifinal Guide Book
+                                            </a>
                                         </div>
                                     )}
                                     <div className="mt-3 flex items-center">
