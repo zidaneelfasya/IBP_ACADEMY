@@ -591,7 +591,7 @@ export default function Dashboard({
                                 <div className="mt-5">
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-gray-500">
-                                            End Date:gi
+                                            End Date:
                                         </span>
                                         <span className="text-sm font-medium text-gray-700">
                                             {new Date(
