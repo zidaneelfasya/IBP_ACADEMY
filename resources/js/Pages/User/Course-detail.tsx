@@ -17,6 +17,8 @@ import {
     Video,
     ImageIcon,
     File,
+    ExternalLink,
+    Link2,
 } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -47,16 +49,46 @@ interface Props {
 }
 
 export default function CourseShow({ course }: Props) {
-    // ---- YouTube embed helper ----
-    const embed = (url?: string) => {
+    // ---- Video embed helpers ----
+    const getVideoType = (url?: string) => {
         if (!url) return null;
-        const match = url.match(
-            /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
-        );
-        return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+        
+        // YouTube detection
+        if (url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)/)) {
+            return 'youtube';
+        }
+        
+        // Vimeo detection
+        if (url.match(/vimeo\.com\/\d+/)) {
+            return 'vimeo';
+        }
+        
+        return 'other';
     };
 
-    const embedUrl = embed(course.videoUrl);
+    const getEmbedUrl = (url?: string) => {
+        if (!url) return null;
+        
+        const videoType = getVideoType(url);
+        
+        switch (videoType) {
+            case 'youtube':
+                const youtubeMatch = url.match(
+                    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
+                );
+                return youtubeMatch ? `https://www.youtube.com/embed/${youtubeMatch[1]}` : null;
+                
+            case 'vimeo':
+                const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                return vimeoMatch ? `https://player.vimeo.com/video/${vimeoMatch[1]}` : null;
+                
+            default:
+                return null;
+        }
+    };
+
+    const videoType = getVideoType(course.videoUrl);
+    const embedUrl = getEmbedUrl(course.videoUrl);
 
     const icon = (type: string) => {
         if (type.includes("pdf"))
@@ -107,18 +139,50 @@ export default function CourseShow({ course }: Props) {
                             </Card>
 
                             {/* Video */}
-                            {embedUrl && (
+                            {course.videoUrl && (
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Video</CardTitle>
+                                        <CardTitle>Link</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <iframe
-                                            src={embedUrl}
-                                            className="w-full aspect-video rounded"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                        />
+                                        {embedUrl ? (
+                                            // YouTube or Vimeo embed
+                                            <iframe
+                                                src={embedUrl}
+                                                className="w-full aspect-video rounded"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        ) : (
+                                            // Other video URLs - show as link
+                                            <div className="flex items-center justify-center p-8 bg-slate-50 dark:bg-slate-800 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600">
+                                                <div className="text-center space-y-4">
+                                                    <div className="flex justify-center">
+                                                        <Link2 className="w-12 h-12 text-slate-400" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-2">
+                                                            Link Attachment
+                                                        </h3>
+                                                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                                                            Click the link below to access the content
+                                                        </p>
+                                                        <a
+                                                            href={course.videoUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                                                        >
+                                                            <ExternalLink className="w-4 h-4" />
+                                                            Open Link
+                                                        </a>
+                                                    </div>
+                                                    <div className="text-xs text-slate-400 break-all">
+                                                        {course.videoUrl}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             )}
