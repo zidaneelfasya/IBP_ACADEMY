@@ -1,5 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import axios from 'axios';
+import axios from "axios";
 import { Head, usePage } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import { Button } from "@/Components/ui/button";
@@ -32,11 +32,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/Components/ui/alert-dialog";
-import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from "@/Components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert";
 import {
     ArrowLeft,
     Upload,
@@ -56,7 +52,7 @@ import {
     AlertTriangle,
     XCircle,
 } from "lucide-react";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { router } from "@inertiajs/react";
 
 interface Material {
@@ -86,14 +82,17 @@ interface Props {
 }
 
 const truncateText = (text: string, wordLimit: number = 10): string => {
-    const words = text.split(' ');
+    const words = text.split(" ");
     if (words.length <= wordLimit) {
         return text;
     }
-    return words.slice(0, wordLimit).join(' ') + '...';
+    return words.slice(0, wordLimit).join(" ") + "...";
 };
 
-export default function AdminPage({ materials: initialMaterials, competitionCategories }: Props) {
+export default function AdminPage({
+    materials: initialMaterials,
+    competitionCategories,
+}: Props) {
     const [materials, setMaterials] = useState<Material[]>(
         initialMaterials || []
     );
@@ -113,12 +112,12 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const [files, setFiles] = useState<File[]>([]);
     const [dragActive, setDragActive] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    
+
     // Enhanced error handling states
-    const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+    const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
     const [showErrorAlert, setShowErrorAlert] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
-    
+
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editTitle, setEditTitle] = useState("");
     const [editDescription, setEditDescription] = useState("");
@@ -127,8 +126,12 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
     const [editIsSemifinal, setEditIsSemifinal] = useState(false);
     const [previewId, setPreviewId] = useState<string | null>(null);
-    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<string | null>(null);
-    const [updateConfirmOpen, setUpdateConfirmOpen] = useState<string | null>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<string | null>(
+        null
+    );
+    const [updateConfirmOpen, setUpdateConfirmOpen] = useState<string | null>(
+        null
+    );
     const [isDeleting, setIsDeleting] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
 
@@ -145,17 +148,21 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-            
+
             // Validate file sizes (max 100MB per file)
-            const invalidFiles = newFiles.filter(file => file.size > 100 * 1024 * 1024);
+            const invalidFiles = newFiles.filter(
+                (file) => file.size > 100 * 1024 * 1024
+            );
             if (invalidFiles.length > 0) {
-                setFormErrors(prev => ({
-                    ...prev, 
-                    files: `File terlalu besar: ${invalidFiles.map(f => f.name).join(', ')}. Maksimal 100MB per file`
+                setFormErrors((prev) => ({
+                    ...prev,
+                    files: `File terlalu besar: ${invalidFiles
+                        .map((f) => f.name)
+                        .join(", ")}. Maksimal 100MB per file`,
                 }));
                 return;
             }
-            
+
             setFiles((prev) => [...prev, ...newFiles]);
         }
     };
@@ -167,17 +174,21 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
 
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             const newFiles = Array.from(e.dataTransfer.files);
-            
+
             // Validate file sizes (max 100MB per file)
-            const invalidFiles = newFiles.filter(file => file.size > 100 * 1024 * 1024);
+            const invalidFiles = newFiles.filter(
+                (file) => file.size > 100 * 1024 * 1024
+            );
             if (invalidFiles.length > 0) {
-                setFormErrors(prev => ({
-                    ...prev, 
-                    files: `File terlalu besar: ${invalidFiles.map(f => f.name).join(', ')}. Maksimal 100MB per file`
+                setFormErrors((prev) => ({
+                    ...prev,
+                    files: `File terlalu besar: ${invalidFiles
+                        .map((f) => f.name)
+                        .join(", ")}. Maksimal 100MB per file`,
                 }));
                 return;
             }
-            
+
             setFiles((prev) => [...prev, ...newFiles]);
         }
     };
@@ -187,9 +198,11 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         // Clear file errors if no files remain or if files are valid after removal
         if (formErrors.files) {
             const remainingFiles = files.filter((_, i) => i !== index);
-            const invalidFiles = remainingFiles.filter(file => file.size > 100 * 1024 * 1024);
+            const invalidFiles = remainingFiles.filter(
+                (file) => file.size > 100 * 1024 * 1024
+            );
             if (invalidFiles.length === 0) {
-                setFormErrors(prev => ({...prev, files: ''}));
+                setFormErrors((prev) => ({ ...prev, files: "" }));
             }
         }
     };
@@ -209,7 +222,7 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         setCoverImagePreview("");
         // Clear any cover image errors
         if (formErrors.coverImage) {
-            setFormErrors(prev => ({...prev, coverImage: ''}));
+            setFormErrors((prev) => ({ ...prev, coverImage: "" }));
         }
     };
 
@@ -230,6 +243,16 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     };
 
     const isValidVideoUrl = (url: string) => {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    // Update fungsi untuk cek apakah URL adalah YouTube atau Vimeo (untuk preview)
+    const isYouTubeOrVimeoUrl = (url: string) => {
         return (
             url.includes("youtube.com") ||
             url.includes("youtu.be") ||
@@ -239,54 +262,58 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
 
     // Client-side validation function
     const validateForm = () => {
-        const errors: {[key: string]: string} = {};
-        
+        const errors: { [key: string]: string } = {};
+
         if (!title.trim()) {
-            errors.title = 'Judul materi wajib diisi';
+            errors.title = "Judul materi wajib diisi";
         } else if (title.trim().length < 3) {
-            errors.title = 'Judul materi minimal 3 karakter';
+            errors.title = "Judul materi minimal 3 karakter";
         } else if (title.trim().length > 255) {
-            errors.title = 'Judul materi maksimal 255 karakter';
+            errors.title = "Judul materi maksimal 255 karakter";
         }
-        
+
         if (!description.trim()) {
-            errors.description = 'Deskripsi wajib diisi';
+            errors.description = "Deskripsi wajib diisi";
         } else if (description.trim().length < 10) {
-            errors.description = 'Deskripsi minimal 10 karakter';
+            errors.description = "Deskripsi minimal 10 karakter";
         } else if (description.trim().length > 1000) {
-            errors.description = 'Deskripsi maksimal 1000 karakter';
+            errors.description = "Deskripsi maksimal 1000 karakter";
         }
-        
+
         if (!content.trim()) {
-            errors.content = 'Konten lengkap wajib diisi';
+            errors.content = "Konten lengkap wajib diisi";
         } else if (content.trim().length < 50) {
-            errors.content = 'Konten minimal 50 karakter';
+            errors.content = "Konten minimal 50 karakter";
         }
-        
+
         if (!categoryId) {
-            errors.category = 'Kategori lomba wajib dipilih';
+            errors.category = "Kategori lomba wajib dipilih";
         }
-        
+
         if (videoUrl && !isValidVideoUrl(videoUrl)) {
-            errors.videoUrl = 'URL video tidak valid. Gunakan link YouTube atau Vimeo';
+            errors.videoUrl = "URL video tidak valid. Masukkan URL yang valid";
         }
-        
+
         if (coverImage && coverImage.size > 5 * 1024 * 1024) {
-            errors.coverImage = 'Ukuran gambar cover maksimal 5MB';
+            errors.coverImage = "Ukuran gambar cover maksimal 5MB";
         }
-        
+
         // Validate files
-        const invalidFiles = files.filter(file => file.size > 100 * 1024 * 1024);
+        const invalidFiles = files.filter(
+            (file) => file.size > 100 * 1024 * 1024
+        );
         if (invalidFiles.length > 0) {
-            errors.files = `File terlalu besar: ${invalidFiles.map(f => f.name).join(', ')}. Maksimal 100MB per file`;
+            errors.files = `File terlalu besar: ${invalidFiles
+                .map((f) => f.name)
+                .join(", ")}. Maksimal 100MB per file`;
         }
-        
+
         return errors;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Clear previous errors
         setFormErrors({});
         setServerError(null);
@@ -296,9 +323,11 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setFormErrors(validationErrors);
-            setServerError('Harap perbaiki kesalahan pada form sebelum melanjutkan');
+            setServerError(
+                "Harap perbaiki kesalahan pada form sebelum melanjutkan"
+            );
             setShowErrorAlert(true);
-            toast.error('Harap perbaiki kesalahan pada form');
+            toast.error("Harap perbaiki kesalahan pada form");
             return;
         }
 
@@ -316,16 +345,22 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
 
         try {
             // Get CSRF token from meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute("content");
 
-            const response = await axios.post(route('admin.courses.store'), formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'X-CSRF-TOKEN': csrfToken || '',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                withCredentials: true,
-            });
+            const response = await axios.post(
+                route("admin.courses.store"),
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        "X-CSRF-TOKEN": csrfToken || "",
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    withCredentials: true,
+                }
+            );
 
             // Reset form and errors on success
             setTitle("");
@@ -341,47 +376,55 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
             setServerError(null);
             setShowErrorAlert(false);
 
-            toast.success('Materi berhasil diupload!');
-            
+            toast.success("Materi berhasil diupload!");
+
             // Use Inertia's router to reload the page properly
-            window.location.href = route('admin.courses.index');
+            window.location.href = route("admin.courses.index");
         } catch (error: any) {
-            console.error('Error creating course:', error);
-            
+            console.error("Error creating course:", error);
+
             // Handle validation errors from backend
-            if (error.response?.status === 422 && error.response?.data?.errors) {
-                const backendErrors: {[key: string]: string} = {};
+            if (
+                error.response?.status === 422 &&
+                error.response?.data?.errors
+            ) {
+                const backendErrors: { [key: string]: string } = {};
                 const errorData = error.response.data.errors;
-                
+
                 // Map backend field names to frontend field names
-                Object.keys(errorData).forEach(key => {
-                    const fieldMap: {[key: string]: string} = {
-                        'title': 'title',
-                        'description': 'description', 
-                        'content': 'content',
-                        'competition_category_id': 'category',
-                        'video_url': 'videoUrl',
-                        'cover_image': 'coverImage',
-                        'files': 'files',
-                        'files.*': 'files'
+                Object.keys(errorData).forEach((key) => {
+                    const fieldMap: { [key: string]: string } = {
+                        title: "title",
+                        description: "description",
+                        content: "content",
+                        competition_category_id: "category",
+                        video_url: "videoUrl",
+                        cover_image: "coverImage",
+                        files: "files",
+                        "files.*": "files",
                     };
-                    
+
                     const mappedKey = fieldMap[key] || key;
-                    backendErrors[mappedKey] = Array.isArray(errorData[key]) 
-                        ? errorData[key][0] 
+                    backendErrors[mappedKey] = Array.isArray(errorData[key])
+                        ? errorData[key][0]
                         : errorData[key];
                 });
-                
+
                 setFormErrors(backendErrors);
-                setServerError('Terdapat kesalahan dalam pengisian form. Silakan periksa dan perbaiki field yang ditandai.');
+                setServerError(
+                    "Terdapat kesalahan dalam pengisian form. Silakan periksa dan perbaiki field yang ditandai."
+                );
                 setShowErrorAlert(true);
-                toast.error('Validasi form gagal. Silakan periksa kembali input Anda.');
+                toast.error(
+                    "Validasi form gagal. Silakan periksa kembali input Anda."
+                );
             } else {
                 // Handle other types of errors
-                const errorMessage = error.response?.data?.message || 
-                                   error.message || 
-                                   'Terjadi kesalahan tidak terduga saat menyimpan materi';
-                                   
+                const errorMessage =
+                    error.response?.data?.message ||
+                    error.message ||
+                    "Terjadi kesalahan tidak terduga saat menyimpan materi";
+
                 setServerError(errorMessage);
                 setShowErrorAlert(true);
                 toast.error(errorMessage);
@@ -402,42 +445,60 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     };
 
     const saveEdit = async (id: string) => {
-        if (!editTitle.trim() || !editDescription.trim() || !editContent.trim() || !editCategoryId) {
-            toast.error('Harap isi semua field yang wajib diisi');
+        if (
+            !editTitle.trim() ||
+            !editDescription.trim() ||
+            !editContent.trim() ||
+            !editCategoryId
+        ) {
+            toast.error("Harap isi semua field yang wajib diisi");
             return;
         }
-        console.log('Saving edit for material ID:', id,
-            editTitle, editDescription, editContent, editCategoryId, editVideoUrl, editIsSemifinal
+        console.log(
+            "Saving edit for material ID:",
+            id,
+            editTitle,
+            editDescription,
+            editContent,
+            editCategoryId,
+            editVideoUrl,
+            editIsSemifinal
         );
         setIsUpdating(true);
         try {
             // Send update request to backend
-            
-            router.put(route('admin.courses.update', id), {
-                title: editTitle,
-                description: editDescription,
-                content: editContent,
-                competition_category_id: editCategoryId,
-                video_url: editVideoUrl.trim() || null,
-                is_semifinal: editIsSemifinal,
-                is_active: true
 
-            }, {
-                onSuccess: () => {
-                    setEditingId(null);
-                    setUpdateConfirmOpen(null);
-                    toast.success('Materi berhasil diperbarui');
+            router.put(
+                route("admin.courses.update", id),
+                {
+                    title: editTitle,
+                    description: editDescription,
+                    content: editContent,
+                    competition_category_id: editCategoryId,
+                    video_url: editVideoUrl.trim() || null,
+                    is_semifinal: editIsSemifinal,
+                    is_active: true,
                 },
-                onError: (errors) => {
-                    console.error('Update errors:', errors);
-                    toast.error('Gagal memperbarui materi: ' + (errors.error || 'Unknown error'));
-                },
-                onFinish: () => {
-                    setIsUpdating(false);
+                {
+                    onSuccess: () => {
+                        setEditingId(null);
+                        setUpdateConfirmOpen(null);
+                        toast.success("Materi berhasil diperbarui");
+                    },
+                    onError: (errors) => {
+                        console.error("Update errors:", errors);
+                        toast.error(
+                            "Gagal memperbarui materi: " +
+                                (errors.error || "Unknown error")
+                        );
+                    },
+                    onFinish: () => {
+                        setIsUpdating(false);
+                    },
                 }
-            });
+            );
         } catch (error) {
-            toast.error('Terjadi kesalahan saat memperbarui materi');
+            toast.error("Terjadi kesalahan saat memperbarui materi");
             setIsUpdating(false);
         }
     };
@@ -459,21 +520,24 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         setIsDeleting(true);
         try {
             // Send delete request to backend
-            router.delete(route('admin.courses.destroy', id), {
+            router.delete(route("admin.courses.destroy", id), {
                 onSuccess: () => {
                     setDeleteConfirmOpen(null);
-                    toast.success('Materi berhasil dihapus');
+                    toast.success("Materi berhasil dihapus");
                 },
                 onError: (errors) => {
-                    console.error('Delete errors:', errors);
-                    toast.error('Gagal menghapus materi: ' + (errors.error || 'Unknown error'));
+                    console.error("Delete errors:", errors);
+                    toast.error(
+                        "Gagal menghapus materi: " +
+                            (errors.error || "Unknown error")
+                    );
                 },
                 onFinish: () => {
                     setIsDeleting(false);
-                }
+                },
             });
         } catch (error) {
-            toast.error('Terjadi kesalahan saat menghapus materi');
+            toast.error("Terjadi kesalahan saat menghapus materi");
             setIsDeleting(false);
         }
     };
@@ -481,25 +545,26 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
     const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            
+
             // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
-                setFormErrors(prev => ({
-                    ...prev, 
-                    coverImage: 'Ukuran gambar cover maksimal 5MB'
+                setFormErrors((prev) => ({
+                    ...prev,
+                    coverImage: "Ukuran gambar cover maksimal 5MB",
                 }));
                 return;
             }
-            
+
             // Validate file type
-            if (!file.type.startsWith('image/')) {
-                setFormErrors(prev => ({
-                    ...prev, 
-                    coverImage: 'File harus berupa gambar (JPG, PNG, GIF, dll.)'
+            if (!file.type.startsWith("image/")) {
+                setFormErrors((prev) => ({
+                    ...prev,
+                    coverImage:
+                        "File harus berupa gambar (JPG, PNG, GIF, dll.)",
                 }));
                 return;
             }
-            
+
             setCoverImage(file);
             setCoverImagePreview(URL.createObjectURL(file));
         }
@@ -525,7 +590,6 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                 </div>
                 <div className="container mx-auto px-4 py-8 relative z-10">
                     <div className="flex items-center gap-4 mb-8">
-
                         <div>
                             <h1 className="text-3xl font-bold text-foreground">
                                 Panel Admin
@@ -551,24 +615,50 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                             <CardContent className="flex-1">
                                 {/* Error Alert */}
                                 {showErrorAlert && serverError && (
-                                    <Alert variant="destructive" className="mb-6">
+                                    <Alert
+                                        variant="destructive"
+                                        className="mb-6"
+                                    >
                                         <AlertTriangle className="h-4 w-4" />
-                                        <AlertTitle>Terjadi Kesalahan</AlertTitle>
+                                        <AlertTitle>
+                                            Terjadi Kesalahan
+                                        </AlertTitle>
                                         <AlertDescription>
                                             {serverError}
-                                            {Object.keys(formErrors).length > 0 && (
+                                            {Object.keys(formErrors).length >
+                                                0 && (
                                                 <ul className="mt-2 list-disc list-inside">
-                                                    {Object.entries(formErrors).map(([field, error]) => (
-                                                        <li key={field} className="text-sm">
+                                                    {Object.entries(
+                                                        formErrors
+                                                    ).map(([field, error]) => (
+                                                        <li
+                                                            key={field}
+                                                            className="text-sm"
+                                                        >
                                                             <span className="font-medium">
-                                                                {field === 'title' && 'Judul Materi'}
-                                                                {field === 'description' && 'Deskripsi'}
-                                                                {field === 'content' && 'Konten'}
-                                                                {field === 'category' && 'Kategori'}
-                                                                {field === 'videoUrl' && 'URL Video'}
-                                                                {field === 'coverImage' && 'Gambar Cover'}
-                                                                {field === 'files' && 'File Lampiran'}
-                                                            </span>: {error}
+                                                                {field ===
+                                                                    "title" &&
+                                                                    "Judul Materi"}
+                                                                {field ===
+                                                                    "description" &&
+                                                                    "Deskripsi"}
+                                                                {field ===
+                                                                    "content" &&
+                                                                    "Konten"}
+                                                                {field ===
+                                                                    "category" &&
+                                                                    "Kategori"}
+                                                                {field ===
+                                                                    "videoUrl" &&
+                                                                    "URL Video"}
+                                                                {field ===
+                                                                    "coverImage" &&
+                                                                    "Gambar Cover"}
+                                                                {field ===
+                                                                    "files" &&
+                                                                    "File Lampiran"}
+                                                            </span>
+                                                            : {error}
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -582,8 +672,14 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                     className="space-y-6"
                                 >
                                     <div className="space-y-2">
-                                        <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
-                                            Judul Materi <span className="text-red-500">*</span>
+                                        <Label
+                                            htmlFor="title"
+                                            className="text-sm font-semibold text-gray-700"
+                                        >
+                                            Judul Materi{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
                                         <Input
                                             id="title"
@@ -593,12 +689,17 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 setTitle(e.target.value);
                                                 // Clear error when user starts typing
                                                 if (formErrors.title) {
-                                                    setFormErrors(prev => ({...prev, title: ''}));
+                                                    setFormErrors((prev) => ({
+                                                        ...prev,
+                                                        title: "",
+                                                    }));
                                                 }
                                             }}
                                             placeholder="Masukkan judul materi..."
                                             className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
-                                                formErrors.title ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                                formErrors.title
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                                                    : ""
                                             }`}
                                             required
                                         />
@@ -611,8 +712,14 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
-                                            Deskripsi <span className="text-red-500">*</span>
+                                        <Label
+                                            htmlFor="description"
+                                            className="text-sm font-semibold text-gray-700"
+                                        >
+                                            Deskripsi{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
                                         <Textarea
                                             id="description"
@@ -622,63 +729,97 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 setDescription(e.target.value);
                                                 // Clear error when user starts typing
                                                 if (formErrors.description) {
-                                                    setFormErrors(prev => ({...prev, description: ''}));
+                                                    setFormErrors((prev) => ({
+                                                        ...prev,
+                                                        description: "",
+                                                    }));
                                                 }
                                             }}
                                             placeholder="Deskripsi singkat tentang materi ini..."
                                             rows={3}
                                             className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
-                                                formErrors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                                formErrors.description
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                                                    : ""
                                             }`}
                                             required
                                         />
                                         {formErrors.description && (
                                             <div className="flex items-center gap-2 text-red-600 text-sm">
                                                 <XCircle className="h-4 w-4" />
-                                                <span>{formErrors.description}</span>
+                                                <span>
+                                                    {formErrors.description}
+                                                </span>
                                             </div>
                                         )}
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="category" className="text-sm font-semibold text-gray-700">
-                                            Kategori Lomba <span className="text-red-500">*</span>
+                                        <Label
+                                            htmlFor="category"
+                                            className="text-sm font-semibold text-gray-700"
+                                        >
+                                            Kategori Lomba{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
                                         <select
                                             id="category"
                                             name="category"
                                             value={categoryId || ""}
                                             onChange={(e) => {
-                                                setCategoryId(e.target.value ? parseInt(e.target.value) : null);
+                                                setCategoryId(
+                                                    e.target.value
+                                                        ? parseInt(
+                                                              e.target.value
+                                                          )
+                                                        : null
+                                                );
                                                 // Clear error when user selects a category
                                                 if (formErrors.category) {
-                                                    setFormErrors(prev => ({...prev, category: ''}));
+                                                    setFormErrors((prev) => ({
+                                                        ...prev,
+                                                        category: "",
+                                                    }));
                                                 }
                                             }}
                                             className={`w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
-                                                formErrors.category ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                                formErrors.category
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                                                    : ""
                                             }`}
                                             required
                                         >
                                             <option value="">
                                                 Pilih kategori lomba...
                                             </option>
-                                            {competitionCategories.map((cat) => (
-                                                <option key={cat.id} value={cat.id}>
-                                                    {cat.name}
-                                                </option>
-                                            ))}
+                                            {competitionCategories.map(
+                                                (cat) => (
+                                                    <option
+                                                        key={cat.id}
+                                                        value={cat.id}
+                                                    >
+                                                        {cat.name}
+                                                    </option>
+                                                )
+                                            )}
                                         </select>
                                         {formErrors.category && (
                                             <div className="flex items-center gap-2 text-red-600 text-sm">
                                                 <XCircle className="h-4 w-4" />
-                                                <span>{formErrors.category}</span>
+                                                <span>
+                                                    {formErrors.category}
+                                                </span>
                                             </div>
                                         )}
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="coverImage" className="text-sm font-semibold text-gray-700">
+                                        <Label
+                                            htmlFor="coverImage"
+                                            className="text-sm font-semibold text-gray-700"
+                                        >
                                             Gambar Cover
                                         </Label>
                                         <div className="space-y-3">
@@ -703,10 +844,20 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                     type="file"
                                                     accept="image/*"
                                                     onChange={(e) => {
-                                                        handleCoverImageUpload(e);
+                                                        handleCoverImageUpload(
+                                                            e
+                                                        );
                                                         // Clear error when user selects a new image
-                                                        if (formErrors.coverImage) {
-                                                            setFormErrors(prev => ({...prev, coverImage: ''}));
+                                                        if (
+                                                            formErrors.coverImage
+                                                        ) {
+                                                            setFormErrors(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    coverImage:
+                                                                        "",
+                                                                })
+                                                            );
                                                         }
                                                     }}
                                                     className="hidden"
@@ -728,7 +879,9 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                             {formErrors.coverImage && (
                                                 <div className="flex items-center gap-2 text-red-600 text-sm">
                                                     <XCircle className="h-4 w-4" />
-                                                    <span>{formErrors.coverImage}</span>
+                                                    <span>
+                                                        {formErrors.coverImage}
+                                                    </span>
                                                 </div>
                                             )}
                                             {coverImagePreview && (
@@ -747,8 +900,14 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="content" className="text-sm font-semibold text-gray-700">
-                                            Konten Lengkap <span className="text-red-500">*</span>
+                                        <Label
+                                            htmlFor="content"
+                                            className="text-sm font-semibold text-gray-700"
+                                        >
+                                            Konten Lengkap{" "}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
                                         <Textarea
                                             id="content"
@@ -758,26 +917,36 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 setContent(e.target.value);
                                                 // Clear error when user starts typing
                                                 if (formErrors.content) {
-                                                    setFormErrors(prev => ({...prev, content: ''}));
+                                                    setFormErrors((prev) => ({
+                                                        ...prev,
+                                                        content: "",
+                                                    }));
                                                 }
                                             }}
                                             placeholder="Tulis konten materi lengkap di sini..."
                                             rows={8}
                                             className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
-                                                formErrors.content ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                                formErrors.content
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                                                    : ""
                                             }`}
                                             required
                                         />
                                         {formErrors.content && (
                                             <div className="flex items-center gap-2 text-red-600 text-sm">
                                                 <XCircle className="h-4 w-4" />
-                                                <span>{formErrors.content}</span>
+                                                <span>
+                                                    {formErrors.content}
+                                                </span>
                                             </div>
                                         )}
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="videoUrl" className="text-sm font-semibold text-gray-700">
+                                        <Label
+                                            htmlFor="videoUrl"
+                                            className="text-sm font-semibold text-gray-700"
+                                        >
                                             Link Video (Opsional)
                                         </Label>
                                         <Input
@@ -788,22 +957,32 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 setVideoUrl(e.target.value);
                                                 // Clear error when user starts typing
                                                 if (formErrors.videoUrl) {
-                                                    setFormErrors(prev => ({...prev, videoUrl: ''}));
+                                                    setFormErrors((prev) => ({
+                                                        ...prev,
+                                                        videoUrl: "",
+                                                    }));
                                                 }
                                             }}
-                                            placeholder="https://youtube.com/watch?v=... atau https://vimeo.com/..."
+                                            placeholder="https://youtube.com/watch?v=... atau https://vimeo.com/... atau URL video lainnya"
                                             className={`border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
-                                                formErrors.videoUrl ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''
+                                                formErrors.videoUrl
+                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                                                    : ""
                                             }`}
                                         />
                                         {formErrors.videoUrl && (
                                             <div className="flex items-center gap-2 text-red-600 text-sm">
                                                 <XCircle className="h-4 w-4" />
-                                                <span>{formErrors.videoUrl}</span>
+                                                <span>
+                                                    {formErrors.videoUrl}
+                                                </span>
                                             </div>
                                         )}
+
+                                        {/* Preview untuk YouTube dan Vimeo */}
                                         {videoUrl &&
-                                            isValidVideoUrl(videoUrl) && (
+                                            isValidVideoUrl(videoUrl) &&
+                                            isYouTubeOrVimeoUrl(videoUrl) && (
                                                 <div className="mt-3">
                                                     <p className="text-sm font-medium mb-2 flex items-center gap-2">
                                                         <Play className="w-4 h-4" />
@@ -823,39 +1002,74 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                     </div>
                                                 </div>
                                             )}
+
+                                        {/* Info untuk URL non-YouTube/Vimeo */}
+                                        {videoUrl &&
+                                            isValidVideoUrl(videoUrl) &&
+                                            !isYouTubeOrVimeoUrl(videoUrl) && (
+                                                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                                    <p className="text-sm text-blue-800 flex items-center gap-2">
+                                                        <svg
+                                                            className="w-4 h-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                            />
+                                                        </svg>
+                                                        URL video berhasil
+                                                        disimpan. Preview hanya
+                                                        tersedia untuk YouTube
+                                                        dan Vimeo.
+                                                    </p>
+                                                    <p className="text-xs text-blue-600 mt-1">
+                                                        URL: {videoUrl}
+                                                    </p>
+                                                </div>
+                                            )}
+
                                         {videoUrl &&
                                             !isValidVideoUrl(videoUrl) && (
                                                 <p className="text-sm text-yellow-600">
-                                                    URL video tidak valid.
-                                                    Gunakan link YouTube atau
-                                                    Vimeo.
+                                                    URL tidak valid. Pastikan
+                                                    URL dimulai dengan http://
+                                                    atau https://
                                                 </p>
                                             )}
                                     </div>
 
-                                        <div className="space-y-2">
-                                            <div className="flex items-center space-x-2">
-                                                <input
-                                                    type="checkbox"
-                                                    id="isSemifinal"
-                                                    name="isSemifinal"
-                                                    checked={isSemifinal}
-                                                    onChange={(e) =>
-                                                        setIsSemifinal(e.target.checked)
-                                                    }
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                                                />
-                                                <Label
-                                                    htmlFor="isSemifinal"
-                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                                >
-                                                    Khusus untuk Peserta Semifinal
-                                                </Label>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground">
-                                                Centang jika materi ini hanya untuk peserta yang telah lolos ke tahap semifinal
-                                            </p>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                id="isSemifinal"
+                                                name="isSemifinal"
+                                                checked={isSemifinal}
+                                                onChange={(e) =>
+                                                    setIsSemifinal(
+                                                        e.target.checked
+                                                    )
+                                                }
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                            />
+                                            <Label
+                                                htmlFor="isSemifinal"
+                                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                            >
+                                                Khusus untuk Peserta Semifinal
+                                            </Label>
                                         </div>
+                                        <p className="text-xs text-muted-foreground">
+                                            Centang jika materi ini hanya untuk
+                                            peserta yang telah lolos ke tahap
+                                            semifinal
+                                        </p>
+                                    </div>
 
                                     <div className="space-y-4">
                                         <Label className="text-sm font-semibold text-gray-700">
@@ -868,7 +1082,9 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                     ? "border-blue-400 bg-blue-50/50 border-solid shadow-md"
                                                     : "border-gray-300 hover:border-blue-300 hover:bg-gray-50/50"
                                             } ${
-                                                formErrors.files ? 'border-red-300' : ''
+                                                formErrors.files
+                                                    ? "border-red-300"
+                                                    : ""
                                             }`}
                                             onDragEnter={handleDrag}
                                             onDragLeave={handleDrag}
@@ -894,7 +1110,9 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                 </label>
                                             </Button>
                                             <p className="text-xs text-gray-500 mt-2">
-                                                PDF, DOC, DOCX, PPT, PPTX, JPG, PNG, MP4, MP3 (Maksimal 100MB per file)
+                                                PDF, DOC, DOCX, PPT, PPTX, JPG,
+                                                PNG, MP4, MP3 (Maksimal 100MB
+                                                per file)
                                             </p>
                                             <input
                                                 id="file-upload"
@@ -905,7 +1123,12 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                                     handleFileInput(e);
                                                     // Clear error when user selects files
                                                     if (formErrors.files) {
-                                                        setFormErrors(prev => ({...prev, files: ''}));
+                                                        setFormErrors(
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                files: "",
+                                                            })
+                                                        );
                                                     }
                                                 }}
                                                 className="hidden"
@@ -999,7 +1222,10 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                 <CardTitle className="flex items-center justify-between text-gray-800">
                                     <span>Materi yang Diupload</span>
                                     {materials.length > 0 && (
-                                        <Badge variant="secondary" className="text-xs">
+                                        <Badge
+                                            variant="secondary"
+                                            className="text-xs"
+                                        >
                                             {materials.length} Materi
                                         </Badge>
                                     )}
@@ -1011,7 +1237,15 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                             </CardHeader>
                             <CardContent className="flex-1  overflow-y-auto relative course-list-scroll">
                                 {/* Scroll indicator gradient */}
-                                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white/80 to-transparent pointer-events-none z-10" style={{display: materials.length > 3 ? 'block' : 'none'}}></div>
+                                <div
+                                    className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white/80 to-transparent pointer-events-none z-10"
+                                    style={{
+                                        display:
+                                            materials.length > 3
+                                                ? "block"
+                                                : "none",
+                                    }}
+                                ></div>
 
                                 {materials.length === 0 ? (
                                     <div className="text-center py-8 text-muted-foreground">
@@ -1022,333 +1256,448 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
                                     <>
                                         {materials.length > 3 && (
                                             <div className="text-xs text-gray-500 mb-3 flex items-center justify-center gap-2 bg-blue-50/50 py-2 rounded-md">
-                                                <span>Scroll untuk melihat lebih banyak</span>
-                                                <svg className="w-3 h-3 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                <span>
+                                                    Scroll untuk melihat lebih
+                                                    banyak
+                                                </span>
+                                                <svg
+                                                    className="w-3 h-3 animate-bounce"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                                                    />
                                                 </svg>
                                             </div>
                                         )}
                                         <div className="space-y-4 pr-2 pb-6">
                                             {materials.map((material) => (
-                                            <div
-                                                key={material.id}
-                                                className="p-5 border border-gray-200 rounded-lg bg-white/60 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-gray-300"
-                                            >
-                                                {editingId === material.id ? (
-                                                    <div className="space-y-4">
-                                                        <Input
-                                                            value={editTitle}
-                                                            name="editTitle"
-                                                            onChange={(e) =>
-                                                                setEditTitle(
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            placeholder="Judul materi..."
-                                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                                                        />
-                                                        <Textarea
-                                                            value={
-                                                                editDescription
-                                                            }
-                                                            name="editDescription"
-                                                            onChange={(e) =>
-                                                                setEditDescription(
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            placeholder="Deskripsi..."
-                                                            rows={2}
-                                                            className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                                                        />
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="editCategory">
-                                                                Kategori Lomba
-                                                            </Label>
-                                                            <select
-                                                                id="editCategory"
-                                                                name="editCategory"
-                                                                value={editCategoryId || ""}
-                                                                onChange={(e) =>
-                                                                    setEditCategoryId(e.target.value ? parseInt(e.target.value) : null)
-                                                                }
-                                                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                                                            >
-                                                                <option value="">
-                                                                    Pilih
-                                                                    kategori
-                                                                    lomba...
-                                                                </option>
-                                                                {competitionCategories.map(
-                                                                    (cat) => (
-                                                                        <option
-                                                                            key={cat.id}
-                                                                            value={cat.id}
-                                                                        >
-                                                                            {cat.name}
-                                                                        </option>
-                                                                    )
-                                                                )}
-                                                            </select>
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="editVideoUrl">
-                                                                Link Video
-                                                                (Opsional)
-                                                            </Label>
+                                                <div
+                                                    key={material.id}
+                                                    className="p-5 border border-gray-200 rounded-lg bg-white/60 backdrop-blur-sm hover:shadow-md transition-all duration-200 hover:border-gray-300"
+                                                >
+                                                    {editingId ===
+                                                    material.id ? (
+                                                        <div className="space-y-4">
                                                             <Input
-                                                                id="editVideoUrl"
-                                                                name="editVideoUrl"
                                                                 value={
-                                                                    editVideoUrl
+                                                                    editTitle
                                                                 }
+                                                                name="editTitle"
                                                                 onChange={(e) =>
-                                                                    setEditVideoUrl(
+                                                                    setEditTitle(
                                                                         e.target
                                                                             .value
                                                                     )
                                                                 }
-                                                                placeholder="https://youtube.com/watch?v=... atau https://vimeo.com/..."
+                                                                placeholder="Judul materi..."
                                                                 className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                                             />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <div className="flex items-center space-x-2">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    id="editIsSemifinal"
-                                                                    name="editIsSemifinal"
-                                                                    checked={editIsSemifinal}
-                                                                    onChange={(e) =>
-                                                                        setEditIsSemifinal(e.target.checked)
-                                                                    }
-                                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                                                                />
-                                                                <Label
-                                                                    htmlFor="editIsSemifinal"
-                                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                                                >
-                                                                    untuk Peserta Lolos Tahap Semifinal
-                                                                </Label>
-                                                            </div>
-                                                        </div>
-                                                        <Textarea
-                                                            value={editContent}
-                                                            name="editContent"
-                                                            onChange={(e) =>
-                                                                setEditContent(
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            placeholder="Konten lengkap..."
-                                                            rows={4}
-                                                        />
-                                                        <div className="flex gap-2">
-                                                            <Button
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    confirmUpdate(
-                                                                        material.id
+                                                            <Textarea
+                                                                value={
+                                                                    editDescription
+                                                                }
+                                                                name="editDescription"
+                                                                onChange={(e) =>
+                                                                    setEditDescription(
+                                                                        e.target
+                                                                            .value
                                                                     )
                                                                 }
-                                                                disabled={isUpdating}
-                                                            >
-                                                                {isUpdating ? (
-                                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1" />
-                                                                ) : (
-                                                                    <Save className="w-4 h-4 mr-1" />
-                                                                )}
-                                                                {isUpdating ? "Menyimpan..." : "Simpan"}
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                onClick={
-                                                                    cancelEdit
-                                                                }
-                                                                disabled={isUpdating}
-                                                            >
-                                                                <Cancel className="w-4 h-4 mr-1" />
-                                                                Batal
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <div className="flex items-start justify-between mb-2">
-                                                            <div className="flex items-start gap-3">
-                                                                {material.coverImage && (
-                                                                    <img
-                                                                        src={
-                                                                            material.coverImage
-                                                                        }
-                                                                        alt={
-                                                                            material.title
-                                                                        }
-                                                                        className="w-16 h-16 object-cover rounded-lg"
-                                                                    />
-                                                                )}
-                                                                <div>
-                                                                    <h3 className="font-semibold text-foreground">
-                                                                        {
-                                                                            material.title
-                                                                        }
-                                                                    </h3>
-                                                                    <p className="text-sm text-muted-foreground">
-                                                                        {
-                                                                            truncateText(material.description, 10)
-                                                                        }
-                                                                    </p>
-                                                                    <div className="flex items-center gap-2 mt-1">
-                                                                        <Badge
-                                                                            variant="outline"
-                                                                            className="text-xs"
-                                                                        >
-                                                                            <Tag className="w-3 h-3 mr-1" />
-                                                                            {
-                                                                                material.category
-                                                                            }
-                                                                        </Badge>
-                                                                        {material.videoUrl && (
-                                                                            <div className="flex items-center gap-1">
-                                                                                <Play className="w-3 h-3 text-blue-500" />
-                                                                                <span className="text-xs text-blue-600">
-                                                                                    Dengan
-                                                                                    Video
-                                                                                </span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className="text-xs"
-                                                                >
-                                                                    <Check className="w-3 h-3 mr-1" />
-                                                                    Dipublikasi
-                                                                </Badge>
-                                                            </div>
-                                                        </div>
-
-                                                        {previewId ===
-                                                            material.id && (
-                                                            <div className="mb-3 p-3 bg-muted/50 rounded-lg">
-                                                                <h4 className="font-medium mb-2">
-                                                                    Preview
-                                                                    Konten:
-                                                                </h4>
-                                                                <div className="text-sm text-foreground max-h-32 overflow-y-auto">
-                                                                    {
-                                                                        material.content
+                                                                placeholder="Deskripsi..."
+                                                                rows={2}
+                                                                className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                                            />
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="editCategory">
+                                                                    Kategori
+                                                                    Lomba
+                                                                </Label>
+                                                                <select
+                                                                    id="editCategory"
+                                                                    name="editCategory"
+                                                                    value={
+                                                                        editCategoryId ||
+                                                                        ""
                                                                     }
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {material.files.length >
-                                                            0 && (
-                                                            <div className="space-y-2 mb-3">
-                                                                <div className="flex flex-wrap gap-2">
-                                                                    {material.files.map(
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        setEditCategoryId(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                                ? parseInt(
+                                                                                      e
+                                                                                          .target
+                                                                                          .value
+                                                                                  )
+                                                                                : null
+                                                                        )
+                                                                    }
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-foreground focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                                                >
+                                                                    <option value="">
+                                                                        Pilih
+                                                                        kategori
+                                                                        lomba...
+                                                                    </option>
+                                                                    {competitionCategories.map(
                                                                         (
-                                                                            file,
-                                                                            index
+                                                                            cat
                                                                         ) => (
-                                                                            <Badge
+                                                                            <option
                                                                                 key={
-                                                                                    index
+                                                                                    cat.id
                                                                                 }
-                                                                                variant="secondary"
-                                                                                className="text-xs"
+                                                                                value={
+                                                                                    cat.id
+                                                                                }
                                                                             >
-                                                                                {getFileIcon(
-                                                                                    file
-                                                                                )}
-                                                                                <span className="ml-1">
-                                                                                    {
-                                                                                        file.name
-                                                                                    }
-                                                                                </span>
-                                                                            </Badge>
+                                                                                {
+                                                                                    cat.name
+                                                                                }
+                                                                            </option>
                                                                         )
                                                                     )}
+                                                                </select>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="editVideoUrl">
+                                                                    Link Video
+                                                                    (Opsional)
+                                                                </Label>
+                                                                <Input
+                                                                    id="editVideoUrl"
+                                                                    name="editVideoUrl"
+                                                                    value={
+                                                                        editVideoUrl
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        setEditVideoUrl(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
+                                                                    }
+                                                                    placeholder="https://youtube.com/watch?v=... atau URL video lainnya"
+                                                                    className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                                                />
+
+                                                                {/* Preview untuk edit mode juga */}
+                                                                {editVideoUrl &&
+                                                                    isValidVideoUrl(
+                                                                        editVideoUrl
+                                                                    ) &&
+                                                                    isYouTubeOrVimeoUrl(
+                                                                        editVideoUrl
+                                                                    ) && (
+                                                                        <div className="mt-2">
+                                                                            <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                                                                                <Play className="w-4 h-4" />
+                                                                                Preview
+                                                                                Video:
+                                                                            </p>
+                                                                            <div className="aspect-video w-full max-w-sm rounded-lg overflow-hidden bg-black">
+                                                                                <iframe
+                                                                                    src={getEmbedUrl(
+                                                                                        editVideoUrl
+                                                                                    )}
+                                                                                    title="Video Preview"
+                                                                                    className="w-full h-full"
+                                                                                    frameBorder="0"
+                                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                    allowFullScreen
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+                                                                {editVideoUrl &&
+                                                                    isValidVideoUrl(
+                                                                        editVideoUrl
+                                                                    ) &&
+                                                                    !isYouTubeOrVimeoUrl(
+                                                                        editVideoUrl
+                                                                    ) && (
+                                                                        <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                                                                            <p className="text-xs text-blue-700">
+                                                                                ✓
+                                                                                URL
+                                                                                video
+                                                                                valid:{" "}
+                                                                                {
+                                                                                    editVideoUrl
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center space-x-2">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        id="editIsSemifinal"
+                                                                        name="editIsSemifinal"
+                                                                        checked={
+                                                                            editIsSemifinal
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            setEditIsSemifinal(
+                                                                                e
+                                                                                    .target
+                                                                                    .checked
+                                                                            )
+                                                                        }
+                                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                                                    />
+                                                                    <Label
+                                                                        htmlFor="editIsSemifinal"
+                                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                                    >
+                                                                        untuk
+                                                                        Peserta
+                                                                        Lolos
+                                                                        Tahap
+                                                                        Semifinal
+                                                                    </Label>
                                                                 </div>
                                                             </div>
-                                                        )}
-
-                                                        <div className="flex items-center justify-between">
-                                                            <p className="text-xs text-muted-foreground">
-                                                                Upload oleh
-                                                                Admin •{" "}
-                                                                {new Date(
-                                                                    material.createdAt
-                                                                ).toLocaleDateString(
-                                                                    "id-ID",
-                                                                    {
-                                                                        day: "numeric",
-                                                                        month: "long",
-                                                                        year: "numeric",
-                                                                    }
-                                                                )}
-                                                            </p>
+                                                            <Textarea
+                                                                value={
+                                                                    editContent
+                                                                }
+                                                                name="editContent"
+                                                                onChange={(e) =>
+                                                                    setEditContent(
+                                                                        e.target
+                                                                            .value
+                                                                    )
+                                                                }
+                                                                placeholder="Konten lengkap..."
+                                                                rows={4}
+                                                            />
                                                             <div className="flex gap-2">
                                                                 <Button
                                                                     size="sm"
-                                                                    variant="outline"
                                                                     onClick={() =>
-                                                                        setPreviewId(
-                                                                            previewId ===
-                                                                                material.id
-                                                                                ? null
-                                                                                : material.id
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Eye className="w-4 h-4" />
-                                                                    {previewId ===
-                                                                    material.id
-                                                                        ? "Tutup"
-                                                                        : "Preview"}
-                                                                </Button>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    onClick={() =>
-                                                                        startEdit(
-                                                                            material
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Edit className="w-4 h-4" />
-                                                                </Button>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    onClick={() =>
-                                                                        confirmDelete(
+                                                                        confirmUpdate(
                                                                             material.id
                                                                         )
                                                                     }
-                                                                    disabled={isDeleting}
-                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                                    disabled={
+                                                                        isUpdating
+                                                                    }
                                                                 >
-                                                                    {isDeleting ? (
-                                                                        <div className="w-4 h-4 border-2 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
+                                                                    {isUpdating ? (
+                                                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1" />
                                                                     ) : (
-                                                                        <Trash2 className="w-4 h-4" />
+                                                                        <Save className="w-4 h-4 mr-1" />
                                                                     )}
+                                                                    {isUpdating
+                                                                        ? "Menyimpan..."
+                                                                        : "Simpan"}
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={
+                                                                        cancelEdit
+                                                                    }
+                                                                    disabled={
+                                                                        isUpdating
+                                                                    }
+                                                                >
+                                                                    <Cancel className="w-4 h-4 mr-1" />
+                                                                    Batal
                                                                 </Button>
                                                             </div>
                                                         </div>
-                                                    </>
-                                                )}
-                                            </div>
-                                        ))}
+                                                    ) : (
+                                                        <>
+                                                            <div className="flex items-start justify-between mb-2">
+                                                                <div className="flex items-start gap-3">
+                                                                    {material.coverImage && (
+                                                                        <img
+                                                                            src={
+                                                                                material.coverImage
+                                                                            }
+                                                                            alt={
+                                                                                material.title
+                                                                            }
+                                                                            className="w-16 h-16 object-cover rounded-lg"
+                                                                        />
+                                                                    )}
+                                                                    <div>
+                                                                        <h3 className="font-semibold text-foreground">
+                                                                            {
+                                                                                material.title
+                                                                            }
+                                                                        </h3>
+                                                                        <p className="text-sm text-muted-foreground">
+                                                                            {truncateText(
+                                                                                material.description,
+                                                                                10
+                                                                            )}
+                                                                        </p>
+                                                                        <div className="flex items-center gap-2 mt-1">
+                                                                            <Badge
+                                                                                variant="outline"
+                                                                                className="text-xs"
+                                                                            >
+                                                                                <Tag className="w-3 h-3 mr-1" />
+                                                                                {
+                                                                                    material.category
+                                                                                }
+                                                                            </Badge>
+                                                                            {material.videoUrl && (
+                                                                                <div className="flex items-center gap-1">
+                                                                                    <Play className="w-3 h-3 text-blue-500" />
+                                                                                    <span className="text-xs text-blue-600">
+                                                                                        Dengan
+                                                                                        Video
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="text-xs"
+                                                                    >
+                                                                        <Check className="w-3 h-3 mr-1" />
+                                                                        Dipublikasi
+                                                                    </Badge>
+                                                                </div>
+                                                            </div>
+
+                                                            {previewId ===
+                                                                material.id && (
+                                                                <div className="mb-3 p-3 bg-muted/50 rounded-lg">
+                                                                    <h4 className="font-medium mb-2">
+                                                                        Preview
+                                                                        Konten:
+                                                                    </h4>
+                                                                    <div className="text-sm text-foreground max-h-32 overflow-y-auto">
+                                                                        {
+                                                                            material.content
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {material.files
+                                                                .length > 0 && (
+                                                                <div className="space-y-2 mb-3">
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        {material.files.map(
+                                                                            (
+                                                                                file,
+                                                                                index
+                                                                            ) => (
+                                                                                <Badge
+                                                                                    key={
+                                                                                        index
+                                                                                    }
+                                                                                    variant="secondary"
+                                                                                    className="text-xs"
+                                                                                >
+                                                                                    {getFileIcon(
+                                                                                        file
+                                                                                    )}
+                                                                                    <span className="ml-1">
+                                                                                        {
+                                                                                            file.name
+                                                                                        }
+                                                                                    </span>
+                                                                                </Badge>
+                                                                            )
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Upload oleh
+                                                                    Admin •{" "}
+                                                                    {new Date(
+                                                                        material.createdAt
+                                                                    ).toLocaleDateString(
+                                                                        "id-ID",
+                                                                        {
+                                                                            day: "numeric",
+                                                                            month: "long",
+                                                                            year: "numeric",
+                                                                        }
+                                                                    )}
+                                                                </p>
+                                                                <div className="flex gap-2">
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        onClick={() =>
+                                                                            setPreviewId(
+                                                                                previewId ===
+                                                                                    material.id
+                                                                                    ? null
+                                                                                    : material.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Eye className="w-4 h-4" />
+                                                                        {previewId ===
+                                                                        material.id
+                                                                            ? "Tutup"
+                                                                            : "Preview"}
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        onClick={() =>
+                                                                            startEdit(
+                                                                                material
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Edit className="w-4 h-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        onClick={() =>
+                                                                            confirmDelete(
+                                                                                material.id
+                                                                            )
+                                                                        }
+                                                                        disabled={
+                                                                            isDeleting
+                                                                        }
+                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                                    >
+                                                                        {isDeleting ? (
+                                                                            <div className="w-4 h-4 border-2 border-red-600/30 border-t-red-600 rounded-full animate-spin" />
+                                                                        ) : (
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        )}
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
                                     </>
                                 )}
@@ -1359,21 +1708,29 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
             </div>
 
             {/* Update Confirmation Dialog */}
-            <AlertDialog open={!!updateConfirmOpen} onOpenChange={() => setUpdateConfirmOpen(null)}>
+            <AlertDialog
+                open={!!updateConfirmOpen}
+                onOpenChange={() => setUpdateConfirmOpen(null)}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Konfirmasi Perubahan</AlertDialogTitle>
+                        <AlertDialogTitle>
+                            Konfirmasi Perubahan
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menyimpan perubahan pada materi ini? 
-                            Pastikan semua informasi sudah benar sebelum menyimpan.
+                            Apakah Anda yakin ingin menyimpan perubahan pada
+                            materi ini? Pastikan semua informasi sudah benar
+                            sebelum menyimpan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isUpdating}>
                             Batal
                         </AlertDialogCancel>
-                        <AlertDialogAction 
-                            onClick={() => updateConfirmOpen && saveEdit(updateConfirmOpen)}
+                        <AlertDialogAction
+                            onClick={() =>
+                                updateConfirmOpen && saveEdit(updateConfirmOpen)
+                            }
                             disabled={isUpdating}
                             className="bg-blue-600 hover:bg-blue-700"
                         >
@@ -1391,21 +1748,28 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
             </AlertDialog>
 
             {/* Delete Confirmation Dialog */}
-            <AlertDialog open={!!deleteConfirmOpen} onOpenChange={() => setDeleteConfirmOpen(null)}>
+            <AlertDialog
+                open={!!deleteConfirmOpen}
+                onOpenChange={() => setDeleteConfirmOpen(null)}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Materi</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus materi ini? 
-                            Tindakan ini tidak dapat dibatalkan dan semua data terkait akan hilang permanen.
+                            Apakah Anda yakin ingin menghapus materi ini?
+                            Tindakan ini tidak dapat dibatalkan dan semua data
+                            terkait akan hilang permanen.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting}>
                             Batal
                         </AlertDialogCancel>
-                        <AlertDialogAction 
-                            onClick={() => deleteConfirmOpen && deleteMaterial(deleteConfirmOpen)}
+                        <AlertDialogAction
+                            onClick={() =>
+                                deleteConfirmOpen &&
+                                deleteMaterial(deleteConfirmOpen)
+                            }
                             disabled={isDeleting}
                             className="bg-red-600 hover:bg-red-700"
                         >
@@ -1424,4 +1788,3 @@ export default function AdminPage({ materials: initialMaterials, competitionCate
         </AdminLayout>
     );
 }
-
