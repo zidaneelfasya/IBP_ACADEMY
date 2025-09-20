@@ -40,9 +40,10 @@ class SemifinalRegistrationController extends Controller
             ['id' => 'mandiri','name' => 'Mandiri','account_number' => '1290013105313','account_holder' => 'MOCHAMMAD ARYASATYA'],
             ['id' => 'bni',    'name' => 'BNI',    'account_number' => '1765217609', 'account_holder' => 'MOCHAMMAD ARYASATYA NUGRAHA'],
         ],
-        'fixedAmount'   => 150_000,
-        'payment'       => $payment?->only(['id','status','admin_notes']), // <-- ini
+        'fixedAmount'   => 170_000,
         
+        'payment'       => $payment?->only(['id','status','admin_notes']), // <-- ini
+
     ]);
 }
     public function store(Request $request)
