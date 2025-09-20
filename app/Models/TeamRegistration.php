@@ -92,6 +92,14 @@ class TeamRegistration extends Model
     }
 
     /**
+     * Get the payments for this team
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'team_registration_id');
+    }
+
+    /**
      * Get all team members as array
      */
     public function getTeamMembersAttribute(): array
@@ -167,6 +175,4 @@ class TeamRegistration extends Model
     {
         return $query->where('competition_category_id', $categoryId);
     }
-
-
 }

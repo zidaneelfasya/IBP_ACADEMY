@@ -16,18 +16,21 @@ class SemifinalParticipantController extends Controller
         $stageStatus = $request->query('progress_status', 'all');
         $categoryFilter = $request->query('category', 'all');
 
-        // Base query with eager loading - mencari order = 2
+        // Base query with eager loading - mencari order = 3
         $query = TeamRegistration::with([
             'competitionCategory',
             'progress' => function ($query) {
                 $query->whereHas('stage', function ($q) {
-                    $q->where('order', 3); // Hanya ambil progress dengan order 2
+                    $q->where('order', 3); // Hanya ambil progress dengan order 3
                 });
             },
-            'progress.stage'
+            'progress.stage',
+            'payments' => function ($query) {
+                $query->latest(); // Ambil payment terbaru
+            }
         ])
             ->whereHas('progress.stage', function ($q) {
-                $q->where('order', 3); // Filter tim yang memiliki progress dengan order = 2
+                $q->where('order', 3); // Filter tim yang memiliki progress dengan order = 3
             })
             ->orderBy('created_at', 'desc');
 
@@ -43,12 +46,12 @@ class SemifinalParticipantController extends Controller
             });
         }
 
-        // Filter by progress status - untuk order 2
+        // Filter by progress status - untuk order 3
         if ($stageStatus !== 'all') {
             $query->whereHas('progress', function ($q) use ($stageStatus) {
                 $q->where('status', $stageStatus)
                     ->whereHas('stage', function ($q2) {
-                        $q2->where('order', 3); // Pastikan filter status hanya berlaku untuk order 2
+                        $q2->where('order', 3); // Pastikan filter status hanya berlaku untuk order 3
                     });
             });
         }
@@ -62,10 +65,38 @@ class SemifinalParticipantController extends Controller
 
         $teams = $query->paginate(8);
 
-        // Get active categories for filter dropdown (tetap sama)
+        // Transform teams data to include payment status
+        $teams->getCollection()->transform(function ($team) {
+            $latestPayment = $team->payments->first(); // Ambil payment terbaru
+            
+            if (!$latestPayment) {
+                $paymentStatus = 'unpaid';
+                $paymentStatusText = 'Unpaid';
+            } else {
+                switch ($latestPayment->status) {
+                    case 'verified':
+                        $paymentStatus = 'paid';
+                        $paymentStatusText = 'Paid';
+                        break;
+                    case 'rejected':
+                        $paymentStatus = 'rejected';
+                        $paymentStatusText = 'Rejected';
+                        break;
+                    default: // pending
+                        $paymentStatus = 'unpaid';
+                        $paymentStatusText = 'Unpaid';
+                        break;
+                }
+            }
+            
+            $team->payment_status = $paymentStatus;
+            $team->payment_status_text = $paymentStatusText;
+            
+            return $team;
+        });        // Get active categories for filter dropdown (tetap sama)
         $categories = CompetitionCategory::active()->pluck('name');
 
-        // Stats by progress status - hanya untuk order 2
+        // Stats by progress status - hanya untuk order 3
         $stats = [
             'total' => TeamRegistration::whereHas('progress.stage', function ($q) {
                 $q->where('order', 3);
@@ -81,7 +112,7 @@ class SemifinalParticipantController extends Controller
             })->where('status', 'not_started')->count(),
         ];
 
-        return Inertia::render('admin/team-management', [
+        return Inertia::render('admin/semifinal-team-management', [
             'teams' => $teams,
             'filters' => [
                 'search' => $search,
