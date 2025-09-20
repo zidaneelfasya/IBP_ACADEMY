@@ -9,10 +9,12 @@ use App\Models\ParticipantProgress;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\TeamRegistration;
+use App\Models\Payment;
+
 
 class UserCourseController extends Controller
 {
-   public function index()
+    public function index()
     {
         $user = Auth::user();
 
@@ -36,54 +38,68 @@ class UserCourseController extends Controller
         // Get competition category from team registration
         $competitionCategoryId = $teamRegistration->competition_category_id;
 
-       $isSemifinalist = ParticipantProgress::where('participant_id', $teamRegistration->id)
-        ->whereHas('stage', function($query) {
-            $query->where('id', 2); // Assuming stage with ID 3 is semifinal
-        })
-        ->where('status', 'approved')
-        ->exists();
+        // Cek apakah user lolos semifinal (stage 2)
+        $isSemifinalist = ParticipantProgress::where('participant_id', $teamRegistration->id)
+            ->whereHas('stage', fn($q) => $q->where('id', 2))
+            ->where('status', 'approved')
+            ->exists();
+
+        // Jika lolos semifinal, wajib bayar & verified
+       if ($isSemifinalist) {
+    $payment = Payment::where('team_registration_id', $teamRegistration->id)
+                      ->where('status', 'verified')
+                      ->first();
+
+    if (!$payment) {
+        return Inertia::render('User/notPassed');
+    }
+
+}
 
 
-      $generalCourses = Course::query()
-    ->where('competition_category_id', $competitionCategoryId)
-    ->where('is_semifinal', false)
-    ->where('is_active', true)
-    ->get()
-    ->map(fn($course) => [
-        'id'        => $course->id,
-        'slug'      => $course->slug,
-        'title'     => $course->title,
-        'description'=> $course->description,
-        'thumbnail' => $course->cover_image
-            ? asset('storage/' . $course->cover_image)
-            : asset('image/course/default.jpg'),
-        'category'  => $course->competitionCategory->name,
-    ]);
+        // Ambil course umum (bukan semifinal)
+        $generalCourses = Course::query()
+            ->where('competition_category_id', $competitionCategoryId)
+            ->where('is_semifinal', false)
+            ->where('is_active', true)
+            ->get()
+            ->map(fn($course) => [
+                'id'           => $course->id,
+                'slug'         => $course->slug,
+                'title'        => $course->title,
+                'description'  => $course->description,
+                'thumbnail'    => $course->cover_image
+                    ? asset('storage/' . $course->cover_image)
+                    : asset('image/course/default.jpg'),
+                'category'     => $course->competitionCategory->name,
+            ]);
 
-        // Get semifinal courses if user is semifinalist
-       $semifinalCourses = Course::query()
-    ->where('competition_category_id', $competitionCategoryId)
-    ->where('is_semifinal', true)
-    ->where('is_active', true)
-    ->get()
-    ->map(fn($course) => [
-        'id'        => $course->id,
-        'slug'      => $course->slug,
-        'title'     => $course->title,
-        'description'=> $course->description,
-        'thumbnail' => $course->cover_image
-            ? asset('storage/' . $course->cover_image)
-            : asset('image/course/default.jpg'),
-        'category'  => $course->competitionCategory->name,
-    ]);
-
+        // Ambil course semifinal jika user lolos
+        $semifinalCourses = $isSemifinalist
+            ? Course::query()
+                ->where('competition_category_id', $competitionCategoryId)
+                ->where('is_semifinal', true)
+                ->where('is_active', true)
+                ->get()
+                ->map(fn($course) => [
+                    'id'           => $course->id,
+                    'slug'         => $course->slug,
+                    'title'        => $course->title,
+                    'description'  => $course->description,
+                    'thumbnail'    => $course->cover_image
+                        ? asset('storage/' . $course->cover_image)
+                        : asset('image/course/default.jpg'),
+                    'category'     => $course->competitionCategory->name,
+                ])
+            : collect(); // kosongkan kalau belum lolos
 
         return Inertia::render('User/Course', [
-            'generalCourses' => $generalCourses,
+            'generalCourses'   => $generalCourses,
             'semifinalCourses' => $semifinalCourses,
-            'isSemifinalist' => $isSemifinalist,
+            'isSemifinalist'   => $isSemifinalist,
         ]);
     }
+
 
    public function show(string $slug)
 {

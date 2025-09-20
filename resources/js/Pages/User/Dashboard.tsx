@@ -99,6 +99,8 @@ const calculateTimeRemaining = (deadline: string) => {
     return { days, hours, minutes, expired: false };
 };
 
+
+
 export default function Dashboard({
     stages,
     currentProgress,
@@ -393,31 +395,44 @@ export default function Dashboard({
                                                       )}
 
                                                 {/* ----------  CALL-TO-ACTION JIKA BELUM BAYAR  ---------- */}
-                                                {Number(stageId) === 2 &&
-                                                    payment?.status !==
-                                                        "verified" && (
-                                                        <div className="mt-3 bg-amber-50 border border-amber-200 p-3 rounded-lg">
-                                                            <h4 className="font-medium text-amber-800 mb-1">
-                                                                Complete Your
-                                                                Payment
-                                                            </h4>
-                                                            <p className="text-sm text-amber-700">
-                                                                Finish your
-                                                                semifinal
-                                                                payment to
-                                                                unlock the
-                                                                WhatsApp group.
-                                                            </p>
-                                                            <a
-                                                                href={route(
-                                                                    "semifinal.registration.create"
-                                                                )}
-                                                                className="inline-flex items-center px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded text-sm font-medium mt-2"
-                                                            >
-                                                                Pay Now
-                                                            </a>
-                                                        </div>
-                                                    )}
+                                                {Number(stageId) === 2 && (
+                                                    <>
+                                                        {payment?.status ===
+                                                        "verified" ? (
+                                                            <div className="mt-3 bg-green-50 border border-green-200 p-3 rounded-lg">
+                                                                <h4 className="font-medium text-green-800 mb-1">
+                                                                    Payment
+                                                                    Verified
+                                                                </h4>
+                                                                <p className="text-sm text-green-700">
+                                                                    Your
+                                                                    semifinal
+                                                                    payment has
+                                                                    been
+                                                                    confirmed.
+                                                                    Welcome to
+                                                                    the next
+                                                                    stage!
+                                                                </p>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="mt-3 bg-red-50 border border-red-200 p-3 rounded-lg">
+                                                                <h4 className="font-medium text-red-800 mb-1">
+                                                                    Payment
+                                                                    Closed
+                                                                </h4>
+                                                                <p className="text-sm text-red-700">
+                                                                    Semifinal
+                                                                    payment is
+                                                                    now closed.
+                                                                    No further
+                                                                    payment can
+                                                                    be made.
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                         <button
@@ -606,41 +621,28 @@ export default function Dashboard({
                                     {currentStage.name ===
                                         "Semifinal Round" && (
                                         <div className="mt-4">
-                                            <a
-                                                href={route(
-                                                    "semifinal.registration.create"
-                                                )}
-                                                className="
-                inline-flex items-center justify-center
-                gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
-                text-sm font-semibold leading-none
-                text-white
-                bg-gradient-to-r from-green-600 to-emerald-600
-                rounded-xl shadow-md
-                hover:from-green-700 hover:to-emerald-700
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500
-                transition-all duration-200 ease-in-out
-                transform hover:-translate-y-0.5 hover:shadow-lg
-                active:scale-95
-                w-full max-w-[240px] sm:w-auto
-            "
-                                            >
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-4 w-4"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M9 5l7 7-7 7"
-                                                    />
-                                                </svg>
-                                                Payment for Semifinal
-                                            </a>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm font-medium text-red-700">
+                                                    The payment period has
+                                                    ended.
+                                                </span>
+                                            </div>
+                                            {/* Status pembayaran */}
+
+                                            {payment?.status === "verified" ? (
+                                                <>
+                                                    <CheckCircle className="h-6 w-6 text-green-500 mt-2" />
+                                                    <p className="text-sm font-medium text-green-700">
+                                                        ✅ Payment verified
+                                                    </p>
+                                                </>
+                                            ) : (
+                                                <p className="text-sm font-medium text-red-700">
+                                                    ❌ Payment closed — unpaid
+                                                </p>
+                                            )}
+
+                                            {/* Tetap tampilkan link guide book */}
                                             <a
                                                 href={`/guidebook/GUIDEBOOK SEMIFINAL ${
                                                     team.category_id === 1
@@ -685,108 +687,141 @@ export default function Dashboard({
                             </div>
                         </div>
 
-                        {currentAssignment &&
-                            !currentAssignment.is_submitted && (
-                                <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
-                                    <div className="p-5">
-                                        <div className="flex items-center mb-4">
-                                            <div className="bg-green-100 p-2 rounded-lg mr-3">
-                                                <ClipboardList className="h-5 w-5 text-green-600" />
-                                            </div>
-                                            <h2 className="text-lg font-semibold text-gray-900">
-                                                Submission Requirements
-                                            </h2>
+                        {(() => {
+                            /* 1. Tim rejected → sembunyikan submission */
+                            if (team.rejected_stages[currentStage.id]) {
+                                return (
+                                    <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
+                                        <div className="p-5 text-center">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                You did not pass this stage,
+                                                your team was rejected{" "}
+                                            </h3>
+                                            <p className="text-red-600">
+                                                stay positive and keep striving
+                                                for success in future
+                                                competitions!
+                                            </p>
                                         </div>
+                                    </div>
+                                );
+                            }
 
-                                        <div>
-                                            <div className="mb-4">
-                                                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                                    {currentAssignment.title}
-                                                </h3>
-                                                <p className="text-gray-600 mb-2">
-                                                    {
-                                                        currentAssignment.description
-                                                    }
-                                                </p>
+                            /* 2. Ada tugas & belum submit → tampilkan submission */
+                            if (
+                                currentAssignment &&
+                                !currentAssignment.is_submitted
+                            ) {
+                                return (
+                                    <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden lg:col-span-2">
+                                        <div className="p-5">
+                                            <div className="flex items-center mb-4">
+                                                <div className="bg-green-100 p-2 rounded-lg mr-3">
+                                                    <ClipboardList className="h-5 w-5 text-green-600" />
+                                                </div>
+                                                <h2 className="text-lg font-semibold text-gray-900">
+                                                    Submission Requirements
+                                                </h2>
+                                            </div>
 
-                                                <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                                                    <h4 className="font-medium text-gray-900 mb-1">
-                                                        Instructions:
-                                                    </h4>
-                                                    <p className="text-sm text-gray-600 whitespace-pre-line">
+                                            <div>
+                                                <div className="mb-4">
+                                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
                                                         {
-                                                            currentAssignment.instructions
+                                                            currentAssignment.title
+                                                        }
+                                                    </h3>
+                                                    <p className="text-gray-600 mb-2">
+                                                        {
+                                                            currentAssignment.description
                                                         }
                                                     </p>
-                                                </div>
 
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-gray-900">
-                                                            Deadline:
-                                                        </p>
-                                                        <p className="text-sm text-gray-600">
+                                                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                                                        <h4 className="font-medium text-gray-900 mb-1">
+                                                            Instructions:
+                                                        </h4>
+                                                        <p className="text-sm text-gray-600 whitespace-pre-line">
                                                             {
-                                                                currentAssignment.deadline_formatted
+                                                                currentAssignment.instructions
                                                             }
-                                                        </p>
-                                                        <p className="text-sm font-medium text-orange-600 mt-1">
-                                                            {(() => {
-                                                                const time =
-                                                                    calculateTimeRemaining(
-                                                                        currentAssignment.deadline
-                                                                    );
-                                                                return time.expired
-                                                                    ? "Assignment has expired"
-                                                                    : `${time.days}d ${time.hours}h ${time.minutes}m remaining`;
-                                                            })()}
                                                         </p>
                                                     </div>
 
-                                                    <a
-                                                        href="/user/assignments"
-                                                        className="
-                                inline-flex items-center justify-center
-                                gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
-                                text-sm font-semibold leading-none
-                                text-white
-                                bg-gradient-to-r from-blue-600 to-indigo-600
-                                rounded-xl shadow-md
-                                hover:from-blue-700 hover:to-indigo-700
-                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-                                transition-all duration-200 ease-in-out
-                                transform hover:-translate-y-0.5 hover:shadow-lg
-                                active:scale-95
-                                w-full max-w-[240px] sm:w-auto
-                            "
-                                                    >
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-4 w-4 sm:h-5 sm:w-5"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-sm font-medium text-gray-900">
+                                                                Deadline:
+                                                            </p>
+                                                            <p className="text-sm text-gray-600">
+                                                                {
+                                                                    currentAssignment.deadline_formatted
+                                                                }
+                                                            </p>
+                                                            <p className="text-sm font-medium text-orange-600 mt-1">
+                                                                {(() => {
+                                                                    const time =
+                                                                        calculateTimeRemaining(
+                                                                            currentAssignment.deadline
+                                                                        );
+                                                                    return time.expired
+                                                                        ? "Assignment has expired"
+                                                                        : `${time.days}d ${time.hours}h ${time.minutes}m remaining`;
+                                                                })()}
+                                                            </p>
+                                                        </div>
+
+                                                        <a
+                                                            href="/user/assignments"
+                                                            className="
+                    inline-flex items-center justify-center
+                    gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
+                    text-sm font-semibold leading-none
+                    text-white
+                    bg-gradient-to-r from-blue-600 to-indigo-600
+                    rounded-xl shadow-md
+                    hover:from-blue-700 hover:to-indigo-700
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                    transition-all duration-200 ease-in-out
+                    transform hover:-translate-y-0.5 hover:shadow-lg
+                    active:scale-95
+                    w-full max-w-[240px] sm:w-auto
+                  "
                                                         >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M9 5l7 7-7 7"
-                                                            />
-                                                        </svg>
-                                                        <span className="hidden xs:inline">
-                                                            Go to Assignment
-                                                        </span>
-                                                        <span className="xs:hidden">
-                                                            Assignment
-                                                        </span>
-                                                    </a>
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-4 w-4 sm:h-5 sm:w-5"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M9 5l7 7-7 7"
+                                                                />
+                                                            </svg>
+                                                            <span className="hidden xs:inline">
+                                                                Go to Assignment
+                                                            </span>
+                                                            <span className="xs:hidden">
+                                                                Assignment
+                                                            </span>
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                );
+                            }
+
+                            /* 3. Tidak ada tugas / sudah submit → tidak tampil apa-apa */
+                            return null;
+                        })()}
                     </div>
 
                     {/* Timeline Section */}
