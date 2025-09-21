@@ -21,6 +21,8 @@ class Kernel extends HttpKernel
         'admin.code.access' => \App\Http\Middleware\AdminCodeAccessMiddleware::class,
         'no-registration' => \App\Http\Middleware\CheckTeamRegistration::class,
         'check.registration.deadline' => \App\Http\Middleware\CheckRegistrationDeadline::class,
+        
+
     ];
     protected $middleware = [
 
