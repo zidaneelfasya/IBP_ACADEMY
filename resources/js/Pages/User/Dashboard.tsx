@@ -395,44 +395,31 @@ export default function Dashboard({
                                                       )}
 
                                                 {/* ----------  CALL-TO-ACTION JIKA BELUM BAYAR  ---------- */}
-                                                {Number(stageId) === 2 && (
-                                                    <>
-                                                        {payment?.status ===
-                                                        "verified" ? (
-                                                            <div className="mt-3 bg-green-50 border border-green-200 p-3 rounded-lg">
-                                                                <h4 className="font-medium text-green-800 mb-1">
-                                                                    Payment
-                                                                    Verified
-                                                                </h4>
-                                                                <p className="text-sm text-green-700">
-                                                                    Your
-                                                                    semifinal
-                                                                    payment has
-                                                                    been
-                                                                    confirmed.
-                                                                    Welcome to
-                                                                    the next
-                                                                    stage!
-                                                                </p>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="mt-3 bg-red-50 border border-red-200 p-3 rounded-lg">
-                                                                <h4 className="font-medium text-red-800 mb-1">
-                                                                    Payment
-                                                                    Closed
-                                                                </h4>
-                                                                <p className="text-sm text-red-700">
-                                                                    Semifinal
-                                                                    payment is
-                                                                    now closed.
-                                                                    No further
-                                                                    payment can
-                                                                    be made.
-                                                                </p>
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                )}
+                                                {Number(stageId) === 2 &&
+                                                    payment?.status !==
+                                                        "verified" && (
+                                                        <div className="mt-3 bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                                                            <h4 className="font-medium text-amber-800 mb-1">
+                                                                Complete Your
+                                                                Payment
+                                                            </h4>
+                                                            <p className="text-sm text-amber-700">
+                                                                Finish your
+                                                                semifinal
+                                                                payment to
+                                                                unlock the
+                                                                WhatsApp group.
+                                                            </p>
+                                                            <a
+                                                                href={route(
+                                                                    "semifinal.registration.create"
+                                                                )}
+                                                                className="inline-flex items-center px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded text-sm font-medium mt-2"
+                                                            >
+                                                                Pay Now
+                                                            </a>
+                                                        </div>
+                                                    )}
                                             </div>
                                         </div>
                                         <button
@@ -621,26 +608,61 @@ export default function Dashboard({
                                     {currentStage.name ===
                                         "Semifinal Round" && (
                                         <div className="mt-4">
-                                            <div className="flex items-center justify-between">
+                                            {/* <div className="flex items-center justify-between">
                                                 <span className="text-sm font-medium text-red-700">
                                                     The payment period has
                                                     ended.
                                                 </span>
                                             </div>
-                                            {/* Status pembayaran */}
+                                            Status pembayaran */}
 
-                                            {payment?.status === "verified" ? (
+                                            {/* {payment?.status === "verified" ? (
                                                 <>
                                                     <CheckCircle className="h-6 w-6 text-green-500 mt-2" />
                                                     <p className="text-sm font-medium text-green-700">
-                                                        ✅ Payment verified
+                                                        Re-regis status: ✅ Payment verified
                                                     </p>
                                                 </>
                                             ) : (
                                                 <p className="text-sm font-medium text-red-700">
-                                                    ❌ Payment closed — unpaid
+                                                    Re-regis status: ❌ unpaid
                                                 </p>
-                                            )}
+                                            )} */}
+                                             <a
+                                                href={route(
+                                                    "semifinal.registration.create"
+                                                )}
+                                                className="
+                inline-flex items-center justify-center
+                gap-2 px-4 py-2.5 sm:px-5 sm:py-2.5
+                text-sm font-semibold leading-none
+                text-white
+                bg-gradient-to-r from-green-600 to-emerald-600
+                rounded-xl shadow-md
+                hover:from-green-700 hover:to-emerald-700
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500
+                transition-all duration-200 ease-in-out
+                transform hover:-translate-y-0.5 hover:shadow-lg
+                active:scale-95
+                w-full max-w-[240px] sm:w-auto
+            "
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M9 5l7 7-7 7"
+                                                    />
+                                                </svg>
+                                                Payment for Semifinal
+                                            </a>
 
                                             {/* Tetap tampilkan link guide book */}
                                             <a
@@ -938,14 +960,14 @@ export default function Dashboard({
                                                         </span>
                                                     </div>
 
-                                                    {stage.days_left <= 7 && (
+                                                    {/* {stage.days_left <= 7 && (
                                                         <div className="mt-2 flex items-center text-xs font-medium text-red-500">
                                                             <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
                                                             Due in{" "}
                                                             {stage.days_left}{" "}
                                                             days
                                                         </div>
-                                                    )}
+                                                    )} */}
                                                 </div>
                                             </div>
                                         );
