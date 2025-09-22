@@ -68,7 +68,7 @@ class SemifinalParticipantController extends Controller
         // Transform teams data to include payment status
         $teams->getCollection()->transform(function ($team) {
             $latestPayment = $team->payments->first(); // Ambil payment terbaru
-            
+
             if (!$latestPayment) {
                 $paymentStatus = 'unpaid';
                 $paymentStatusText = 'Unpaid';
@@ -88,10 +88,10 @@ class SemifinalParticipantController extends Controller
                         break;
                 }
             }
-            
+
             $team->payment_status = $paymentStatus;
             $team->payment_status_text = $paymentStatusText;
-            
+
             return $team;
         });        // Get active categories for filter dropdown (tetap sama)
         $categories = CompetitionCategory::active()->pluck('name');

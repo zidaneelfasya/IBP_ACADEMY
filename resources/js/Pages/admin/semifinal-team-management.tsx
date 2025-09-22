@@ -295,10 +295,12 @@ export default function TeamManagement({
     );
     const [isFormChanged, setIsFormChanged] = useState(false);
     const [confirmAction, setConfirmAction] = useState<{
-        type: "approve" | "reject" | "delete" | "edit" | null;
+        type: "approve" | "reject" | "delete" | "edit" | "status_change" | null;
         teamId: number | null;
         teamName: string | null;
         team?: TeamRegistration | null;
+        oldStatus?: string;
+        newStatus?: string;
     }>({ type: null, teamId: null, teamName: null, team: null });
     const [filters, setFilters] = useState({
         search: initialFilters.search || "",
@@ -481,6 +483,21 @@ export default function TeamManagement({
         setConfirmAction({ type: action, teamId, teamName });
     };
 
+    const confirmStatusProgressChange = (
+        teamId: number,
+        teamName: string,
+        oldStatus: string,
+        newStatus: string
+    ) => {
+        setConfirmAction({
+            type: "status_change",
+            teamId,
+            teamName,
+            oldStatus,
+            newStatus,
+        });
+    };
+
     const confirmDelete = (teamId: number, teamName: string) => {
         setConfirmAction({ type: "delete", teamId, teamName });
     };
@@ -510,6 +527,13 @@ export default function TeamManagement({
                 await handleDeleteTeam(confirmAction.teamId);
             } else if (confirmAction.type === "edit") {
                 await handleUpdateTeam();
+            } else if (confirmAction.type === "status_change") {
+                if (confirmAction.newStatus) {
+                    await handleProgressStatusUpdate(
+                        confirmAction.teamId,
+                        confirmAction.newStatus
+                    );
+                }
             }
         } finally {
             setConfirmAction({
@@ -517,6 +541,8 @@ export default function TeamManagement({
                 teamId: null,
                 teamName: null,
                 team: null,
+                oldStatus: undefined,
+                newStatus: undefined,
             });
         }
     };
@@ -602,7 +628,13 @@ export default function TeamManagement({
 
         const handleStatusChange = async (newStatus: string) => {
             if (newStatus !== latestStatus.status) {
-                await handleProgressStatusUpdate(team.id, newStatus);
+                // Tampilkan konfirmasi sebelum mengubah status
+                confirmStatusProgressChange(
+                    team.id,
+                    team.tim_name,
+                    latestStatus.status,
+                    newStatus
+                );
             }
         };
 
@@ -1056,21 +1088,27 @@ export default function TeamManagement({
                                                 <TableCell className="px-3 py-4 whitespace-nowrap sm:px-6">
                                                     <Badge
                                                         variant={
-                                                            team.payment_status === 'paid'
-                                                                ? 'default'
-                                                                : team.payment_status === 'rejected'
-                                                                ? 'destructive'
-                                                                : 'secondary'
+                                                            team.payment_status ===
+                                                            "paid"
+                                                                ? "default"
+                                                                : team.payment_status ===
+                                                                  "rejected"
+                                                                ? "destructive"
+                                                                : "secondary"
                                                         }
                                                         className={`text-xs ${
-                                                            team.payment_status === 'paid'
-                                                                ? 'bg-green-500 hover:bg-green-600 text-white'
-                                                                : team.payment_status === 'rejected'
-                                                                ? 'bg-red-500 hover:bg-red-600 text-white'
-                                                                : 'bg-yellow-500 hover:bg-yellow-600 text-yellow-900'
+                                                            team.payment_status ===
+                                                            "paid"
+                                                                ? "bg-green-500 hover:bg-green-600 text-white"
+                                                                : team.payment_status ===
+                                                                  "rejected"
+                                                                ? "bg-red-500 hover:bg-red-600 text-white"
+                                                                : "bg-yellow-500 hover:bg-yellow-600 text-yellow-900"
                                                         }`}
                                                     >
-                                                        {team.payment_status_text}
+                                                        {
+                                                            team.payment_status_text
+                                                        }
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="px-3 py-4 text-right whitespace-nowrap sm:px-6">
@@ -2106,6 +2144,8 @@ export default function TeamManagement({
                                     ? "Penolakan"
                                     : confirmAction.type === "delete"
                                     ? "Penghapusan"
+                                    : confirmAction.type === "status_change"
+                                    ? "Perubahan Status"
                                     : "Simpan Perubahan"}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
@@ -2143,6 +2183,22 @@ export default function TeamManagement({
                                         disimpan secara permanen.
                                     </>
                                 )}
+                                {confirmAction.type === "status_change" && (
+                                    <>
+                                        Apakah Anda yakin ingin mengubah status
+                                        progress tim "{confirmAction.teamName}"
+                                        dari{" "}
+                                        <strong>
+                                            {confirmAction.oldStatus}
+                                        </strong>{" "}
+                                        menjadi{" "}
+                                        <strong>
+                                            {confirmAction.newStatus}
+                                        </strong>
+                                        ? Perubahan ini akan mempengaruhi
+                                        progress kompetisi tim.
+                                    </>
+                                )}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -2156,6 +2212,8 @@ export default function TeamManagement({
                                         ? "bg-red-600 hover:bg-red-700"
                                         : confirmAction.type === "delete"
                                         ? "bg-red-600 hover:bg-red-700"
+                                        : confirmAction.type === "status_change"
+                                        ? "bg-blue-600 hover:bg-blue-700"
                                         : "bg-blue-600 hover:bg-blue-700"
                                 }
                             >
@@ -2166,6 +2224,8 @@ export default function TeamManagement({
                                     ? "Tolak"
                                     : confirmAction.type === "delete"
                                     ? "Hapus"
+                                    : confirmAction.type === "status_change"
+                                    ? "Ubah Status"
                                     : "Simpan"}
                             </AlertDialogAction>
                         </AlertDialogFooter>
