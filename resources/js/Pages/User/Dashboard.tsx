@@ -628,7 +628,7 @@ export default function Dashboard({
                                                     Re-regis status: ❌ unpaid
                                                 </p>
                                             )} */}
-                                             <a
+                                             {/* <a
                                                 href={route(
                                                     "semifinal.registration.create"
                                                 )}
@@ -662,7 +662,7 @@ export default function Dashboard({
                                                     />
                                                 </svg>
                                                 Payment for Semifinal
-                                            </a>
+                                            </a> */}
 
                                             {/* Tetap tampilkan link guide book */}
                                             <a
