@@ -608,15 +608,15 @@ export default function Dashboard({
                                     {currentStage.name ===
                                         "Semifinal Round" && (
                                         <div className="mt-4">
-                                            {/* <div className="flex items-center justify-between">
+                                            <div className="flex items-center justify-between">
                                                 <span className="text-sm font-medium text-red-700">
                                                     The payment period has
                                                     ended.
                                                 </span>
                                             </div>
-                                            Status pembayaran */}
+                                            {/* Status pembayaran */}
 
-                                            {/* {payment?.status === "verified" ? (
+                                             {payment?.status === "verified" ? (
                                                 <>
                                                     <CheckCircle className="h-6 w-6 text-green-500 mt-2" />
                                                     <p className="text-sm font-medium text-green-700">
@@ -627,8 +627,8 @@ export default function Dashboard({
                                                 <p className="text-sm font-medium text-red-700">
                                                     Re-regis status: ❌ unpaid
                                                 </p>
-                                            )} */}
-                                             <a
+                                            )} 
+                                             {/* <a
                                                 href={route(
                                                     "semifinal.registration.create"
                                                 )}
@@ -662,7 +662,7 @@ export default function Dashboard({
                                                     />
                                                 </svg>
                                                 Payment for Semifinal
-                                            </a>
+                                            </a> */}
 
                                             {/* Tetap tampilkan link guide book */}
                                             <a
