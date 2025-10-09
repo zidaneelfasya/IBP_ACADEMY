@@ -13,112 +13,100 @@ use Inertia\Inertia;
 
 class AssignmentController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user = $request->user();
+   public function index(Request $request)
+{
+    $user = $request->user();
 
-        // Get user's team registration
-        $teamRegistration = TeamRegistration::where('user_id', $user->id)
-            ->where('status', 'approved')
+    /* ---------- validasi awal tetap sama ---------- */
+    $teamRegistration = TeamRegistration::where('user_id', $user->id)
+        ->where('status', 'approved')
+        ->first();
+
+    if (!$teamRegistration) {
+        return $this->renderLockedPage('You need to register for a competition first.');
+    }
+
+    $preliminaryStage = CompetitionStage::where('name', 'LIKE', '%preliminary%')
+        ->orWhere('name', 'LIKE', '%Preliminary%')
+        ->first();
+
+    $progress = ParticipantProgress::where('participant_id', $teamRegistration->id)
+        ->where('competition_stage_id', $preliminaryStage->id)
+        ->first();
+
+    if (!$progress) {
+        return $this->renderLockedPage(
+            'You have not reached the preliminary stage yet. Complete the registration process first.',
+            $teamRegistration
+        );
+    }
+
+    $latestProgress = ParticipantProgress::where('participant_id', $teamRegistration->id)
+        ->join('competition_stages', 'participant_progress.competition_stage_id', '=', 'competition_stages.id')
+        ->orderBy('competition_stages.order', 'desc')
+        ->select('participant_progress.*', 'competition_stages.name as current_stage_name')
+        ->first();
+
+    $currentStageId = $latestProgress ? $latestProgress->competition_stage_id : $progress->competition_stage_id;
+
+    /* ---------- cek payment HANYA untuk stage 3 ---------- */
+    if ($currentStageId == 3) {
+        $payment = \App\Models\Payment::where('team_registration_id', $teamRegistration->id)
+            ->where('status', 'verified')
             ->first();
 
-        if (!$teamRegistration) {
-            return $this->renderLockedPage('You need to register for a competition first.');
-        }
-
-        // Check if user has reached preliminary stage
-        $preliminaryStage = CompetitionStage::where('name', 'LIKE', '%preliminary%')
-            ->orWhere('name', 'LIKE', '%Preliminary%')
-            ->first();
-
-        if (!$preliminaryStage) {
-            return $this->renderLockedPage('Preliminary stage not found. Please contact administrator.');
-        }
-
-        // Check participant progress for preliminary stage
-        $progress = ParticipantProgress::where('participant_id', $teamRegistration->id)
-            ->where('competition_stage_id', $preliminaryStage->id)
-            ->first();
-
-        // User has not reached preliminary stage
-        if (!$progress) {
+        if (!$payment) {
             return $this->renderLockedPage(
-                'You have not reached the preliminary stage yet. Complete the registration process first.',
+                'Payment verification is required to access semifinal assignments.',
                 $teamRegistration
             );
         }
+    }
 
-        // Get user's latest/current competition stage from participant_progress
-        $latestProgress = ParticipantProgress::where('participant_id', $teamRegistration->id)
-            ->join('competition_stages', 'participant_progress.competition_stage_id', '=', 'competition_stages.id')
-            ->orderBy('competition_stages.order', 'desc')
-            ->select('participant_progress.*', 'competition_stages.name as current_stage_name')
-            ->first();
-
-        // Use the latest stage for assignments, fallback to preliminary if no latest stage found
-        $currentStageId = $latestProgress ? $latestProgress->competition_stage_id : $progress->competition_stage_id;
-
-        // Check if current stage is semifinal (competition_stage_id = 3) and validate payment
-        if ($currentStageId == 3) {
-            $payment = \App\Models\Payment::where('team_registration_id', $teamRegistration->id)
-                ->where('status', 'verified')
+    /* ---------- ambil assignment untuk stage & kategori peserta ---------- */
+    $assignments = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
+        ->where('competition_stage_id', $currentStageId)
+        ->where('competition_category_id', $teamRegistration->competition_category_id)
+        ->where('is_active', true)
+        ->orderBy('deadline', 'asc')
+        ->get()
+        ->map(function ($assignment) use ($teamRegistration) {
+            $userSubmission = $assignment->submissions()
+                ->where('team_registration_id', $teamRegistration->id)
                 ->first();
 
-            if (!$payment) {
-                $assignments = [];
-                // return $this->renderLockedPage(
-                //     'Payment verification is required to access semifinal assignments.',
-                //     $teamRegistration
-                // );
-            } else {
-                // User has access to semifinal assignments
-                $assignments = Assignment::with(['competitionStage', 'competitionCategory', 'creator', 'submissions'])
-                    ->where('competition_stage_id', $currentStageId)
-                    ->where('competition_category_id', $teamRegistration->competition_category_id)
-                    ->where('is_active', true)
-                    ->orderBy('deadline', 'asc')
-                    ->get()
-                    ->map(function ($assignment) use ($teamRegistration) {
-                        $userSubmission = $assignment->submissions()
-                            ->where('team_registration_id', $teamRegistration->id)
-                            ->first();
-        
-                        return [
-                            'uuid' => $assignment->uuid,
-                            'title' => $assignment->title,
-                            'description' => $assignment->description,
-                            'instructions' => $assignment->instructions,
-                            'deadline' => $assignment->deadline,
-                            'deadline_formatted' => $assignment->deadline->format('M d, Y H:i'),
-                            'time_remaining' => $assignment->time_remaining,
-                            'is_overdue' => $assignment->isOverdue(),
-                            'is_open' => $assignment->isOpen(),
-                            'stage_name' => $assignment->competitionStage->name,
-                            'created_by' => $assignment->creator->name ?? 'System',
-                            'is_submitted' => $userSubmission ? true : false,
-                            'submission_date' => $userSubmission ? $userSubmission->submitted_at->format('M d, Y H:i') : null,
-                        ];
-                    });
-            }
-        }
+            return [
+                'uuid' => $assignment->uuid,
+                'title' => $assignment->title,
+                'description' => $assignment->description,
+                'instructions' => $assignment->instructions,
+                'deadline' => $assignment->deadline,
+                'deadline_formatted' => $assignment->deadline->format('M d, Y H:i'),
+                'time_remaining' => $assignment->time_remaining,
+                'is_overdue' => $assignment->isOverdue(),
+                'is_open' => $assignment->isOpen(),
+                'stage_name' => $assignment->competitionStage->name,
+                'created_by' => $assignment->creator->name ?? 'System',
+                'is_submitted' => (bool) $userSubmission,
+                'submission_date' => optional($userSubmission)->submitted_at?->format('M d, Y H:i'),
+            ];
+        });
 
-        // User has access, get assignments for current stage and user's category
-
-        return Inertia::render('User/Assignments', [
-            'assignments' => $assignments,
-            'team' => [
-                'id' => $teamRegistration->id,
-                'name' => $teamRegistration->tim_name,
-                'leader' => $teamRegistration->leader_name,
-                'registration_number' => $teamRegistration->registration_number,
-            ],
-            'stage' => [
-                'id' => $currentStageId,
-                'name' => $latestProgress ? $latestProgress->current_stage_name : $preliminaryStage->name,
-                'is_latest' => $latestProgress ? true : false,
-            ]
-        ]);
-    }
+    return Inertia::render('User/Assignments', [
+        'assignments' => $assignments,
+        'team' => [
+            'id' => $teamRegistration->id,
+            'name' => $teamRegistration->tim_name,
+            'leader' => $teamRegistration->leader_name,
+            'registration_number' => $teamRegistration->registration_number,
+        ],
+        'stage' => [
+            'id' => $currentStageId,
+            'name' => $latestProgress ? $latestProgress->current_stage_name : $preliminaryStage->name,
+            'is_latest' => (bool) $latestProgress,
+        ]
+    ]);
+}
 
     private function renderLockedPage(string $message, $teamRegistration = null)
     {
