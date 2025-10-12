@@ -120,7 +120,7 @@ class Assignment extends Model
      */
     public function isOpen(): bool
     {
-        return $this->is_active && !$this->isOverdue();
+        return $this->is_active; // Allow submission even after deadline
     }
 
     /**

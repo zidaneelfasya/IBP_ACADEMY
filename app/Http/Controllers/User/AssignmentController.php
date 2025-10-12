@@ -265,17 +265,11 @@ class AssignmentController extends Controller
             }
         }
 
-        // Check if assignment is still open
-        if (!$assignment->isOpen()) {
-            if ($assignment->isOverdue()) {
-                return response()->json([
-                    'error' => 'Assignment deadline has passed. Submissions are no longer accepted.'
-                ], 400);
-            } else {
-                return response()->json([
-                    'error' => 'Assignment submission is closed.'
-                ], 400);
-            }
+        // Check if assignment is still active (removed deadline check)
+        if (!$assignment->is_active) {
+            return response()->json([
+                'error' => 'Assignment submission is closed.'
+            ], 400);
         }
 
         // Check if submission already exists
