@@ -74,14 +74,14 @@ export default function Assignments({
         } else if (assignment.is_overdue) {
             return (
                 <Badge
-                    variant="destructive"
-                    className="flex items-center gap-1"
+                    variant="default"
+                    className="flex items-center gap-1 bg-orange-500 hover:bg-orange-600"
                 >
                     <AlertCircle className="w-3 h-3" />
-                    Overdue
+                    Past Deadline (Still Open)
                 </Badge>
             );
-        } else if (assignment.is_open) {
+        } else {
             return (
                 <Badge
                     variant="default"
@@ -91,13 +91,6 @@ export default function Assignments({
                     Open
                 </Badge>
             );
-        } else {
-            return (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    Closed
-                </Badge>
-            );
         }
     };
 
@@ -105,11 +98,9 @@ export default function Assignments({
         if (assignment.is_submitted) {
             return "border-blue-200 bg-blue-50/50 hover:bg-blue-50 border-2";
         } else if (assignment.is_overdue) {
-            return "border-red-200 bg-red-50/50 hover:bg-red-50";
-        } else if (assignment.is_open) {
-            return "border-green-200 bg-green-50/50 hover:bg-green-50 hover:shadow-lg hover:scale-[1.02]";
+            return "border-orange-200 bg-orange-50/50 hover:bg-orange-50 hover:shadow-lg hover:scale-[1.02]";
         } else {
-            return "border-gray-200 bg-gray-50/50 hover:bg-gray-50";
+            return "border-green-200 bg-green-50/50 hover:bg-green-50 hover:shadow-lg hover:scale-[1.02]";
         }
     };
 
@@ -228,6 +219,8 @@ export default function Assignments({
                                                 >
                                                     {assignment.is_submitted
                                                         ? "Submitted"
+                                                        : assignment.is_overdue
+                                                        ? `${assignment.time_remaining} - LATE`
                                                         : assignment.time_remaining}
                                                 </span>
                                             </div>
@@ -244,26 +237,19 @@ export default function Assignments({
                                                 <Button
                                                     asChild
                                                     className={`w-full ${
-                                                        assignment.is_open
-                                                            ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                                                            : assignment.is_overdue
-                                                            ? "bg-red-400 hover:bg-red-500"
-                                                            : "bg-gray-400 hover:bg-gray-500"
+                                                        assignment.is_overdue
+                                                            ? "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+                                                            : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                                                     }`}
-                                                    disabled={
-                                                        !assignment.is_open
-                                                    }
                                                 >
                                                     <a
                                                         href={`/user/assignments/${assignment.uuid}`}
                                                         className="flex items-center justify-center gap-2"
                                                     >
                                                         <FileText className="w-4 h-4" />
-                                                        {assignment.is_open
-                                                            ? "View Assignment"
-                                                            : assignment.is_overdue
-                                                            ? "Deadline Passed"
-                                                            : "Assignment Closed"}
+                                                        {assignment.is_overdue
+                                                            ? "View Assignment (Late)"
+                                                            : "View Assignment"}
                                                         <ExternalLink className="w-4 h-4" />
                                                     </a>
                                                 </Button>

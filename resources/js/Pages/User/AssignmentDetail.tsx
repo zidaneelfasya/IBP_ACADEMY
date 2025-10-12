@@ -144,14 +144,14 @@ export default function AssignmentDetail({
         } else if (assignment.is_overdue) {
             return (
                 <Badge
-                    variant="destructive"
-                    className="flex items-center gap-1"
+                    variant="default"
+                    className="flex items-center gap-1 bg-orange-500 hover:bg-orange-600"
                 >
                     <AlertCircle className="w-3 h-3" />
-                    Overdue
+                    Past Deadline (Still Open)
                 </Badge>
             );
-        } else if (assignment.is_open) {
+        } else {
             return (
                 <Badge
                     variant="default"
@@ -161,17 +161,38 @@ export default function AssignmentDetail({
                     Open
                 </Badge>
             );
-        } else {
-            return (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    Closed
-                </Badge>
-            );
         }
     };
 
     const getSubmissionStatusBadge = (status: string) => {
+        // Check if submission was made after deadline
+        const isLateSubmission = submission && 
+            new Date(submission.submitted_at) > new Date(assignment.deadline);
+
+        if (isLateSubmission && status === "pending") {
+            return (
+                <Badge
+                    variant="default"
+                    className="text-orange-800 bg-orange-100 border-orange-300"
+                >
+                    <Clock className="w-3 h-3 mr-1" />
+                    Late Submission - Pending Review
+                </Badge>
+            );
+        }
+
+        if (isLateSubmission && status === "graded") {
+            return (
+                <Badge
+                    variant="default"
+                    className="text-orange-800 bg-orange-100 border-orange-300"
+                >
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Late Submission - Graded
+                </Badge>
+            );
+        }
+
         switch (status) {
             case "pending":
                 return (
@@ -367,22 +388,27 @@ export default function AssignmentDetail({
                                                 </div>
                                             )}
 
-                                            {assignment.is_open ? (
-                                                <Dialog
-                                                    open={isSubmissionModalOpen}
-                                                    onOpenChange={
-                                                        setIsSubmissionModalOpen
-                                                    }
-                                                >
-                                                    <DialogTrigger asChild>
-                                                        <Button
-                                                            variant="outline"
-                                                            className="w-full mt-4 text-blue-600 border-blue-200 hover:bg-blue-50"
-                                                        >
-                                                            <Upload className="w-4 h-4 mr-2" />
-                                                            Edit Submission
-                                                        </Button>
-                                                    </DialogTrigger>
+                                            {/* Always allow edit if assignment is active */}
+                                            <Dialog
+                                                open={isSubmissionModalOpen}
+                                                onOpenChange={
+                                                    setIsSubmissionModalOpen
+                                                }
+                                            >
+                                                <DialogTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full mt-4 text-blue-600 border-blue-200 hover:bg-blue-50"
+                                                    >
+                                                        <Upload className="w-4 h-4 mr-2" />
+                                                        Edit Submission
+                                                        {assignment.is_overdue && (
+                                                            <span className="ml-2 text-xs text-orange-600">
+                                                                (Late)
+                                                            </span>
+                                                        )}
+                                                    </Button>
+                                                </DialogTrigger>
                                                     <DialogContent className="sm:max-w-[425px]">
                                                         <DialogHeader>
                                                             <DialogTitle className="flex items-center gap-2">
@@ -478,44 +504,46 @@ export default function AssignmentDetail({
                                                         </DialogFooter>
                                                     </DialogContent>
                                                 </Dialog>
-                                            ) : (
-                                                <div className="p-4 mt-4 text-center border border-red-200 rounded-lg bg-red-50">
-                                                    <AlertCircle className="w-6 h-6 mx-auto mb-2 text-red-500" />
-                                                    <p className="text-sm font-medium text-red-800">
-                                                        {assignment.is_overdue
-                                                            ? "Deadline has passed - submissions no longer accepted"
-                                                            : "Assignment is closed for submissions"}
+
+                                            {assignment.is_overdue && (
+                                                <div className="p-3 mt-4 text-center border border-orange-200 rounded-lg bg-orange-50">
+                                                    <AlertCircle className="w-5 h-5 mx-auto mb-1 text-orange-500" />
+                                                    <p className="text-sm font-medium text-orange-800">
+                                                        Note: This assignment is past the deadline. Late submissions are allowed but may be marked as late.
                                                     </p>
                                                 </div>
                                             )}
                                         </div>
                                     ) : (
                                         <div className="py-8 text-center">
-                                            {assignment.is_open ? (
-                                                <div>
-                                                    <Upload className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                                                        No Submission Yet
-                                                    </h3>
-                                                    <p className="mb-4 text-gray-600">
-                                                        You haven't submitted
-                                                        this assignment yet.
-                                                    </p>
-                                                    <Dialog
-                                                        open={
-                                                            isSubmissionModalOpen
-                                                        }
-                                                        onOpenChange={
-                                                            setIsSubmissionModalOpen
-                                                        }
-                                                    >
-                                                        <DialogTrigger asChild>
-                                                            <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                                                                <Upload className="w-4 h-4 mr-2" />
-                                                                Submit
-                                                                Assignment
-                                                            </Button>
-                                                        </DialogTrigger>
+                                            <div>
+                                                <Upload className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                                                <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                                                    No Submission Yet
+                                                </h3>
+                                                <p className="mb-4 text-gray-600">
+                                                    You haven't submitted this assignment yet.
+                                                    {assignment.is_overdue && (
+                                                        <span className="block mt-2 text-orange-600">
+                                                            Note: This assignment is past deadline, but late submissions are allowed.
+                                                        </span>
+                                                    )}
+                                                </p>
+                                                <Dialog
+                                                    open={isSubmissionModalOpen}
+                                                    onOpenChange={setIsSubmissionModalOpen}
+                                                >
+                                                    <DialogTrigger asChild>
+                                                        <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+                                                            <Upload className="w-4 h-4 mr-2" />
+                                                            Submit Assignment
+                                                            {assignment.is_overdue && (
+                                                                <span className="ml-2 text-xs">
+                                                                    (Late)
+                                                                </span>
+                                                            )}
+                                                        </Button>
+                                                    </DialogTrigger>
                                                         <DialogContent className="sm:max-w-[425px]">
                                                             <DialogHeader>
                                                                 <DialogTitle className="flex items-center gap-2">
@@ -619,21 +647,6 @@ export default function AssignmentDetail({
                                                         </DialogContent>
                                                     </Dialog>
                                                 </div>
-                                            ) : (
-                                                <div>
-                                                    <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-400" />
-                                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                                                        {assignment.is_overdue
-                                                            ? "Deadline Has Passed"
-                                                            : "Assignment Closed"}
-                                                    </h3>
-                                                    <p className="text-gray-600">
-                                                        {assignment.is_overdue
-                                                            ? "The submission deadline has passed and no new submissions are being accepted."
-                                                            : "This assignment is no longer accepting submissions."}
-                                                    </p>
-                                                </div>
-                                            )}
                                         </div>
                                     )}
                                 </CardContent>
