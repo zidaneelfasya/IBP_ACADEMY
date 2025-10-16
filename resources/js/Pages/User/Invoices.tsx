@@ -118,20 +118,25 @@ export default function Invoices({ team, payments }: InvoicesProps) {
         }
     };
 
-    const handleDownloadInvoice = (payment: Payment) => {
-        const printContent = generateInvoiceHTML(payment);
-        const newWindow = window.open("", "_blank");
-        if (newWindow) {
-            newWindow.document.write(printContent);
-            newWindow.document.close();
+const handleDownloadInvoice = (payment: Payment) => {
+    const printContent = generateInvoiceHTML(payment);
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    
+    if (printWindow) {
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        
+        // Focus on the new window
+        printWindow.focus();
+        
+        // Auto-print after content loads
+        printWindow.onload = function() {
             setTimeout(() => {
-                newWindow.print();
-                // Jangan langsung close, biarkan user memutuskan
-                // newWindow.close();
+                printWindow.print();
             }, 500);
-        }
-    };
-
+        };
+    }
+};
     const generateInvoiceHTML = (payment: Payment) => {
         return `
     <!DOCTYPE html>
