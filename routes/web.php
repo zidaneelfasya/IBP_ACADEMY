@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\AssignmentSubmissionController;
 use App\Http\Controllers\Participant\AssignmentController as ParticipantAssignmentController;
 use App\Http\Controllers\SemifinalRegistrationController;
 use App\Http\Controllers\PaymentManagementController;
+use App\Http\Controllers\User\InvoiceController;
 
 use App\Http\Controllers\CompetitionStageController;
 
@@ -285,7 +286,8 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->group(function 
         ->name('semifinal.registration.create');
     Route::post('/semifinal-registration', [SemifinalRegistrationController::class, 'store'])
         ->name('semifinal.registration.store');
-
+    Route::get('/invoices', [InvoiceController::class, 'index'])
+        ->name('dashboard.user.invoices');
 
     // Routes yang perlu dibatasi untuk peserta yang gagal
     Route::middleware(['check.participant.status'])->group(function () {
