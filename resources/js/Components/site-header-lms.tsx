@@ -9,6 +9,7 @@ import {
     ArrowLeft,
     Menu,
     X,
+    Notebook,
 } from "lucide-react";
 import { TooltipProvider } from "@/Components/ui/tooltip";
 import { Button } from "@/Components/ui/button";
@@ -53,6 +54,11 @@ const navItems: NavItem[] = [
         title: "Assignments",
         url: "/user/assignments",
         icon: ClipboardList,
+    },
+    {
+        title: "Invoices",
+        url: route("dashboard.user.invoices"),
+        icon: Notebook,
     },
 ];
 
