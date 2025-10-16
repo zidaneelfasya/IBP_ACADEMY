@@ -76,6 +76,18 @@ export default function Invoices({ team, payments }: InvoicesProps) {
         return `INV-${year}${month}-${String(payment.id).padStart(4, "0")}`;
     };
 
+    const getRegistrationFeeDescription = (amount: number) => {
+        const rounded = Math.round(amount);
+
+        if (rounded === 150000) {
+            return "Semifinal Registration Batch-1";
+        } else if (rounded === 170000) {
+            return "Semifinal Registration Batch-2";
+        } else {
+            return "Semifinal Registration Fee";
+        }
+    };
+
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "verified":
@@ -118,25 +130,25 @@ export default function Invoices({ team, payments }: InvoicesProps) {
         }
     };
 
-const handleDownloadInvoice = (payment: Payment) => {
-    const printContent = generateInvoiceHTML(payment);
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    
-    if (printWindow) {
-        printWindow.document.write(printContent);
-        printWindow.document.close();
-        
-        // Focus on the new window
-        printWindow.focus();
-        
-        // Auto-print after content loads
-        printWindow.onload = function() {
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
-        };
-    }
-};
+    const handleDownloadInvoice = (payment: Payment) => {
+        const printContent = generateInvoiceHTML(payment);
+        const printWindow = window.open("", "_blank", "width=800,height=600");
+
+        if (printWindow) {
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+
+            // Focus on the new window
+            printWindow.focus();
+
+            // Auto-print after content loads
+            printWindow.onload = function () {
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
+            };
+        }
+    };
     const generateInvoiceHTML = (payment: Payment) => {
         return `
     <!DOCTYPE html>
@@ -503,8 +515,12 @@ const handleDownloadInvoice = (payment: Payment) => {
                         <div class="team-main-info">
                             <h4>${team.tim_name}</h4>
                             <div class="team-detail">
-                                <div>Registration No: ${team.registration_number}</div>
-                                <div>Category: ${team.competition_category.name}</div>
+                                <div>Registration No: ${
+                                    team.registration_number
+                                }</div>
+                                <div>Category: ${
+                                    team.competition_category.name
+                                }</div>
                             </div>
                         </div>
                         <div class="leader-info">
@@ -514,7 +530,9 @@ const handleDownloadInvoice = (payment: Payment) => {
                                 <div>${team.leader_nim}</div>
                                 <div>${team.leader_email}</div>
                                 <div>${team.leader_phone}</div>
-                                <div>${team.leader_univ} - ${team.leader_fakultas}</div>
+                                <div>${team.leader_univ} - ${
+            team.leader_fakultas
+        }</div>
                             </div>
                         </div>
                     </div>
@@ -533,13 +551,15 @@ const handleDownloadInvoice = (payment: Payment) => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>1</td>
-                        <td>
-                            <div>Semifinal Registration Fee</div>
-                            <div style="font-size: 12px; color: #6b7280;">${
-                                team.competition_category.name
-                            } Competition</div>
-                        </td>
+                        <td>1</td> 
+                          <td>
+                              <div>
+                                  <div>${getRegistrationFeeDescription(payment.amount)}</div>
+                                  <div style="font-size: 12px; color: #6b7280;">${
+                                      team.competition_category.name
+                                  } Competition</div>
+                              </div>
+                          </td>
                         <td class="text-center">1</td>
                         <td class="text-right">${formatCurrency(
                             payment.amount
@@ -858,9 +878,9 @@ const handleDownloadInvoice = (payment: Payment) => {
                                                                 </td>
                                                                 <td className="p-2 sm:p-3 border-b">
                                                                     <div className="text-xs sm:text-sm">
-                                                                        Semifinal
-                                                                        Registration
-                                                                        Fee
+                                                                        {getRegistrationFeeDescription(
+                                                                            payment.amount
+                                                                        )}
                                                                         <br />
                                                                         <span className="text-xs text-gray-500">
                                                                             {
@@ -905,7 +925,7 @@ const handleDownloadInvoice = (payment: Payment) => {
                                                                 )}
                                                             </span>
                                                         </div>
-                                                        
+
                                                         <div className="flex justify-between py-2">
                                                             <span className="text-gray-600 text-sm">
                                                                 Tax Rate
